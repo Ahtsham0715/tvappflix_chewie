@@ -65,35 +65,32 @@ class _ActorDetailState extends State<ActorDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        return true;
+    return PopScope(
+      onPopInvoked: (bool pop) {
+        // return true;
       },
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: RawKeyboardListener(
+        body: KeyboardListener(
           focusNode: actor_focus_node,
-          onKey: (RawKeyEvent event) {
-            if (event is RawKeyDownEvent &&
-                event.data is RawKeyEventDataAndroid) {
-              RawKeyDownEvent rawKeyDownEvent = event;
-
-              RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                  rawKeyDownEvent.data as RawKeyEventDataAndroid;
-              switch (rawKeyEventDataAndroid.keyCode) {
-                case KEY_CENTER:
+          onKeyEvent: (KeyEvent event) {
+            if (event is KeyDownEvent) {
+              final logicalKey = event.logicalKey;
+              switch (logicalKey) {
+                case LogicalKeyboardKey
+                      .select: // Replace KEY_CENTER with a more general key
                   _goToMovieDetail();
-
                   break;
-                case KEY_UP:
+                case LogicalKeyboardKey.arrowUp:
                   if (posty == 0) {
-                    print("play sound");
+                    print(
+                        "play sound"); // Consider playing a sound cue for user feedback
                   } else {
                     posty--;
                     _scrollToIndexY(posty);
                   }
                   break;
-                case KEY_DOWN:
+                case LogicalKeyboardKey.arrowDown:
                   if (posty == 1) {
                     print("play sound");
                   } else {
@@ -101,7 +98,7 @@ class _ActorDetailState extends State<ActorDetail> {
                     _scrollToIndexY(posty);
                   }
                   break;
-                case KEY_LEFT:
+                case LogicalKeyboardKey.arrowLeft:
                   if (postx == 0) {
                     print("play sound");
                   } else {
@@ -109,7 +106,7 @@ class _ActorDetailState extends State<ActorDetail> {
                     _scrollToIndexMovie(postx);
                   }
                   break;
-                case KEY_RIGHT:
+                case LogicalKeyboardKey.arrowRight:
                   if (postx == movies.length - 1) {
                     print("play sound");
                   } else {
@@ -120,7 +117,7 @@ class _ActorDetailState extends State<ActorDetail> {
                 default:
                   break;
               }
-              print("x : " + postx.toString() + " y = " + posty.toString());
+              print("x: " + postx.toString() + " y: " + posty.toString());
               setState(() {});
             }
           },

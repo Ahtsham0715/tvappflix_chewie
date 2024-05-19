@@ -1349,6 +1349,7 @@ class TrailerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(url);
     return Scaffold(
       body: SafeArea(
           child: WebViewWidget(
