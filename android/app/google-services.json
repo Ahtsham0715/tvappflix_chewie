@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "349977600708",
+    "project_id": "enjoymytv",
+    "storage_bucket": "enjoymytv.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:349977600708:android:e117d5f79f7e713c599f91",
+        "android_client_info": {
+          "package_name": "com.enjoy.mytvapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVN8zrdJs232ahmH03XjlV7d7Ql0XIoLI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
