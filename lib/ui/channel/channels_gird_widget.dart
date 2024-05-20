@@ -1,10 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/model/channel.dart';
-import 'package:flutter_app_tv/ui/channel/channels.dart';
-import 'package:flutter_app_tv/ui/movie/movies.dart';
 import 'package:flutter_app_tv/ui/channel/channel_widget.dart';
-import 'package:flutter_app_tv/ui/movie/movie_widget.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class ChannelsGridWidget extends StatelessWidget {

@@ -1,11 +1,7 @@
-import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/model/country.dart';
-import 'package:flutter_app_tv/ui/channel/channels.dart';
-import 'package:flutter_app_tv/ui/movie/movies.dart';
 
 class CountryWidget extends StatelessWidget {
   bool isFocused;

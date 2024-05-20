@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/ui/channel/channel_detail.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';

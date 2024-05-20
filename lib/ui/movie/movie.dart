@@ -239,16 +239,14 @@ class _MovieState extends State<Movie> {
       },
       child: Scaffold(
         backgroundColor: Colors.black,
-        body: RawKeyboardListener(
+        body: KeyboardListener(
           focusNode: movie_focus_node,
-          onKey: (RawKeyEvent event) {
-            if (event is RawKeyDownEvent &&
-                event.data is RawKeyEventDataAndroid) {
-              RawKeyDownEvent rawKeyDownEvent = event;
-              RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                  rawKeyDownEvent.data as RawKeyEventDataAndroid;
-              switch (rawKeyEventDataAndroid.keyCode) {
-                case KEY_CENTER:
+          onKeyEvent: (KeyEvent event) {
+            if (event is KeyDownEvent) {
+              final logicalKey = event.logicalKey;
+              switch (logicalKey) {
+                case LogicalKeyboardKey
+                      .select: // Replace KEY_CENTER with a more general key
                   _openSource();
                   _goToReview();
                   _goToPlayer();
@@ -259,7 +257,7 @@ class _MovieState extends State<Movie> {
                   _goToActorDetail();
                   _addMylist();
                   break;
-                case KEY_UP:
+                case LogicalKeyboardKey.arrowUp:
                   if (visibileSourcesDialog) {
                     (_focused_source == 0)
                         ? print("play sound")
@@ -280,7 +278,7 @@ class _MovieState extends State<Movie> {
                     _scrollToIndexMovie(postx);
                   }
                   break;
-                case KEY_DOWN:
+                case LogicalKeyboardKey.arrowDown:
                   if (visibileSourcesDialog) {
                     (_focused_source == widget.movie!.sources.length - 1)
                         ? print("play sound")
@@ -301,7 +299,7 @@ class _MovieState extends State<Movie> {
                     _scrollToIndexMovie(postx);
                   }
                   break;
-                case KEY_LEFT:
+                case LogicalKeyboardKey.arrowLeft:
                   if (visibileSourcesDialog) {
                     print("play sound");
                     break;
@@ -318,7 +316,7 @@ class _MovieState extends State<Movie> {
                     }
                   }
                   break;
-                case KEY_RIGHT:
+                case LogicalKeyboardKey.arrowRight:
                   if (visibileSourcesDialog) {
                     print("play sound");
                     break;
@@ -349,6 +347,113 @@ class _MovieState extends State<Movie> {
                   break;
               }
               setState(() {});
+
+              // if (event is KeyDownEvent && event.data is RawKeyEventDataAndroid) {
+              //   RawKeyDownEvent rawKeyDownEvent = event;
+              //   RawKeyEventDataAndroid rawKeyEventDataAndroid =
+              //       rawKeyDownEvent.data as RawKeyEventDataAndroid;
+              //   switch (rawKeyEventDataAndroid.keyCode) {
+              //     case KEY_CENTER:
+              //       _openSource();
+              //       _goToReview();
+              //       _goToPlayer();
+              //       _goToComments();
+              //       _goToReviews();
+              //       _goToTrailer();
+              //       _goToMovieDetail();
+              //       _goToActorDetail();
+              //       _addMylist();
+              //       break;
+              //     case KEY_UP:
+              //       if (visibileSourcesDialog) {
+              //         (_focused_source == 0)
+              //             ? print("play sound")
+              //             : _focused_source--;
+              //         break;
+              //       }
+              //       postx = 0;
+              //       if (posty == 0) {
+              //         print("play sound");
+              //       } else {
+              //         posty--;
+              //         _scrollToIndexY(posty);
+              //       }
+              //       if (posty == 1) {
+              //         _scrollToIndexCats(postx);
+              //       }
+              //       if (posty == 2) {
+              //         _scrollToIndexMovie(postx);
+              //       }
+              //       break;
+              //     case KEY_DOWN:
+              //       if (visibileSourcesDialog) {
+              //         (_focused_source == widget.movie!.sources.length - 1)
+              //             ? print("play sound")
+              //             : _focused_source++;
+              //         break;
+              //       }
+              //       postx = 0;
+              //       if (posty == 2) {
+              //         print("play sound");
+              //       } else {
+              //         posty++;
+              //         _scrollToIndexY(posty);
+              //       }
+              //       if (posty == 1) {
+              //         _scrollToIndexCats(postx);
+              //       }
+              //       if (posty == 2) {
+              //         _scrollToIndexMovie(postx);
+              //       }
+              //       break;
+              //     case KEY_LEFT:
+              //       if (visibileSourcesDialog) {
+              //         print("play sound");
+              //         break;
+              //       }
+              //       if (postx == 0) {
+              //         print("play sound");
+              //       } else {
+              //         postx--;
+              //         if (posty == 1) {
+              //           _scrollToIndexCats(postx);
+              //         }
+              //         if (posty == 2) {
+              //           _scrollToIndexMovie(postx);
+              //         }
+              //       }
+              //       break;
+              //     case KEY_RIGHT:
+              //       if (visibileSourcesDialog) {
+              //         print("play sound");
+              //         break;
+              //       }
+              //       if (posty == 0) {
+              //         if (postx == 5) {
+              //           print("play sound");
+              //         } else {
+              //           postx++;
+              //         }
+              //       } else if (posty == 1) {
+              //         if (postx == actorsList.length - 1) {
+              //           print("play sound");
+              //         } else {
+              //           postx++;
+              //           _scrollToIndexCats(postx);
+              //         }
+              //       } else if (posty == 2) {
+              //         if (postx == movies.length - 1) {
+              //           print("play sound");
+              //         } else {
+              //           postx++;
+              //           _scrollToIndexMovie(postx);
+              //         }
+              //       }
+              //       break;
+              //     default:
+              //       break;
+              //   }
+              //   setState(() {});
               if (visibileSourcesDialog) {
                 _sourcesScrollController.scrollTo(
                     index: _focused_source,

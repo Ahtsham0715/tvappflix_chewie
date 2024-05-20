@@ -1,14 +1,10 @@
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:flutter_app_tv/model/actor.dart';
-import 'package:flutter_app_tv/model/episode.dart';
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/model/season.dart';
@@ -273,16 +269,13 @@ class _SerieState extends State<Serie> {
         return true;
       },
       child: Scaffold(
-        body: RawKeyboardListener(
+        body: KeyboardListener(
           focusNode: movie_focus_node,
-          onKey: (RawKeyEvent event) {
-            if (event is RawKeyDownEvent &&
-                event.data is RawKeyEventDataAndroid) {
-              RawKeyDownEvent rawKeyDownEvent = event;
-              RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                  rawKeyDownEvent.data as RawKeyEventDataAndroid;
-              switch (rawKeyEventDataAndroid.keyCode) {
-                case KEY_CENTER:
+          onKeyEvent: (KeyEvent event) {
+            if (event is KeyDownEvent) {
+              final logicalKey = event.logicalKey;
+              switch (logicalKey) {
+                case LogicalKeyboardKey.select:
                   _openSource();
                   _selectSeason();
                   _goToPlayer();
@@ -295,7 +288,7 @@ class _SerieState extends State<Serie> {
                   _goToActorDetail();
                   _addMylist();
                   break;
-                case KEY_UP:
+                case LogicalKeyboardKey.arrowUp:
                   if (visibileSourcesDialog) {
                     (_focused_source == 0)
                         ? print("play sound")
@@ -326,7 +319,7 @@ class _SerieState extends State<Serie> {
                     _scrollToIndexSerie(postx);
                   }
                   break;
-                case KEY_DOWN:
+                case LogicalKeyboardKey.arrowDown:
                   if (visibileSourcesDialog) {
                     (_focused_source == sources.length - 1)
                         ? print("play sound")
@@ -358,7 +351,7 @@ class _SerieState extends State<Serie> {
                   }
 
                   break;
-                case KEY_LEFT:
+                case LogicalKeyboardKey.arrowLeft:
                   if (visibileSourcesDialog) {
                     print("play sound");
                     break;
@@ -383,7 +376,7 @@ class _SerieState extends State<Serie> {
                     }
                   }
                   break;
-                case KEY_RIGHT:
+                case LogicalKeyboardKey.arrowRight:
                   if (visibileSourcesDialog) {
                     print("play sound");
                     break;
@@ -428,7 +421,7 @@ class _SerieState extends State<Serie> {
                   break;
               }
               setState(() {});
-              if (visibileSourcesDialog && _sourcesScrollController != null) {
+              if (visibileSourcesDialog) {
                 _sourcesScrollController.scrollTo(
                     index: _focused_source,
                     alignment: 0.43,
@@ -1553,7 +1546,7 @@ class _SerieState extends State<Serie> {
   }
 
   Future _scrollToIndexEpisode(int y) async {
-    if (_episodesScrollController != null && seasons.length > 0)
+    if (seasons.length > 0)
       _episodesScrollController.scrollTo(
           index: y,
           alignment: 0.05,
@@ -1562,7 +1555,7 @@ class _SerieState extends State<Serie> {
   }
 
   Future _scrollToIndexSeason(int y) async {
-    if (_seasonsScrollController != null && seasons.length > 0)
+    if (seasons.length > 0)
       _seasonsScrollController.scrollTo(
           index: y,
           alignment: 0.05,

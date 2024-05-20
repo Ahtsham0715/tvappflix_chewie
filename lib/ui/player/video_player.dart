@@ -11,6 +11,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/channel.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/model/season.dart';
@@ -23,7 +24,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:subtitle_wrapper_package/subtitle_wrapper_package.dart';
 import 'package:video_player/video_player.dart';
-import 'package:http/http.dart' as http;
 
 /// An example of using the plugin, controlling lifecycle and playback of the
 /// video.
@@ -113,7 +113,9 @@ class _VideoPlayerState extends State<VideoPlayer>
   int post_y = 0;
   bool showSubtitles = true;
   bool isPlaying = true;
-
+  int? subtitleTextColorPref;
+  int? subtitleBackgroundColorPref;
+  int? subtitleSizePref;
   SharedPreferences? prefs;
 
   bool? logged = false;
@@ -125,14 +127,21 @@ class _VideoPlayerState extends State<VideoPlayer>
       widget.next = (widget.episode != null) ? true : false;
       widget.live = (widget.channel != null) ? true : false;
       FocusScope.of(context).requestFocus(video_player_focus_node);
+      loadSubtitlePrefs();
       _prepareNext();
       _getSubtitlesList();
-
       _checkLogged();
     });
 
     initSettings();
     super.initState();
+  }
+
+  void loadSubtitlePrefs() async {
+    subtitleTextColorPref = await getSubtitleValue("subtitle_color");
+    subtitleBackgroundColorPref = await getSubtitleValue("subtitle_background");
+    subtitleSizePref = await getSubtitleValue('subtitle_size');
+    setState(() {});
   }
 
   // Future<List<Subtitle>> fetchSubtitles(List<String> urls) async {
@@ -286,8 +295,13 @@ class _VideoPlayerState extends State<VideoPlayer>
   }
 
   void _setupDataSource(int index) async {
+    print('movie url: ${widget.sourcesList![index].url}');
     final videoPlayerController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.sourcesList![index].url));
+        Uri.parse(widget.sourcesList![index].url),
+        videoPlayerOptions: VideoPlayerOptions(
+          mixWithOthers: false,
+          allowBackgroundPlayback: false,
+        ));
     int? savedPosition = await VideoStateSaver.getVideoState(
         key: widget.sourcesList![index].url);
     await Future.wait(
@@ -295,10 +309,13 @@ class _VideoPlayerState extends State<VideoPlayer>
     chewieController = ChewieController(
       videoPlayerController: videoPlayerController,
       autoPlay: true,
+
       looping: true,
       autoInitialize: true,
       zoomAndPan: true,
-
+      errorBuilder: (context, errorMessage) {
+        return Icon(Icons.close);
+      },
       // subtitle: Subtitles(_subtitlesList
       //     .map((e) => Subtitle(
       //         index: index,
@@ -321,21 +338,24 @@ class _VideoPlayerState extends State<VideoPlayer>
       showControlsOnInitialize: true,
       allowPlaybackSpeedChanging: true,
 
-      // additionalOptions: (context) {
-      // return [
-      //   OptionItem(
-      //       onTap: () {
-      //         setState(() {
-      //           showSubtitles = !showSubtitles;
-      //           subtitleController =
-      //               SubtitleController(showSubtitles: showSubtitles);
-      //         });
-      //       },
-      //       iconData: Icons.subtitles,
-      //       title: 'Subtitles',
-      //       subtitle: showSubtitles ? 'enabled' : 'disabled'),
-      // ];
-      // },
+      additionalOptions: (context) {
+        return subtitleController == null
+            ? []
+            : [
+                OptionItem(
+                    onTap: () {
+                      subtitleController!.isShowSubtitles =
+                          !subtitleController!.showSubtitles;
+                      setState(() {});
+                      Navigator.pop(context);
+                    },
+                    iconData: Icons.subtitles,
+                    title: 'Subtitles',
+                    subtitle: !subtitleController!.isShowSubtitles
+                        ? 'Turn On'
+                        : 'Turn Off'),
+              ];
+      },
       // subtitleBuilder: (context, subtitle) {
       //   print('subtitle: $subtitle');
       //   return Container(
@@ -353,24 +373,24 @@ class _VideoPlayerState extends State<VideoPlayer>
     chewieController!.videoPlayerController.addListener(() {
       // print('listning');
       // print(chewieController!
-      // .videoPlayerController.value.position.inMilliseconds);
+      //     .videoPlayerController.value.position.inMilliseconds);
       VideoStateSaver.saveVideoState(
           chewieController!.videoPlayerController.value.position.inMilliseconds,
           widget.sourcesList![index].url);
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _visibile_controllers_future!.cancel();
-    chewieController!.videoPlayerController.removeListener(() {});
-    chewieController!.videoPlayerController.dispose();
-    chewieController!.dispose();
-    _animated_controller!.dispose();
-    video_player_focus_node.dispose();
-    chewieController!.pause();
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   _visibile_controllers_future!.cancel();
+  //   chewieController!.videoPlayerController.removeListener(() {});
+  //   chewieController!.videoPlayerController.dispose();
+  //   chewieController!.dispose();
+  //   _animated_controller!.dispose();
+  //   video_player_focus_node.dispose();
+  //   chewieController!.pause();
+  // }
 
   void _handleDpadPress(KeyEvent event) async {
     if (event is KeyDownEvent) {
@@ -409,6 +429,11 @@ class _VideoPlayerState extends State<VideoPlayer>
             chewieController!.play();
           }
           break;
+        case LogicalKeyboardKey.subtitle:
+          subtitleController!.isShowSubtitles =
+              !subtitleController!.showSubtitles;
+          setState(() {});
+          break;
         // Add other D-pad key handling as needed
         default:
           break;
@@ -419,9 +444,21 @@ class _VideoPlayerState extends State<VideoPlayer>
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      onPopInvoked: (didPop) {
+      canPop: true,
+      onPopInvoked: (didPop) async {
+        print('pop invoked: $didPop');
+
+        await chewieController!.pause();
+
+        await chewieController!.videoPlayerController.pause();
+        _visibile_controllers_future!.cancel();
         chewieController!.videoPlayerController.removeListener(() {});
-        chewieController!.videoPlayerController.dispose();
+
+        await chewieController!.videoPlayerController.dispose();
+        chewieController!.dispose();
+        _animated_controller!.dispose();
+        video_player_focus_node.dispose();
+        Navigator.pop(context);
       },
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -430,8 +467,7 @@ class _VideoPlayerState extends State<VideoPlayer>
           onKeyEvent: (vnt) {
             _handleDpadPress(vnt);
           },
-          autofocus: true,
-          includeSemantics: true,
+          // autofocus: true,
           child: Stack(children: [
             Center(
               child: AspectRatio(
@@ -439,22 +475,54 @@ class _VideoPlayerState extends State<VideoPlayer>
                 child: chewieController != null &&
                         chewieController!
                             .videoPlayerController.value.isInitialized
-                    ? SubtitleWrapper(
-                        videoPlayerController:
-                            chewieController!.videoPlayerController,
-                        subtitleController: subtitleController!,
-                        subtitleStyle: SubtitleStyle(
-                          textColor: Colors.white,
-                          hasBorder: true,
-                        ),
-                        videoChild: Chewie(
-                          controller: chewieController!,
-                        ),
-                      )
+                    ? subtitleController == null
+                        ? Chewie(
+                            controller: chewieController!,
+                          )
+                        : SubtitleWrapper(
+                            videoPlayerController:
+                                chewieController!.videoPlayerController,
+                            subtitleController: subtitleController!,
+                            backgroundColor: subtitleBackgroundColorPref == null
+                                ? Colors.transparent
+                                : subtitleBackgroundColors[
+                                    subtitleBackgroundColorPref!],
+                            subtitleStyle: SubtitleStyle(
+                              textColor: subtitleTextColorPref == null
+                                  ? Colors.white
+                                  : subtitleTextColors[subtitleTextColorPref!],
+                              fontSize: subtitleSizePref == null
+                                  ? 22
+                                  : subtitleSizePref!.toDouble(),
+                              hasBorder: true,
+                            ),
+                            videoChild: Chewie(
+                              controller: chewieController!,
+                            ),
+                          )
                     : Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
+                        children:
+                            // (chewieController == null &&
+                            //         chewieController!
+                            //             .videoPlayerController.value.hasError)
+                            //     ? [
+                            //         InkWell(
+                            //             onTap: () {
+                            //               if (mounted) {
+                            //                 Navigator.of(context).pop();
+                            //               }
+                            //             },
+                            //             child: Icon(
+                            //               Icons.close,
+                            //               color: Colors.white,
+                            //               size: 30,
+                            //             )),
+                            //         Text("Error Occured")
+                            //       ]
+                            //     :
+                            [
                           CircularProgressIndicator.adaptive(),
                           Text("Loading, please wait...")
                         ],

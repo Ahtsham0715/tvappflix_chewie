@@ -418,13 +418,11 @@ class CustomTrackShape extends RoundedRectSliderTrackShape {
 }
 
 double durationToInt(Duration duration, ChewieController cheweiController) {
-  if (cheweiController.videoPlayerController!.value.duration != null) {
-    int milli_second_duration =
-        cheweiController.videoPlayerController!.value.duration!.inMilliseconds;
-    int milli_second_position = duration.inMilliseconds;
-    double position_int = (milli_second_position / milli_second_duration) * 100;
-    return (position_int > 100) ? 100 : ((position_int < 0) ? 0 : position_int);
-  }
+  int milli_second_duration =
+      cheweiController.videoPlayerController.value.duration.inMilliseconds;
+  int milli_second_position = duration.inMilliseconds;
+  double position_int = (milli_second_position / milli_second_duration) * 100;
+  return (position_int > 100) ? 100 : ((position_int < 0) ? 0 : position_int);
   return 0;
 }
 

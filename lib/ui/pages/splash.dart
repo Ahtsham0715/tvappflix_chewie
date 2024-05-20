@@ -1,12 +1,7 @@
-import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
-import 'dart:math';
 
 import 'package:flutter_app_tv/ui/home/home.dart';
-import 'package:flutter_app_tv/ui/home/mylist.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' as convert;

@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/ui/movie/movie.dart';
 import 'package:flutter_app_tv/ui/movie/movie_widget.dart';
-import 'package:flutter_app_tv/ui/movie/movies.dart' as isss;
 import 'package:flutter_app_tv/ui/serie/serie.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 

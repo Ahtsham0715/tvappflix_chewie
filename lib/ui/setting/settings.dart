@@ -1,28 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_tv/ui/channel/channels.dart';
 import 'package:flutter_app_tv/key_code.dart';
-import 'package:flutter_app_tv/ui/auth/login.dart';
 import 'package:flutter_app_tv/ui/pages/contact.dart';
 import 'package:flutter_app_tv/ui/pages/privacy.dart';
-import 'package:flutter_app_tv/ui/setting/setting_subtitbles_widget.dart';
-import 'package:flutter_app_tv/ui/channel/category_widget.dart';
 import 'package:flutter_app_tv/ui/setting/setting_bg_widget.dart';
 import 'package:flutter_app_tv/ui/setting/setting_color_widget.dart';
 import 'package:flutter_app_tv/ui/setting/setting_size_widget.dart';
 import 'package:flutter_app_tv/ui/setting/setting_widget.dart';
-import 'package:flutter_html/flutter_html.dart';
 // import 'package:flutter_html/shims/dart_ui_real.dart';
 
-import 'package:http/http.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
-
-import 'package:url_launcher/url_launcher.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
 
 class Settings extends StatefulWidget {
   Settings();
@@ -54,30 +42,27 @@ class _SettingsState extends State<Settings> {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: main_focus_node,
-      onKey: (RawKeyEvent event) {
-        if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
-          RawKeyDownEvent rawKeyDownEvent = event;
-          RawKeyEventDataAndroid rawKeyEventDataAndroid =
-              rawKeyDownEvent.data as RawKeyEventDataAndroid;
-          print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
-          switch (rawKeyEventDataAndroid.keyCode) {
-            case KEY_CENTER:
+      onKeyEvent: (KeyEvent event) {
+        if (event is KeyDownEvent) {
+          final logicalKey = event.logicalKey;
+          switch (logicalKey) {
+            case LogicalKeyboardKey.select:
               _goToPrivacyPolicy();
               _goToContactUs();
               break;
-            case KEY_UP:
+            case LogicalKeyboardKey.arrowUp:
               if (pos_y > 0) {
                 pos_y--;
               }
               break;
-            case KEY_DOWN:
+            case LogicalKeyboardKey.arrowDown:
               if (pos_y < 5) {
                 pos_y++;
               }
               break;
-            case KEY_LEFT:
+            case LogicalKeyboardKey.arrowLeft:
               if (pos_y == 0) {
                 if (_subtitle_size > 5) _subtitle_size--;
 
@@ -99,7 +84,7 @@ class _SettingsState extends State<Settings> {
                   _subtitle_background = 10;
               }
               break;
-            case KEY_RIGHT:
+            case LogicalKeyboardKey.arrowRight:
               if (pos_y == 0) {
                 if (_subtitle_size < 45) _subtitle_size++;
 

@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
 import 'package:flutter_app_tv/model/source.dart';
 import 'package:flutter_app_tv/ui/player/source_widget.dart';
-import 'package:flutter_app_tv/ui/player/subtitle_widget.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class SourcesDialog extends StatefulWidget {

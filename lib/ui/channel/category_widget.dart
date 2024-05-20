@@ -1,10 +1,6 @@
-import 'dart:math';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/model/category.dart';
-import 'package:flutter_app_tv/ui/channel/channels.dart';
-import 'package:flutter_app_tv/ui/movie/movies.dart';
 
 class CategoryWidget extends StatelessWidget {
   bool isFocused;

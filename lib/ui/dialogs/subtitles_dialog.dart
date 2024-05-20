@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
 import 'package:flutter_app_tv/model/subtitle.dart';

@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
@@ -6,12 +5,9 @@ import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_html/flutter_html.dart';
 // import 'package:flutter_html/shims/dart_ui_real.dart';
 
-import 'package:http/http.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import 'package:url_launcher/url_launcher.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert' as convert;
 
 class Privacy extends StatefulWidget {
   Privacy();
@@ -44,18 +40,15 @@ class _PrivacyState extends State<Privacy> {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: main_focus_node,
-      onKey: (RawKeyEvent event) {
-        if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
-          RawKeyDownEvent rawKeyDownEvent = event;
-          RawKeyEventDataAndroid rawKeyEventDataAndroid =
-              rawKeyDownEvent.data as RawKeyEventDataAndroid;
-          print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
-          switch (rawKeyEventDataAndroid.keyCode) {
-            case KEY_CENTER:
+      onKeyEvent: (KeyEvent event) {
+        if (event is KeyDownEvent) {
+          final logicalKey = event.logicalKey;
+          switch (logicalKey) {
+            case LogicalKeyboardKey.select:
               break;
-            case KEY_UP:
+            case LogicalKeyboardKey.arrowUp:
               if (pos_y > 0) {
                 pos_y -= 100;
                 _scrollController.animateTo(pos_y,
@@ -63,7 +56,7 @@ class _PrivacyState extends State<Privacy> {
                     curve: Curves.easeInOutQuart);
               }
               break;
-            case KEY_DOWN:
+            case LogicalKeyboardKey.arrowDown:
               if (_scrollController.position.pixels <
                   _scrollController.position.maxScrollExtent) {
                 pos_y += 100;
@@ -72,11 +65,11 @@ class _PrivacyState extends State<Privacy> {
                     curve: Curves.easeInOutQuart);
               }
               break;
-            case KEY_LEFT:
+            case LogicalKeyboardKey.arrowLeft:
               print("play sound");
 
               break;
-            case KEY_RIGHT:
+            case LogicalKeyboardKey.arrowRight:
               print("play sound");
               break;
             default:

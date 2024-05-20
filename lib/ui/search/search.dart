@@ -135,21 +135,18 @@ class _SearchState extends State<Search> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: RawKeyboardListener(
+      body: KeyboardListener(
         focusNode: home_focus_node,
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent &&
-              event.data is RawKeyEventDataAndroid) {
-            RawKeyDownEvent rawKeyDownEvent = event;
-            RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                rawKeyDownEvent.data as RawKeyEventDataAndroid;
-            switch (rawKeyEventDataAndroid.keyCode) {
-              case KEY_CENTER:
+        onKeyEvent: (KeyEvent event) {
+          if (event is KeyDownEvent) {
+            final logicalKey = event.logicalKey;
+            switch (logicalKey) {
+              case LogicalKeyboardKey.select:
                 _tryAgain();
                 _goToMovieDetail();
                 _goToChannelDetail();
                 break;
-              case KEY_UP:
+              case LogicalKeyboardKey.arrowUp:
                 if (_visibile_loading) {
                   print("playing sound ");
                   break;
@@ -179,7 +176,7 @@ class _SearchState extends State<Search> {
                   _scrollToIndexXY(postx, posty);
                 }
                 break;
-              case KEY_DOWN:
+              case LogicalKeyboardKey.arrowDown:
                 if (channels.length == 0 && postersList.length == 0) {
                   print("playing sound ");
                   break;
@@ -211,7 +208,7 @@ class _SearchState extends State<Search> {
                   }
                 }
                 break;
-              case KEY_LEFT:
+              case LogicalKeyboardKey.arrowLeft:
                 if (_visibile_error) {
                   if (posty < -1)
                     posty++;
@@ -236,7 +233,7 @@ class _SearchState extends State<Search> {
                   }
                 }
                 break;
-              case KEY_RIGHT:
+              case LogicalKeyboardKey.arrowRight:
                 switch (posty) {
                   case -1:
                     if (_visibile_loading || _visibile_error) {

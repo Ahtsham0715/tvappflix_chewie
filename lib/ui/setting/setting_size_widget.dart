@@ -1,6 +1,5 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingSizeWidget extends StatefulWidget {
@@ -10,8 +9,12 @@ class SettingSizeWidget extends StatefulWidget {
   IconData icon;
   int size;
 
-
-  SettingSizeWidget({required this.isFocused, required this.title, required this.subtitle, required this.icon, required this.size});
+  SettingSizeWidget(
+      {required this.isFocused,
+      required this.title,
+      required this.subtitle,
+      required this.icon,
+      required this.size});
 
   @override
   _SettingSizeWidgetState createState() => _SettingSizeWidgetState();
@@ -19,9 +22,24 @@ class SettingSizeWidget extends StatefulWidget {
 
 class _SettingSizeWidgetState extends State<SettingSizeWidget> {
   @override
+  void initState() {
+    loadSubtitlePrefs();
+    super.initState();
+  }
+
+  void loadSubtitlePrefs() async {
+    var val = await getSubtitleValue("subtitle_size");
+    if (val != null) {
+      widget.size = val;
+    }
+
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 7,vertical: 5),
+      padding: EdgeInsets.symmetric(horizontal: 7, vertical: 5),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
@@ -42,18 +60,15 @@ class _SettingSizeWidgetState extends State<SettingSizeWidget> {
                   style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w400,
-                      fontSize: 11
-
-                  ),
+                      fontSize: 11),
                 ),
-                SizedBox(height:3),
+                SizedBox(height: 3),
                 Text(
                   widget.subtitle,
                   style: TextStyle(
                       color: Colors.white70,
                       fontWeight: FontWeight.normal,
-                      fontSize: 10
-                  ),
+                      fontSize: 10),
                 ),
               ],
             ),
@@ -61,69 +76,65 @@ class _SettingSizeWidgetState extends State<SettingSizeWidget> {
           SizedBox(
             height: 50,
             child: Container(
-                child: Row(
-                  children: [
+              child: Row(
+                children: [
+                  Container(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.size > 5) widget.size--;
 
-                    Container(
-                      child: GestureDetector(
-                        onTap: (){
-                          setState(() {
-                            if(widget.size > 5)
-                              widget.size --;
-
-                            setSize(widget.size);
-                          });
-                        },
-                        child: Icon(
-                          Icons.keyboard_arrow_left,
-                          size: 30,
-                          color: Colors.white,
-                        ),
+                          setSize(widget.size);
+                        });
+                      },
+                      child: Icon(
+                        Icons.keyboard_arrow_left,
+                        size: 30,
+                        color: Colors.white,
                       ),
                     ),
-                    Container(
-                      height: 30,
-                      width: 30,
-                      child: Center(
-                        child: Text(
-                          widget.size.toString(),
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 15
-                          ),
-                        ),
+                  ),
+                  Container(
+                    height: 30,
+                    width: 30,
+                    child: Center(
+                      child: Text(
+                        widget.size.toString(),
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 15),
                       ),
                     ),
-                    Container(
-                      child: GestureDetector(
-                        onTap: (){
-                          setState(() {
-                            if(widget.size< 45)
-                              widget.size++;
-                            setSize(widget.size);
-                          });
-                        },
-                        child: Icon(
-                          Icons.keyboard_arrow_right,
-                          size: 30,
-                          color: Colors.white,
-                        ),
+                  ),
+                  Container(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          if (widget.size < 45) widget.size++;
+                          setSize(widget.size);
+                        });
+                      },
+                      child: Icon(
+                        Icons.keyboard_arrow_right,
+                        size: 30,
+                        color: Colors.white,
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
             ),
           )
         ],
       ),
       decoration: BoxDecoration(
-        color:  (widget.isFocused)?Colors.black:Colors.white.withOpacity(0),
+        color: (widget.isFocused) ? Colors.black : Colors.white.withOpacity(0),
       ),
     );
   }
 
-  void setSize(int size) async{
+  void setSize(int size) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt("subtitle_size", size);
   }

@@ -1,9 +1,7 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/model/subtitle.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SubtitleWidget extends StatelessWidget {
   bool isFocused;

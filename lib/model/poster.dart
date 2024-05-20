@@ -1,6 +1,5 @@
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/source.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 class Poster{
      int id ;

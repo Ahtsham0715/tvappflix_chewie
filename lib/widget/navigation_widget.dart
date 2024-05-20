@@ -1,7 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/ui/auth/auth.dart';
 import 'package:flutter_app_tv/ui/auth/profile.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';

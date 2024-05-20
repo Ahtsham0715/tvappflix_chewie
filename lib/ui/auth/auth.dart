@@ -1,10 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
@@ -12,7 +9,6 @@ import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/ui/auth/login.dart';
 import 'package:flutter_app_tv/ui/auth/register.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -31,9 +27,9 @@ class _AuthState extends ResumableState<Auth> {
   FocusNode main_focus_node = FocusNode();
 
   int pos_y = 0;
-  String tokenKey ="none";
-  bool facebookloading =false;
-  bool googleloading =false;
+  String tokenKey = "none";
+  bool facebookloading = false;
+  bool googleloading = false;
   bool? logged;
   @override
   void initState() {
@@ -41,10 +37,8 @@ class _AuthState extends ResumableState<Auth> {
     super.initState();
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(main_focus_node);
-       GoogleSignIn().signOut();
-
+      GoogleSignIn().signOut();
     });
-
   }
 
   @override
@@ -52,73 +46,77 @@ class _AuthState extends ResumableState<Auth> {
     // TODO: implement onResume
     super.onResume();
     getLogged();
-
   }
+
   getLogged() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     logged = prefs.getBool("LOGGED_USER");
-    if(logged == true){
+    if (logged == true) {
       Navigator.pop(context);
+    }
   }
 
-  }
-
-    _register(String? username,String? email,String? password,String? image,String? name,String? type) async{
-
+  _register(String? username, String? email, String? password, String? image,
+      String? name, String? type) async {
     var response;
-      var body =  {'username': username,'email':email, 'password': password,'name': name,"image":image,"type":type};
+    var body = {
+      'username': username,
+      'email': email,
+      'password': password,
+      'name': name,
+      "image": image,
+      "type": type
+    };
 
-      response = await apiRest.registerUser( body);
+    response = await apiRest.registerUser(body);
     if (response != null) {
       if (response.statusCode == 200) {
         var jsonData = convert.jsonDecode(response.body);
-        if(jsonData["code"] == 200){
-          int id_user=0;
-          String name_user="x";
-          String username_user="x";
-          String email_user="";
-          String subscribed_user="FALSE";
-          String salt_user="0";
-          String token_user="0";
-          String type_user="x";
-          String image_user="x";
+        if (jsonData["code"] == 200) {
+          int id_user = 0;
+          String name_user = "x";
+          String username_user = "x";
+          String email_user = "";
+          String subscribed_user = "FALSE";
+          String salt_user = "0";
+          String token_user = "0";
+          String type_user = "x";
+          String image_user = "x";
           bool enabled = false;
 
-          for(Map i in jsonData["values"]){
-            if(i["name"] == "salt") {
-              salt_user =  i["value"];
+          for (Map i in jsonData["values"]) {
+            if (i["name"] == "salt") {
+              salt_user = i["value"];
             }
-            if(i["name"] == "token") {
+            if (i["name"] == "token") {
               token_user = i["value"];
             }
-            if(i["name"] == "id") {
+            if (i["name"] == "id") {
               id_user = i["value"];
             }
-            if(i["name"] == "name") {
+            if (i["name"] == "name") {
               name_user = i["value"];
             }
-            if(i["name"] == "type") {
+            if (i["name"] == "type") {
               type_user = i["value"];
             }
-            if(i["name"] == "username") {
-              username_user =  i["value"];
+            if (i["name"] == "username") {
+              username_user = i["value"];
             }
-            if(i["name"] == "url") {
-              image_user  = i["value"] ;
+            if (i["name"] == "url") {
+              image_user = i["value"];
             }
-            if(i["name"] == "enabled") {
+            if (i["name"] == "enabled") {
               enabled = i["value"];
             }
 
-            if(i["name"] == "subscribed") {
+            if (i["name"] == "subscribed") {
               subscribed_user = i["value"];
             }
-
-
           }
 
-          if (enabled == true ) {
+          if (enabled == true) {
             SharedPreferences prefs = await SharedPreferences.getInstance();
 
             prefs.setInt("ID_USER", id_user);
@@ -138,7 +136,7 @@ class _AuthState extends ResumableState<Auth> {
               textColor: Colors.white,
             );
             Navigator.pop(context);
-          }else{
+          } else {
             Fluttertoast.showToast(
               msg: "Operation has been cancelled !",
               gravity: ToastGravity.BOTTOM,
@@ -146,18 +144,16 @@ class _AuthState extends ResumableState<Auth> {
               textColor: Colors.white,
             );
           }
-        }else{
-
+        } else {
           Fluttertoast.showToast(
             msg: "Operation has been cancelled !",
             gravity: ToastGravity.BOTTOM,
             backgroundColor: Colors.red,
             textColor: Colors.white,
           );
-
         }
       }
-    }else{
+    } else {
       Fluttertoast.showToast(
         msg: "Operation has been cancelled !",
         gravity: ToastGravity.BOTTOM,
@@ -169,8 +165,8 @@ class _AuthState extends ResumableState<Auth> {
       facebookloading = false;
       googleloading = false;
     });
-
   }
+
   Future<UserCredential> signInWithGoogle() async {
     setState(() {
       googleloading = true;
@@ -180,7 +176,8 @@ class _AuthState extends ResumableState<Auth> {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
 
     // Obtain the auth details from the request
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+    final GoogleSignInAuthentication? googleAuth =
+        await googleUser?.authentication;
 
     // Create a new credential
     final OAuthCredential credential = GoogleAuthProvider.credential(
@@ -188,7 +185,8 @@ class _AuthState extends ResumableState<Auth> {
       idToken: googleAuth?.idToken,
     );
 
-    final UserCredential authResult = await _auth.signInWithCredential(credential);
+    final UserCredential authResult =
+        await _auth.signInWithCredential(credential);
     final User? user = authResult.user;
 
     if (user != null) {
@@ -197,10 +195,11 @@ class _AuthState extends ResumableState<Auth> {
 
       final User? currentUser = _auth.currentUser;
       assert(user.uid == currentUser?.uid);
-      _register(currentUser?.uid, currentUser?.email, currentUser?.uid, currentUser?.photoURL, currentUser?.displayName, "google");
-    }else{
+      _register(currentUser?.uid, currentUser?.email, currentUser?.uid,
+          currentUser?.photoURL, currentUser?.displayName, "google");
+    } else {
       Fluttertoast.showToast(
-        msg:"Operation has been cancelled !",
+        msg: "Operation has been cancelled !",
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
         textColor: Colors.white,
@@ -213,20 +212,21 @@ class _AuthState extends ResumableState<Auth> {
     // Once signed in, return the UserCredential
     return await FirebaseAuth.instance.signInWithCredential(credential);
   }
+
   Future<void> _Facebooklogin() async {
     setState(() {
       facebookloading = true;
     });
-    final LoginResult result = await FacebookAuth.instance.login(); // by default we request the email and the public profile
+    final LoginResult result = await FacebookAuth.instance
+        .login(); // by default we request the email and the public profile
     if (result.status == LoginStatus.success) {
-
       final userData = await FacebookAuth.instance.getUserData();
 
-      _register(userData["id"],userData["email"], userData["id"], userData["picture"]["data"]["url"], userData["name"],"facebook");
-
-    }else{
+      _register(userData["id"], userData["email"], userData["id"],
+          userData["picture"]["data"]["url"], userData["name"], "facebook");
+    } else {
       Fluttertoast.showToast(
-        msg:"Operation has been cancelled !"+result.message.toString(),
+        msg: "Operation has been cancelled !" + result.message.toString(),
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
         textColor: Colors.white,
@@ -236,63 +236,98 @@ class _AuthState extends ResumableState<Auth> {
         googleloading = false;
       });
     }
-
-
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body:  RawKeyboardListener(
+      body: KeyboardListener(
         focusNode: main_focus_node,
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
-            RawKeyDownEvent rawKeyDownEvent = event;
-            RawKeyEventDataAndroid rawKeyEventDataAndroid =rawKeyDownEvent.data as RawKeyEventDataAndroid;
-            print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
-            if(facebookloading || googleloading)
-              return;
-            switch (rawKeyEventDataAndroid.keyCode) {
-
-              case KEY_CENTER:
+        onKeyEvent: (KeyEvent event) {
+          if (event is KeyDownEvent) {
+            final logicalKey = event.logicalKey;
+            switch (logicalKey) {
+              case LogicalKeyboardKey
+                    .select: // Replace KEY_CENTER with a more general key
                 _goToLogin();
                 _goToRegister();
                 _goToGoogle();
                 _goToFacebook();
                 break;
-              case KEY_UP:
-                if(pos_y  ==  0){
+              case LogicalKeyboardKey.arrowUp:
+                if (pos_y == 0) {
                   print("play sound");
-                }else{
-                  pos_y --;
+                } else {
+                  pos_y--;
                 }
                 break;
-              case KEY_DOWN:
-                if(pos_y  ==  3){
+              case LogicalKeyboardKey.arrowDown:
+                if (pos_y == 3) {
                   print("play sound");
-                }else{
-                  pos_y ++;
+                } else {
+                  pos_y++;
                 }
                 break;
-              case KEY_LEFT:
+              case LogicalKeyboardKey.arrowLeft:
                 print("play sound");
                 break;
-              case KEY_RIGHT:
+              case LogicalKeyboardKey.arrowRight:
                 print("play sound");
                 break;
               default:
                 break;
             }
-            setState(() {
-
-            });
+            setState(() {});
           }
+          // if (event is RawKeyDownEvent &&
+          //     event.data is RawKeyEventDataAndroid) {
+          //   RawKeyDownEvent rawKeyDownEvent = event;
+          //   RawKeyEventDataAndroid rawKeyEventDataAndroid =
+          //       rawKeyDownEvent.data as RawKeyEventDataAndroid;
+          //   print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
+          //   if (facebookloading || googleloading) return;
+          //   switch (rawKeyEventDataAndroid.keyCode) {
+          //     case KEY_CENTER:
+          //       _goToLogin();
+          //       _goToRegister();
+          //       _goToGoogle();
+          //       _goToFacebook();
+          //       break;
+          //     case KEY_UP:
+          //       if (pos_y == 0) {
+          //         print("play sound");
+          //       } else {
+          //         pos_y--;
+          //       }
+          //       break;
+          //     case KEY_DOWN:
+          //       if (pos_y == 3) {
+          //         print("play sound");
+          //       } else {
+          //         pos_y++;
+          //       }
+          //       break;
+          //     case KEY_LEFT:
+          //       print("play sound");
+          //       break;
+          //     case KEY_RIGHT:
+          //       print("play sound");
+          //       break;
+          //     default:
+          //       break;
+          //   }
+          //   setState(() {});
+          // }
         },
         child: Stack(
           children: [
-            FadeInImage(placeholder: MemoryImage(kTransparentImage),image:AssetImage("assets/images/background.jpeg"),fit: BoxFit.cover),
-            ClipRRect( // Clip it cleanly.
+            FadeInImage(
+                placeholder: MemoryImage(kTransparentImage),
+                image: AssetImage("assets/images/background.jpeg"),
+                fit: BoxFit.cover),
+            ClipRRect(
+              // Clip it cleanly.
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
@@ -301,7 +336,6 @@ class _AuthState extends ResumableState<Auth> {
                 ),
               ),
             ),
-
             Positioned(
               right: 0,
               bottom: -5,
@@ -311,13 +345,12 @@ class _AuthState extends ResumableState<Auth> {
                   color: Colors.blueGrey,
                   boxShadow: [
                     BoxShadow(
-                        color:Colors.black,
-                        offset: Offset(0,0),
-                        blurRadius: 5
-                    ),
+                        color: Colors.black,
+                        offset: Offset(0, 0),
+                        blurRadius: 5),
                   ],
                 ),
-                width: MediaQuery.of(context).size.width/2.5,
+                width: MediaQuery.of(context).size.width / 2.5,
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(50),
@@ -327,22 +360,21 @@ class _AuthState extends ResumableState<Auth> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(child: Image.asset( "assets/images/logo.png",height: 40,color: Colors.white)),
+                      Center(
+                          child: Image.asset("assets/images/logo.png",
+                              height: 40, color: Colors.white)),
                       SizedBox(height: 40),
                       Text(
                         "Sign in now for free !",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
-                            fontWeight: FontWeight.w900
-                        ),
+                            fontWeight: FontWeight.w900),
                       ),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           pos_y = 0;
-                          setState(() {
-
-                          });
+                          setState(() {});
                           _goToLogin();
                         },
                         child: Container(
@@ -350,22 +382,33 @@ class _AuthState extends ResumableState<Auth> {
                           height: 40,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            border:Border.all(color: (pos_y == 0)? Colors.white: (facebookloading == true || googleloading == true)? Colors.deepPurple.withOpacity(0.2) : Colors.deepPurple,width: 2),
-                            color:(facebookloading == true || googleloading == true)? Colors.deepPurple.withOpacity(0.2): Colors.deepPurple,
+                            border: Border.all(
+                                color: (pos_y == 0)
+                                    ? Colors.white
+                                    : (facebookloading == true ||
+                                            googleloading == true)
+                                        ? Colors.deepPurple.withOpacity(0.2)
+                                        : Colors.deepPurple,
+                                width: 2),
+                            color: (facebookloading == true ||
+                                    googleloading == true)
+                                ? Colors.deepPurple.withOpacity(0.2)
+                                : Colors.deepPurple,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                  height:40,
+                                  height: 40,
                                   width: 40,
                                   decoration: BoxDecoration(
                                       color: Colors.white10,
-                                      borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                  ),
-                                  child: Icon( FontAwesomeIcons.envelope ,color: Colors.white)
-                              ),
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(4),
+                                          topLeft: Radius.circular(4))),
+                                  child: Icon(FontAwesomeIcons.envelope,
+                                      color: Colors.white)),
                               Expanded(
                                 child: Center(
                                   child: Text(
@@ -373,8 +416,7 @@ class _AuthState extends ResumableState<Auth> {
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.white
-                                    ),
+                                        color: Colors.white),
                                   ),
                                 ),
                               )
@@ -383,65 +425,63 @@ class _AuthState extends ResumableState<Auth> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           pos_y = 1;
-                          setState(() {
-
-                          });
+                          setState(() {});
                           _goToGoogle();
-
                         },
                         child: Container(
                           margin: EdgeInsets.only(top: 10),
                           height: 40,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            border:Border.all(color: (pos_y == 1)? Colors.white:Colors.red,width: 2),
+                            border: Border.all(
+                                color: (pos_y == 1) ? Colors.white : Colors.red,
+                                width: 2),
                             color: Colors.red,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              (googleloading == true )?
-                              Container(
-                                  height:40,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white10,
-                                      borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                  ),
-                                  child: Center(
-                                    child: Container(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
-                                        )
-                                    ),
-                                  )
-                              ):
-                              Container(
-                                  height:40,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white10,
-                                      borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                  ),
-                                  child: Icon( FontAwesomeIcons.google ,color: Colors.white)
-                              ),
+                              (googleloading == true)
+                                  ? Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white10,
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(4),
+                                              topLeft: Radius.circular(4))),
+                                      child: Center(
+                                        child: Container(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            )),
+                                      ))
+                                  : Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white10,
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(4),
+                                              topLeft: Radius.circular(4))),
+                                      child: Icon(FontAwesomeIcons.google,
+                                          color: Colors.white)),
                               Expanded(
                                 child: Center(
                                   child: Text(
-                                    (googleloading == true )?
-                                    "Operation in progress  ...":
-                                    "Sign in with google account !",
+                                    (googleloading == true)
+                                        ? "Operation in progress  ..."
+                                        : "Sign in with google account !",
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.white
-                                    ),
+                                        color: Colors.white),
                                   ),
                                 ),
                               )
@@ -450,11 +490,9 @@ class _AuthState extends ResumableState<Auth> {
                         ),
                       ),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           pos_y = 2;
-                          setState(() {
-
-                          });
+                          setState(() {});
                           _goToFacebook();
                         },
                         child: Container(
@@ -462,69 +500,65 @@ class _AuthState extends ResumableState<Auth> {
                             height: 40,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              border:Border.all(color: (pos_y == 2)? Colors.white:Colors.indigo,width: 2),
-
+                              border: Border.all(
+                                  color: (pos_y == 2)
+                                      ? Colors.white
+                                      : Colors.indigo,
+                                  width: 2),
                               color: Colors.indigo,
                               borderRadius: BorderRadius.circular(5),
-
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                (facebookloading == true )?
-                                Container(
-                                    height:40,
-                                    width: 40,
-                                    decoration: BoxDecoration(
-                                        color: Colors.white10,
-                                        borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                    ),
-                                    child: Center(
-                                      child: Container(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 2,
-                                          )
-                                      ),
-                                    )
-                                ):
-                                Container(
-                                    height:40,
-                                    width: 40,
-                                    decoration: BoxDecoration(
-
-                                        color: Colors.white10,
-                                        borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                    ),
-                                    child: Icon( FontAwesomeIcons.facebookF ,color: Colors.white)
-                                ) ,
+                                (facebookloading == true)
+                                    ? Container(
+                                        height: 40,
+                                        width: 40,
+                                        decoration: BoxDecoration(
+                                            color: Colors.white10,
+                                            borderRadius: BorderRadius.only(
+                                                bottomLeft: Radius.circular(4),
+                                                topLeft: Radius.circular(4))),
+                                        child: Center(
+                                          child: Container(
+                                              width: 20,
+                                              height: 20,
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 2,
+                                              )),
+                                        ))
+                                    : Container(
+                                        height: 40,
+                                        width: 40,
+                                        decoration: BoxDecoration(
+                                            color: Colors.white10,
+                                            borderRadius: BorderRadius.only(
+                                                bottomLeft: Radius.circular(4),
+                                                topLeft: Radius.circular(4))),
+                                        child: Icon(FontAwesomeIcons.facebookF,
+                                            color: Colors.white)),
                                 Expanded(
                                   child: Center(
                                     child: Text(
-                                      (facebookloading == true )?
-                                      "Operation in progress  ...":
-                                      "Sign in with facebook account !"
-                                          ,
+                                      (facebookloading == true)
+                                          ? "Operation in progress  ..."
+                                          : "Sign in with facebook account !",
                                       style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white
-                                      ),
+                                          color: Colors.white),
                                     ),
                                   ),
                                 )
                               ],
-                            )
-                        ),
+                            )),
                       ),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           pos_y = 3;
-                          setState(() {
-
-                          });
+                          setState(() {});
                           _goToRegister();
                         },
                         child: Container(
@@ -532,25 +566,34 @@ class _AuthState extends ResumableState<Auth> {
                             height: 40,
                             width: double.infinity,
                             decoration: BoxDecoration(
-                              border:Border.all(color: (pos_y == 3)? Colors.white:(facebookloading == true || googleloading == true)?  Colors.deepOrangeAccent.withOpacity(0.1):Colors.deepOrangeAccent,width: 2),
-
-                              color:(facebookloading == true || googleloading == true)?  Colors.deepOrangeAccent.withOpacity(0.1):Colors.deepOrangeAccent,
+                              border: Border.all(
+                                  color: (pos_y == 3)
+                                      ? Colors.white
+                                      : (facebookloading == true ||
+                                              googleloading == true)
+                                          ? Colors.deepOrangeAccent
+                                              .withOpacity(0.1)
+                                          : Colors.deepOrangeAccent,
+                                  width: 2),
+                              color: (facebookloading == true ||
+                                      googleloading == true)
+                                  ? Colors.deepOrangeAccent.withOpacity(0.1)
+                                  : Colors.deepOrangeAccent,
                               borderRadius: BorderRadius.circular(5),
-
                             ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Container(
-                                    height:40,
+                                    height: 40,
                                     width: 40,
                                     decoration: BoxDecoration(
-
                                         color: Colors.white10,
-                                        borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                    ),
-                                    child: Icon( FontAwesomeIcons.userCheck ,color: Colors.white)
-                                ),
+                                        borderRadius: BorderRadius.only(
+                                            bottomLeft: Radius.circular(4),
+                                            topLeft: Radius.circular(4))),
+                                    child: Icon(FontAwesomeIcons.userCheck,
+                                        color: Colors.white)),
                                 Expanded(
                                   child: Center(
                                     child: Text(
@@ -558,14 +601,12 @@ class _AuthState extends ResumableState<Auth> {
                                       style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.white
-                                      ),
+                                          color: Colors.white),
                                     ),
                                   ),
                                 )
                               ],
-                            )
-                        ),
+                            )),
                       ),
                     ],
                   ),
@@ -579,7 +620,7 @@ class _AuthState extends ResumableState<Auth> {
   }
 
   void _goToRegister() {
-    if(pos_y == 3){
+    if (pos_y == 3) {
       push(
         context,
         PageRouteBuilder(
@@ -589,8 +630,9 @@ class _AuthState extends ResumableState<Auth> {
       );
     }
   }
+
   void _goToLogin() {
-    if(pos_y == 0){
+    if (pos_y == 0) {
       push(
         context,
         PageRouteBuilder(
@@ -600,13 +642,15 @@ class _AuthState extends ResumableState<Auth> {
       );
     }
   }
+
   void _goToGoogle() {
-    if(pos_y == 1){
+    if (pos_y == 1) {
       signInWithGoogle();
     }
   }
+
   void _goToFacebook() {
-    if(pos_y == 2){
+    if (pos_y == 2) {
       _Facebooklogin();
     }
   }

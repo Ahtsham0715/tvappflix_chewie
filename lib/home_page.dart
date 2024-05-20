@@ -228,30 +228,26 @@ class _MyHomePageState extends State<MyHomePage> {
               new Container(
                 alignment: Alignment.center,
                 margin: const EdgeInsets.all(5.0),
-                child: new RawKeyboardListener(
+                child: KeyboardListener(
                   focusNode: focusNodes[4],
-                  onKey: (RawKeyEvent event) {
-                    if (event is RawKeyDownEvent &&
-                        event.data is RawKeyEventDataAndroid) {
-                      RawKeyDownEvent rawKeyDownEvent = event;
-                      RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                          rawKeyDownEvent.data as RawKeyEventDataAndroid;
-
-                      print("Focus Node 4 ${rawKeyEventDataAndroid.keyCode}");
-                      switch (rawKeyEventDataAndroid.keyCode) {
-                        case KEY_CENTER:
+                  onKeyEvent: (KeyEvent event) {
+                    if (event is KeyDownEvent) {
+                      final logicalKey = event.logicalKey;
+                      switch (logicalKey) {
+                        case LogicalKeyboardKey
+                              .select: // Replace KEY_CENTER with a more general key
                           Navigator.of(context).pushNamed('/b');
                           break;
-                        case KEY_UP:
+                        case LogicalKeyboardKey.arrowUp:
                           FocusScope.of(context).requestFocus(focusNodes[1]);
                           break;
-                        case KEY_DOWN:
+                        case LogicalKeyboardKey.arrowDown:
                           FocusScope.of(context).requestFocus(focusNodes[7]);
                           break;
-                        case KEY_LEFT:
+                        case LogicalKeyboardKey.arrowLeft:
                           FocusScope.of(context).requestFocus(focusNodes[3]);
                           break;
-                        case KEY_RIGHT:
+                        case LogicalKeyboardKey.arrowRight:
                           FocusScope.of(context).requestFocus(focusNodes[5]);
                           break;
                         default:
@@ -259,6 +255,34 @@ class _MyHomePageState extends State<MyHomePage> {
                       }
                       setState(() {});
                     }
+                    // if (event is RawKeyDownEvent &&
+                    //     event.data is RawKeyEventDataAndroid) {
+                    //   RawKeyDownEvent rawKeyDownEvent = event;
+                    //   RawKeyEventDataAndroid rawKeyEventDataAndroid =
+                    //       rawKeyDownEvent.data as RawKeyEventDataAndroid;
+
+                    //   print("Focus Node 4 ${rawKeyEventDataAndroid.keyCode}");
+                    //   switch (rawKeyEventDataAndroid.keyCode) {
+                    //     case KEY_CENTER:
+                    //       Navigator.of(context).pushNamed('/b');
+                    //       break;
+                    //     case KEY_UP:
+                    //       FocusScope.of(context).requestFocus(focusNodes[1]);
+                    //       break;
+                    //     case KEY_DOWN:
+                    //       FocusScope.of(context).requestFocus(focusNodes[7]);
+                    //       break;
+                    //     case KEY_LEFT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[3]);
+                    //       break;
+                    //     case KEY_RIGHT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[5]);
+                    //       break;
+                    //     default:
+                    //       break;
+                    //   }
+                    //   setState(() {});
+                    // }
                   },
                   child: new ElevatedButton(
                     child: new Container(
@@ -276,30 +300,26 @@ class _MyHomePageState extends State<MyHomePage> {
               new Container(
                 alignment: Alignment.center,
                 margin: const EdgeInsets.all(5.0),
-                child: new RawKeyboardListener(
+                child: KeyboardListener(
                   focusNode: focusNodes[5],
-                  onKey: (RawKeyEvent event) {
-                    if (event is RawKeyDownEvent &&
-                        event.data is RawKeyEventDataAndroid) {
-                      RawKeyDownEvent rawKeyDownEvent = event;
-                      RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                          rawKeyDownEvent.data as RawKeyEventDataAndroid;
-
-                      print("Focus Node 5 ${rawKeyEventDataAndroid.keyCode}");
-                      switch (rawKeyEventDataAndroid.keyCode) {
-                        case KEY_CENTER:
+                  onKeyEvent: (KeyEvent event) {
+                    if (event is KeyDownEvent) {
+                      final logicalKey = event.logicalKey;
+                      switch (logicalKey) {
+                        case LogicalKeyboardKey
+                              .select: // Replace KEY_CENTER with a more general key
                           Navigator.of(context).pushNamed('/c');
                           break;
-                        case KEY_UP:
+                        case LogicalKeyboardKey.arrowUp:
                           FocusScope.of(context).requestFocus(focusNodes[2]);
                           break;
-                        case KEY_DOWN:
+                        case LogicalKeyboardKey.arrowDown:
                           FocusScope.of(context).requestFocus(focusNodes[8]);
                           break;
-                        case KEY_LEFT:
+                        case LogicalKeyboardKey.arrowLeft:
                           FocusScope.of(context).requestFocus(focusNodes[4]);
                           break;
-                        case KEY_RIGHT:
+                        case LogicalKeyboardKey.arrowRight:
                           FocusScope.of(context).requestFocus(focusNodes[3]);
                           break;
                         default:
@@ -307,6 +327,34 @@ class _MyHomePageState extends State<MyHomePage> {
                       }
                       setState(() {});
                     }
+                    // if (event is RawKeyDownEvent &&
+                    //     event.data is RawKeyEventDataAndroid) {
+                    //   RawKeyDownEvent rawKeyDownEvent = event;
+                    //   RawKeyEventDataAndroid rawKeyEventDataAndroid =
+                    //       rawKeyDownEvent.data as RawKeyEventDataAndroid;
+
+                    //   print("Focus Node 5 ${rawKeyEventDataAndroid.keyCode}");
+                    //   switch (rawKeyEventDataAndroid.keyCode) {
+                    //     case KEY_CENTER:
+                    //       Navigator.of(context).pushNamed('/c');
+                    //       break;
+                    //     case KEY_UP:
+                    //       FocusScope.of(context).requestFocus(focusNodes[2]);
+                    //       break;
+                    //     case KEY_DOWN:
+                    //       FocusScope.of(context).requestFocus(focusNodes[8]);
+                    //       break;
+                    //     case KEY_LEFT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[4]);
+                    //       break;
+                    //     case KEY_RIGHT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[3]);
+                    //       break;
+                    //     default:
+                    //       break;
+                    //   }
+                    //   setState(() {});
+                    // }
                   },
                   child: new ElevatedButton(
                     child: new Container(
@@ -326,30 +374,26 @@ class _MyHomePageState extends State<MyHomePage> {
               new Container(
                 alignment: Alignment.center,
                 margin: const EdgeInsets.all(5.0),
-                child: new RawKeyboardListener(
+                child: KeyboardListener(
                   focusNode: focusNodes[6],
-                  onKey: (RawKeyEvent event) {
-                    if (event is RawKeyDownEvent &&
-                        event.data is RawKeyEventDataAndroid) {
-                      RawKeyDownEvent rawKeyDownEvent = event;
-                      RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                          rawKeyDownEvent.data as RawKeyEventDataAndroid;
-
-                      print("Focus Node 6 ${rawKeyEventDataAndroid.keyCode}");
-                      switch (rawKeyEventDataAndroid.keyCode) {
-                        case KEY_CENTER:
+                  onKeyEvent: (KeyEvent event) {
+                    if (event is KeyDownEvent) {
+                      final logicalKey = event.logicalKey;
+                      switch (logicalKey) {
+                        case LogicalKeyboardKey
+                              .select: // Replace KEY_CENTER with a more general key
                           Navigator.of(context).pushNamed('/a');
                           break;
-                        case KEY_UP:
+                        case LogicalKeyboardKey.arrowUp:
                           FocusScope.of(context).requestFocus(focusNodes[3]);
                           break;
-                        case KEY_DOWN:
+                        case LogicalKeyboardKey.arrowDown:
                           FocusScope.of(context).requestFocus(focusNodes[0]);
                           break;
-                        case KEY_LEFT:
+                        case LogicalKeyboardKey.arrowLeft:
                           FocusScope.of(context).requestFocus(focusNodes[8]);
                           break;
-                        case KEY_RIGHT:
+                        case LogicalKeyboardKey.arrowRight:
                           FocusScope.of(context).requestFocus(focusNodes[7]);
                           break;
                         default:
@@ -357,6 +401,34 @@ class _MyHomePageState extends State<MyHomePage> {
                       }
                       setState(() {});
                     }
+                    // if (event is RawKeyDownEvent &&
+                    //     event.data is RawKeyEventDataAndroid) {
+                    //   RawKeyDownEvent rawKeyDownEvent = event;
+                    //   RawKeyEventDataAndroid rawKeyEventDataAndroid =
+                    //       rawKeyDownEvent.data as RawKeyEventDataAndroid;
+
+                    //   print("Focus Node 6 ${rawKeyEventDataAndroid.keyCode}");
+                    //   switch (rawKeyEventDataAndroid.keyCode) {
+                    //     case KEY_CENTER:
+                    //       Navigator.of(context).pushNamed('/a');
+                    //       break;
+                    //     case KEY_UP:
+                    //       FocusScope.of(context).requestFocus(focusNodes[3]);
+                    //       break;
+                    //     case KEY_DOWN:
+                    //       FocusScope.of(context).requestFocus(focusNodes[0]);
+                    //       break;
+                    //     case KEY_LEFT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[8]);
+                    //       break;
+                    //     case KEY_RIGHT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[7]);
+                    //       break;
+                    //     default:
+                    //       break;
+                    //   }
+                    //   setState(() {});
+                    // }
                   },
                   child: new ElevatedButton(
                     child: new Container(
@@ -374,30 +446,26 @@ class _MyHomePageState extends State<MyHomePage> {
               new Container(
                 alignment: Alignment.center,
                 margin: const EdgeInsets.all(5.0),
-                child: new RawKeyboardListener(
+                child: KeyboardListener(
                   focusNode: focusNodes[7],
-                  onKey: (RawKeyEvent event) {
-                    if (event is RawKeyDownEvent &&
-                        event.data is RawKeyEventDataAndroid) {
-                      RawKeyDownEvent rawKeyDownEvent = event;
-                      RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                          rawKeyDownEvent.data as RawKeyEventDataAndroid;
-
-                      print("Focus Node 7 ${rawKeyEventDataAndroid.keyCode}");
-                      switch (rawKeyEventDataAndroid.keyCode) {
-                        case KEY_CENTER:
+                  onKeyEvent: (KeyEvent event) {
+                    if (event is KeyDownEvent) {
+                      final logicalKey = event.logicalKey;
+                      switch (logicalKey) {
+                        case LogicalKeyboardKey
+                              .select: // Replace KEY_CENTER with a more general key
                           Navigator.of(context).pushNamed('/b');
                           break;
-                        case KEY_UP:
+                        case LogicalKeyboardKey.arrowUp:
                           FocusScope.of(context).requestFocus(focusNodes[4]);
                           break;
-                        case KEY_DOWN:
+                        case LogicalKeyboardKey.arrowDown:
                           FocusScope.of(context).requestFocus(focusNodes[1]);
                           break;
-                        case KEY_LEFT:
+                        case LogicalKeyboardKey.arrowLeft:
                           FocusScope.of(context).requestFocus(focusNodes[6]);
                           break;
-                        case KEY_RIGHT:
+                        case LogicalKeyboardKey.arrowRight:
                           FocusScope.of(context).requestFocus(focusNodes[8]);
                           break;
                         default:
@@ -405,6 +473,34 @@ class _MyHomePageState extends State<MyHomePage> {
                       }
                       setState(() {});
                     }
+                    // if (event is RawKeyDownEvent &&
+                    //     event.data is RawKeyEventDataAndroid) {
+                    //   RawKeyDownEvent rawKeyDownEvent = event;
+                    //   RawKeyEventDataAndroid rawKeyEventDataAndroid =
+                    //       rawKeyDownEvent.data as RawKeyEventDataAndroid;
+
+                    //   print("Focus Node 7 ${rawKeyEventDataAndroid.keyCode}");
+                    //   switch (rawKeyEventDataAndroid.keyCode) {
+                    //     case KEY_CENTER:
+                    //       Navigator.of(context).pushNamed('/b');
+                    //       break;
+                    //     case KEY_UP:
+                    //       FocusScope.of(context).requestFocus(focusNodes[4]);
+                    //       break;
+                    //     case KEY_DOWN:
+                    //       FocusScope.of(context).requestFocus(focusNodes[1]);
+                    //       break;
+                    //     case KEY_LEFT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[6]);
+                    //       break;
+                    //     case KEY_RIGHT:
+                    //       FocusScope.of(context).requestFocus(focusNodes[8]);
+                    //       break;
+                    //     default:
+                    //       break;
+                    //   }
+                    //   setState(() {});
+                    // }
                   },
                   child: new ElevatedButton(
                     child: new Container(
@@ -419,33 +515,29 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
-              new Container(
+              Container(
                   alignment: Alignment.center,
                   margin: const EdgeInsets.all(5.0),
-                  child: RawKeyboardListener(
+                  child: KeyboardListener(
                     focusNode: focusNodes[8],
-                    onKey: (RawKeyEvent event) {
-                      if (event is RawKeyDownEvent &&
-                          event.data is RawKeyEventDataAndroid) {
-                        RawKeyDownEvent rawKeyDownEvent = event;
-                        RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                            rawKeyDownEvent.data as RawKeyEventDataAndroid;
-
-                        print("Focus Node 7 ${rawKeyEventDataAndroid.keyCode}");
-                        switch (rawKeyEventDataAndroid.keyCode) {
-                          case KEY_CENTER:
+                    onKeyEvent: (KeyEvent event) {
+                      if (event is KeyDownEvent) {
+                        final logicalKey = event.logicalKey;
+                        switch (logicalKey) {
+                          case LogicalKeyboardKey
+                                .select: // Replace KEY_CENTER with a more general key
                             Navigator.of(context).pushNamed('/b');
                             break;
-                          case KEY_UP:
+                          case LogicalKeyboardKey.arrowUp:
                             FocusScope.of(context).requestFocus(focusNodes[5]);
                             break;
-                          case KEY_DOWN:
+                          case LogicalKeyboardKey.arrowDown:
                             FocusScope.of(context).requestFocus(focusNodes[2]);
                             break;
-                          case KEY_LEFT:
+                          case LogicalKeyboardKey.arrowLeft:
                             FocusScope.of(context).requestFocus(focusNodes[7]);
                             break;
-                          case KEY_RIGHT:
+                          case LogicalKeyboardKey.arrowRight:
                             FocusScope.of(context).requestFocus(focusNodes[6]);
                             break;
                           default:
@@ -453,6 +545,33 @@ class _MyHomePageState extends State<MyHomePage> {
                         }
                         setState(() {});
                       }
+                      // if (event is KeyDownEvent ) {
+                      //   KeyDownEvent rawKeyDownEvent = event;
+                      //   KeyEventDataAndroid rawKeyEventDataAndroid =
+                      //       rawKeyDownEvent as RawKeyEventDataAndroid;
+
+                      //   print("Focus Node 7 ${rawKeyEventDataAndroid.keyCode}");
+                      //   switch (rawKeyEventDataAndroid.keyCode) {
+                      //     case KEY_CENTER:
+                      //       Navigator.of(context).pushNamed('/b');
+                      //       break;
+                      //     case KEY_UP:
+                      //       FocusScope.of(context).requestFocus(focusNodes[5]);
+                      //       break;
+                      //     case KEY_DOWN:
+                      //       FocusScope.of(context).requestFocus(focusNodes[2]);
+                      //       break;
+                      //     case KEY_LEFT:
+                      //       FocusScope.of(context).requestFocus(focusNodes[7]);
+                      //       break;
+                      //     case KEY_RIGHT:
+                      //       FocusScope.of(context).requestFocus(focusNodes[6]);
+                      //       break;
+                      //     default:
+                      //       break;
+                      //   }
+                      //   setState(() {});
+                      // }
                     },
                     child: new ElevatedButton(
                       child: new Container(

@@ -1,25 +1,20 @@
-import 'package:flutter/cupertino.dart';
-
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:flutter_app_tv/key_code.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:convert' as convert;
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class CommentAdd extends StatefulWidget {
-  String type ;
+  String type;
   int id;
   String image;
 
-  CommentAdd({required this.type,required this.id,required this.image});
+  CommentAdd({required this.type, required this.id, required this.image});
 
   @override
   _CommentAddState createState() => _CommentAddState();
@@ -27,10 +22,10 @@ class CommentAdd extends StatefulWidget {
 
 class _CommentAddState extends State<CommentAdd> {
   FocusNode main_focus_node = FocusNode();
-  FocusNode  yxy_focus_node= FocusNode();
+  FocusNode yxy_focus_node = FocusNode();
   TextEditingController commentController = new TextEditingController();
 
-  int pos_x  =0;
+  int pos_x = 0;
   int pos_y = 0;
 
   bool emptyText = false;
@@ -48,8 +43,9 @@ class _CommentAddState extends State<CommentAdd> {
       FocusScope.of(context).requestFocus(main_focus_node);
     });
   }
-  void _addComment()  async{
-    if(pos_y == 1) {
+
+  void _addComment() async {
+    if (pos_y == 1) {
       if (commentController.text.isEmpty) {
         setState(() {
           emptyText = true;
@@ -60,7 +56,6 @@ class _CommentAddState extends State<CommentAdd> {
 
       _showLoading();
 
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
       int? id_user = await prefs.getInt("ID_USER");
@@ -69,9 +64,16 @@ class _CommentAddState extends State<CommentAdd> {
       String? username = await prefs.getString("NAME_USER");
 
       String comment = commentController.text;
-      convert.Codec<String, String> stringToBase64 = convert.utf8.fuse(convert.base64);
+      convert.Codec<String, String> stringToBase64 =
+          convert.utf8.fuse(convert.base64);
       String comment_base_64 = stringToBase64.encode(comment);
-     var comment_data =  {"key":key_user,"user":id_user.toString(),"id": widget.id.toString(),'comment': comment_base_64,"type":widget.type};
+      var comment_data = {
+        "key": key_user,
+        "user": id_user.toString(),
+        "id": widget.id.toString(),
+        'comment': comment_base_64,
+        "type": widget.type
+      };
       var response;
       if (widget.type == "channel")
         response = await apiRest.addCommentChannel(comment_data);
@@ -98,56 +100,55 @@ class _CommentAddState extends State<CommentAdd> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body:  RawKeyboardListener(
+      body: KeyboardListener(
         focusNode: main_focus_node,
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
-            RawKeyDownEvent rawKeyDownEvent = event;
-            RawKeyEventDataAndroid rawKeyEventDataAndroid =rawKeyDownEvent.data as RawKeyEventDataAndroid;
-            print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
+        onKeyEvent: (KeyEvent event) {
+          if (event is KeyDownEvent) {
+            final logicalKey = event.logicalKey;
 
-            switch (rawKeyEventDataAndroid.keyCode) {
-              case KEY_CENTER:
+            switch (logicalKey) {
+              case LogicalKeyboardKey.select:
                 _addComment();
                 break;
-              case KEY_UP:
-                if(pos_y  ==  0){
+              case LogicalKeyboardKey.arrowUp:
+                if (pos_y == 0) {
                   print("play sound");
-                }else{
-                  pos_y --;
+                } else {
+                  pos_y--;
                 }
-                if(pos_y == 0){
+                if (pos_y == 0) {
                   FocusScope.of(context).previousFocus();
                 }
                 break;
-              case KEY_DOWN:
-                if(pos_y  ==  1){
+              case LogicalKeyboardKey.arrowDown:
+                if (pos_y == 1) {
                   print("play sound");
-                }else{
-                  pos_y ++;
+                } else {
+                  pos_y++;
                 }
-                if(pos_y == 0){
+                if (pos_y == 0) {
                   FocusScope.of(context).nextFocus();
                 }
                 break;
-              case KEY_LEFT:
-                if(pos_y == 0){
-                  if(pos_x == 0){
+              case LogicalKeyboardKey.arrowLeft:
+                if (pos_y == 0) {
+                  if (pos_x == 0) {
                     print("play sound");
-                  }else{
+                  } else {
                     pos_x--;
                   }
                 }
                 break;
-              case KEY_RIGHT:
-                if(pos_y == 0){
-                  if(pos_x == 1){
+              case LogicalKeyboardKey.arrowRight:
+                if (pos_y == 0) {
+                  if (pos_x == 1) {
                     print("play sound");
-                  }else{
+                  } else {
                     pos_x++;
                   }
                 }
@@ -155,16 +156,18 @@ class _CommentAddState extends State<CommentAdd> {
               default:
                 break;
             }
-            setState(() {
-
-            });
+            setState(() {});
           }
         },
         child: Stack(
           children: [
-            FadeInImage(placeholder: MemoryImage(kTransparentImage),image:NetworkImage(widget.image),fit: BoxFit.cover,height: MediaQuery.of(context).size.height),
-
-            ClipRRect( // Clip it cleanly.
+            FadeInImage(
+                placeholder: MemoryImage(kTransparentImage),
+                image: NetworkImage(widget.image),
+                fit: BoxFit.cover,
+                height: MediaQuery.of(context).size.height),
+            ClipRRect(
+              // Clip it cleanly.
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                 child: Container(
@@ -179,24 +182,25 @@ class _CommentAddState extends State<CommentAdd> {
               top: 0,
               child: Container(
                 padding: EdgeInsets.only(right: 0),
-                width: MediaQuery.of(context).size.width/1.8,
+                width: MediaQuery.of(context).size.width / 1.8,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text("JUST ME AND YOU !",
+                    Text(
+                      "JUST ME AND YOU !",
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 22,
-                          fontWeight: FontWeight.w900
-                      ),
+                          fontWeight: FontWeight.w900),
                     ),
-                    Text("Add your comment"
-                      , style: TextStyle(
+                    Text(
+                      "Add your comment",
+                      style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
-                          fontWeight: FontWeight.normal
-                      ),),
+                          fontWeight: FontWeight.normal),
+                    ),
                   ],
                 ),
               ),
@@ -210,13 +214,12 @@ class _CommentAddState extends State<CommentAdd> {
                   color: Colors.blueGrey,
                   boxShadow: [
                     BoxShadow(
-                        color:Colors.black,
-                        offset: Offset(0,0),
-                        blurRadius: 5
-                    ),
+                        color: Colors.black,
+                        offset: Offset(0, 0),
+                        blurRadius: 5),
                   ],
                 ),
-                width: MediaQuery.of(context).size.width/2.5,
+                width: MediaQuery.of(context).size.width / 2.5,
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(50),
@@ -232,9 +235,9 @@ class _CommentAddState extends State<CommentAdd> {
                         width: double.infinity,
                         decoration: BoxDecoration(
                             color: Colors.white24,
-                            border: Border.all(color: (emptyText )? Colors.red: Colors.white),
-                            borderRadius: BorderRadius.circular(5)
-                        ),
+                            border: Border.all(
+                                color: (emptyText) ? Colors.red : Colors.white),
+                            borderRadius: BorderRadius.circular(5)),
                         child: TextField(
                           controller: commentController,
                           focusNode: yxy_focus_node,
@@ -246,19 +249,15 @@ class _CommentAddState extends State<CommentAdd> {
                               errorBorder: InputBorder.none,
                               disabledBorder: InputBorder.none,
                               hintText: "Write your comment here",
-                              hintStyle: TextStyle(
-                                  color: Colors.white30
-                              )
-                          ),
+                              hintStyle: TextStyle(color: Colors.white30)),
                           style: TextStyle(
                             color: Colors.white,
                           ),
-                          onSubmitted: (v){
-                            FocusScope.of(context).requestFocus(main_focus_node);
+                          onSubmitted: (v) {
+                            FocusScope.of(context)
+                                .requestFocus(main_focus_node);
                             pos_y = 1;
-                            setState(() {
-
-                            });
+                            setState(() {});
                           },
                           minLines: 5,
                           maxLines: 5,
@@ -268,136 +267,136 @@ class _CommentAddState extends State<CommentAdd> {
                       SizedBox(
                         height: 10,
                       ),
-                      if(!_visibile_loading && !_visibile_success)
+                      if (!_visibile_loading && !_visibile_success)
                         GestureDetector(
-                          onTap: (){
+                          onTap: () {
                             setState(() {
                               pos_y = 1;
-                              Future.delayed(Duration(milliseconds: 100),(){
+                              Future.delayed(Duration(milliseconds: 100), () {
                                 _addComment();
                               });
                             });
                           },
                           child: Container(
+                            height: 40,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              border:
+                                  Border.all(color: Colors.white, width: 0.3),
+                              borderRadius: BorderRadius.circular(5),
+                              color:
+                                  (pos_y == 1) ? Colors.white : Colors.white30,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  height: 28,
+                                  width: 28,
+                                  child: Icon(
+                                    FontAwesomeIcons.check,
+                                    color: (pos_y == 1)
+                                        ? Colors.black
+                                        : Colors.white,
+                                    size: 11,
+                                  ),
+                                ),
+                                Text("Send Comment",
+                                    style: TextStyle(
+                                        color: (pos_y == 1)
+                                            ? Colors.black
+                                            : Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500)),
+                                SizedBox(width: 5),
+                              ],
+                            ),
+                          ),
+                        ),
+                      if (_visibile_loading)
+                        Container(
                           height: 40,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white,width: 0.3),
+                            border: Border.all(color: Colors.white, width: 0.3),
                             borderRadius: BorderRadius.circular(5),
-                            color: (pos_y == 1 )? Colors.white:Colors.white30,
+                            color: Colors.white,
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Container(
-                                height: 28,
-                                width: 28,
-                                child: Icon(
-                                  FontAwesomeIcons.check,
-                                  color: (pos_y == 1 )? Colors.black:Colors.white,
-                                  size: 11,
+                              SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: Container(
+                                  padding: EdgeInsets.all(3),
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.black,
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               ),
-                              Text(
-                                  "Send Comment" ,
+                              SizedBox(width: 10),
+                              Text("Operation in progress",
                                   style: TextStyle(
-                                      color: (pos_y == 1 )? Colors.black:Colors.white,
+                                      color: Colors.black,
                                       fontSize: 11,
-                                      fontWeight: FontWeight.w500
-                                  )
-                              ),
+                                      fontWeight: FontWeight.w500)),
                               SizedBox(width: 5),
                             ],
                           ),
-                      ),
                         ),
-                      if(_visibile_loading)
-                        Container(
-                        height: 40,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white,width: 0.3),
-                          borderRadius: BorderRadius.circular(5),
-                          color:  Colors.white,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: Container(
-                                padding: EdgeInsets.all(3),
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.black,
-                                  strokeWidth: 2,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 10),
-                            Text(
-                                "Operation in progress" ,
-                                style: TextStyle(
-                                    color:Colors.black,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w500
-                                )
-                            ),
-                            SizedBox(width: 5),
-                          ],
-                        ),
-                      ),
-                      if(_visibile_error)
-                      Container(
-                        width: double.infinity,
-                        margin: EdgeInsets.symmetric(vertical: 5),
-                        padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.red,width: 0.3),
-                          borderRadius: BorderRadius.circular(5),
-                          color:  Colors.redAccent,
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(5.0),
-                              height: 28,
-                              width: 28,
-                              child: Icon(
-                                Icons.warning,
-                                color: Colors.white,
-                                size: 15,
-                              ),
-                            ),
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                    _message_error ,
-                                    style: TextStyle(
-                                        color:Colors.white,
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w500,
-                                    )
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if(_visibile_success)
+                      if (_visibile_error)
                         Container(
                           width: double.infinity,
                           margin: EdgeInsets.symmetric(vertical: 5),
-                          padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.green,width: 0.3),
+                            border: Border.all(color: Colors.red, width: 0.3),
                             borderRadius: BorderRadius.circular(5),
-                            color:  Colors.green,
+                            color: Colors.redAccent,
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(5.0),
+                                height: 28,
+                                width: 28,
+                                child: Icon(
+                                  Icons.warning,
+                                  color: Colors.white,
+                                  size: 15,
+                                ),
+                              ),
+                              Flexible(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(_message_error,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w500,
+                                      )),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      if (_visibile_success)
+                        Container(
+                          width: double.infinity,
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.green, width: 0.3),
+                            borderRadius: BorderRadius.circular(5),
+                            color: Colors.green,
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,14 +415,12 @@ class _CommentAddState extends State<CommentAdd> {
                               Flexible(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                      _message_success,
+                                  child: Text(_message_success,
                                       style: TextStyle(
-                                        color:Colors.white,
+                                        color: Colors.white,
                                         fontSize: 11,
                                         fontWeight: FontWeight.w500,
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ),
                             ],
@@ -443,26 +440,26 @@ class _CommentAddState extends State<CommentAdd> {
   void _showLoading() {
     setState(() {
       _visibile_loading = true;
-      _visibile_error= false;
-      _visibile_success= false;
-
+      _visibile_error = false;
+      _visibile_success = false;
     });
   }
+
   void _showTryAgain() {
     setState(() {
       _visibile_loading = false;
-      _visibile_error= true;
-      _visibile_success= false;
-
+      _visibile_error = true;
+      _visibile_success = false;
     });
   }
+
   void _showData() {
     setState(() {
       _visibile_loading = false;
-      _visibile_error= false;
-      _visibile_success= true;
+      _visibile_error = false;
+      _visibile_success = true;
     });
-    Future.delayed(Duration(seconds: 3),(){
+    Future.delayed(Duration(seconds: 3), () {
       setState(() {
         Navigator.pop(context);
       });

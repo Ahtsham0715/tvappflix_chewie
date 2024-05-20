@@ -1,14 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
-
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:flutter_app_tv/key_code.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:convert' as convert;
@@ -23,9 +18,9 @@ class Password extends StatefulWidget {
 
 class _PasswordState extends State<Password> {
   FocusNode main_focus_node = FocusNode();
-  FocusNode username_focus_node= FocusNode();
-  FocusNode password_focus_node= FocusNode();
-  FocusNode confirm_password_focus_node= FocusNode();
+  FocusNode username_focus_node = FocusNode();
+  FocusNode password_focus_node = FocusNode();
+  FocusNode confirm_password_focus_node = FocusNode();
   TextEditingController oldPasswordController = new TextEditingController();
   TextEditingController passwordController = new TextEditingController();
   TextEditingController confirmPasswordController = new TextEditingController();
@@ -34,7 +29,7 @@ class _PasswordState extends State<Password> {
   bool confirmpasswordvalide = true;
   bool loading = false;
   String _message_error = "";
-  bool _visibile_error =false;
+  bool _visibile_error = false;
   int pos_y = 0;
 
   @override
@@ -45,37 +40,37 @@ class _PasswordState extends State<Password> {
       FocusScope.of(context).requestFocus(username_focus_node);
     });
   }
-  _changePassword() async{
+
+  _changePassword() async {
     setState(() {
       loading = true;
       _visibile_error = false;
-
     });
     var response;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int? id_user = prefs.getInt("ID_USER");
-    response = await apiRest.changePassword(id_user!,oldPasswordController.text,passwordController.text);
+    response = await apiRest.changePassword(
+        id_user!, oldPasswordController.text, passwordController.text);
     if (response != null) {
       if (response.statusCode == 200) {
         var jsonData = convert.jsonDecode(response.body);
-        if(jsonData["code"].toString() == "200"){
-
-          String salt_user="0";
-          String token_user="0";
+        if (jsonData["code"].toString() == "200") {
+          String salt_user = "0";
+          String token_user = "0";
 
           bool enabled = true;
 
-          for(Map i in jsonData["values"]){
-            print(i["name"]+" : "+ i["value"]);
-            if(i["name"] == "salt") {
-              salt_user =  i["value"];
+          for (Map i in jsonData["values"]) {
+            print(i["name"] + " : " + i["value"]);
+            if (i["name"] == "salt") {
+              salt_user = i["value"];
             }
-            if(i["name"] == "token") {
+            if (i["name"] == "token") {
               token_user = i["value"];
             }
           }
 
-          if (enabled == true ) {
+          if (enabled == true) {
             SharedPreferences prefs = await SharedPreferences.getInstance();
 
             prefs.setString("SALT_USER", salt_user);
@@ -91,7 +86,7 @@ class _PasswordState extends State<Password> {
             );
             _visibile_error = false;
             Navigator.pop(context);
-          }else{
+          } else {
             _message_error = jsonData["message"];
             _visibile_error = true;
             Fluttertoast.showToast(
@@ -101,7 +96,7 @@ class _PasswordState extends State<Password> {
               textColor: Colors.white,
             );
           }
-        }else{
+        } else {
           _message_error = jsonData["message"];
           _visibile_error = true;
           Fluttertoast.showToast(
@@ -110,11 +105,10 @@ class _PasswordState extends State<Password> {
             backgroundColor: Colors.red,
             textColor: Colors.white,
           );
-
         }
       }
-    }else{
-      _message_error =  "Operation has been cancelled !";
+    } else {
+      _message_error = "Operation has been cancelled !";
       _visibile_error = true;
       Fluttertoast.showToast(
         msg: "Operation has been cancelled !",
@@ -128,59 +122,59 @@ class _PasswordState extends State<Password> {
       loading = false;
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body:  RawKeyboardListener(
+      body: KeyboardListener(
         focusNode: main_focus_node,
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
-            RawKeyDownEvent rawKeyDownEvent = event;
-            RawKeyEventDataAndroid rawKeyEventDataAndroid =rawKeyDownEvent.data as RawKeyEventDataAndroid;
-            print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
-            switch (rawKeyEventDataAndroid.keyCode) {
-              case KEY_CENTER:
-                if(!loading)
-                  _goToValidate();
+        onKeyEvent: (KeyEvent event) {
+          if (event is KeyDownEvent) {
+            final logicalKey = event.logicalKey;
+            switch (logicalKey) {
+              case LogicalKeyboardKey.select:
+                if (!loading) _goToValidate();
                 break;
-              case KEY_UP:
-                if(pos_y  ==  0){
+              case LogicalKeyboardKey.arrowUp:
+                if (pos_y == 0) {
                   print("play sound");
-                }else{
-                  pos_y --;
+                } else {
+                  pos_y--;
                 }
-                if(pos_y == 0){
+                if (pos_y == 0) {
                   FocusScope.of(context).requestFocus(null);
                   FocusScope.of(context).requestFocus(username_focus_node);
                 }
                 break;
-              case KEY_DOWN:
-                if(pos_y  ==  1){
+              case LogicalKeyboardKey.arrowDown:
+                if (pos_y == 1) {
                   print("play sound");
-                }else{
-                  pos_y ++;
+                } else {
+                  pos_y++;
                 }
                 break;
-              case KEY_LEFT:
+              case LogicalKeyboardKey.arrowLeft:
                 print("play sound");
 
                 break;
-              case KEY_RIGHT:
+              case LogicalKeyboardKey.arrowRight:
                 print("play sound");
                 break;
               default:
                 break;
             }
-            setState(() {
-
-            });
+            setState(() {});
           }
         },
         child: Stack(
           children: [
-            FadeInImage(placeholder: MemoryImage(kTransparentImage),image:AssetImage("assets/images/background.jpeg"),fit: BoxFit.cover),
-            ClipRRect( // Clip it cleanly.
+            FadeInImage(
+                placeholder: MemoryImage(kTransparentImage),
+                image: AssetImage("assets/images/background.jpeg"),
+                fit: BoxFit.cover),
+            ClipRRect(
+              // Clip it cleanly.
               child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                 child: Container(
@@ -189,7 +183,6 @@ class _PasswordState extends State<Password> {
                 ),
               ),
             ),
-
             Positioned(
               right: 0,
               bottom: -5,
@@ -199,13 +192,12 @@ class _PasswordState extends State<Password> {
                   color: Colors.blueGrey,
                   boxShadow: [
                     BoxShadow(
-                        color:Colors.black,
-                        offset: Offset(0,0),
-                        blurRadius: 5
-                    ),
+                        color: Colors.black,
+                        offset: Offset(0, 0),
+                        blurRadius: 5),
                   ],
                 ),
-                width: MediaQuery.of(context).size.width/2.5,
+                width: MediaQuery.of(context).size.width / 2.5,
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(50),
@@ -215,164 +207,214 @@ class _PasswordState extends State<Password> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(child: Image.asset( "assets/images/logo.png",height: 40,color: Colors.white)),
+                      Center(
+                          child: Image.asset("assets/images/logo.png",
+                              height: 40, color: Colors.white)),
                       SizedBox(height: 40),
                       Text(
                         "Change your password ",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 15,
-                            fontWeight: FontWeight.w900
-                        ),
+                            fontWeight: FontWeight.w900),
                       ),
                       SizedBox(height: 15),
                       TextFormField(
                           controller: oldPasswordController,
                           focusNode: username_focus_node,
                           textInputAction: TextInputAction.next,
-                          obscureText:true,
-
+                          obscureText: true,
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
                             focusColor: Colors.white,
                             labelText: 'Old password',
                             labelStyle: TextStyle(
-                                color: (oldvalide)?Colors.white:Colors.red
-                            ),
-                            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (oldvalide)?Colors.white:Colors.red,width: 1)),
-                            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (oldvalide)?Colors.white54:Colors.red,width: 1)),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (oldvalide)?Colors.white:Colors.red,width: 1)),
-                            contentPadding: new EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
+                                color: (oldvalide) ? Colors.white : Colors.red),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                                borderSide: BorderSide(
+                                    color:
+                                        (oldvalide) ? Colors.white : Colors.red,
+                                    width: 1)),
+                            enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                                borderSide: BorderSide(
+                                    color: (oldvalide)
+                                        ? Colors.white54
+                                        : Colors.red,
+                                    width: 1)),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(5.0),
+                                borderSide: BorderSide(
+                                    color:
+                                        (oldvalide) ? Colors.white : Colors.red,
+                                    width: 1)),
+                            contentPadding: new EdgeInsets.symmetric(
+                                vertical: 4.0, horizontal: 15.0),
                             suffixIcon: Icon(
                               Icons.vpn_key_rounded,
                               size: 15,
-                              color: (oldvalide)?Colors.white70:Colors.red,
+                              color: (oldvalide) ? Colors.white70 : Colors.red,
                             ),
                           ),
                           style: TextStyle(
-                            color: (oldvalide)?Colors.white:Colors.red,
+                            color: (oldvalide) ? Colors.white : Colors.red,
                           ),
                           maxLines: 1,
                           minLines: 1,
                           scrollPadding: EdgeInsets.zero,
                           cursorColor: Colors.white,
-                          onFieldSubmitted: (v){
-                            if(oldPasswordController.text.length>=6){
+                          onFieldSubmitted: (v) {
+                            if (oldPasswordController.text.length >= 6) {
                               oldvalide = true;
-                            }else{
+                            } else {
                               oldvalide = false;
                             }
 
-                            setState(() {
-
-                            });
-                            FocusScope.of(context).requestFocus(password_focus_node);
-                          }
-                      ),
+                            setState(() {});
+                            FocusScope.of(context)
+                                .requestFocus(password_focus_node);
+                          }),
                       SizedBox(height: 10),
                       TextFormField(
                         controller: passwordController,
                         focusNode: password_focus_node,
-                        obscureText:true,
+                        obscureText: true,
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.visiblePassword,
                         decoration: InputDecoration(
                           focusColor: Colors.white,
                           labelText: 'New Password',
                           labelStyle: TextStyle(
-                              color: (passwordvalide)?Colors.white:Colors.red
-                          ),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (passwordvalide)?Colors.white:Colors.red,width: 1)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (passwordvalide)?Colors.white54:Colors.red,width: 1)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (passwordvalide)?Colors.white:Colors.red,width: 1)),
-                          contentPadding: new EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
+                              color:
+                                  (passwordvalide) ? Colors.white : Colors.red),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: BorderSide(
+                                  color: (passwordvalide)
+                                      ? Colors.white
+                                      : Colors.red,
+                                  width: 1)),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: BorderSide(
+                                  color: (passwordvalide)
+                                      ? Colors.white54
+                                      : Colors.red,
+                                  width: 1)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: BorderSide(
+                                  color: (passwordvalide)
+                                      ? Colors.white
+                                      : Colors.red,
+                                  width: 1)),
+                          contentPadding: new EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 15.0),
                           suffixIcon: Icon(
                             Icons.vpn_key_rounded,
                             size: 15,
-                            color: (passwordvalide)?Colors.white70:Colors.red,
+                            color:
+                                (passwordvalide) ? Colors.white70 : Colors.red,
                           ),
                         ),
                         style: TextStyle(
-                          color: (passwordvalide)?Colors.white70:Colors.red,
+                          color: (passwordvalide) ? Colors.white70 : Colors.red,
                         ),
                         maxLines: 1,
                         minLines: 1,
                         scrollPadding: EdgeInsets.zero,
                         cursorColor: Colors.white,
-
-                        onFieldSubmitted: (v){
-
-                          if(passwordController.text.length>=6){
+                        onFieldSubmitted: (v) {
+                          if (passwordController.text.length >= 6) {
                             passwordvalide = true;
-                          }else{
+                          } else {
                             passwordvalide = false;
-
                           }
 
-                          FocusScope.of(context).requestFocus(confirm_password_focus_node);
-                          setState(() {
-
-                          });
+                          FocusScope.of(context)
+                              .requestFocus(confirm_password_focus_node);
+                          setState(() {});
                         },
                       ),
                       SizedBox(height: 10),
                       TextFormField(
                         controller: confirmPasswordController,
                         focusNode: confirm_password_focus_node,
-                        obscureText:true,
+                        obscureText: true,
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.visiblePassword,
                         decoration: InputDecoration(
                           focusColor: Colors.white,
                           labelText: 'Confirm Password',
                           labelStyle: TextStyle(
-                              color: (confirmpasswordvalide)?Colors.white:Colors.red
-                          ),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (confirmpasswordvalide)?Colors.white:Colors.red,width: 1)),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (confirmpasswordvalide)?Colors.white54:Colors.red,width: 1)),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (confirmpasswordvalide)?Colors.white:Colors.red,width: 1)),
-                          contentPadding: new EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
+                              color: (confirmpasswordvalide)
+                                  ? Colors.white
+                                  : Colors.red),
+                          focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: BorderSide(
+                                  color: (confirmpasswordvalide)
+                                      ? Colors.white
+                                      : Colors.red,
+                                  width: 1)),
+                          enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: BorderSide(
+                                  color: (confirmpasswordvalide)
+                                      ? Colors.white54
+                                      : Colors.red,
+                                  width: 1)),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              borderSide: BorderSide(
+                                  color: (confirmpasswordvalide)
+                                      ? Colors.white
+                                      : Colors.red,
+                                  width: 1)),
+                          contentPadding: new EdgeInsets.symmetric(
+                              vertical: 4.0, horizontal: 15.0),
                           suffixIcon: Icon(
                             Icons.vpn_key_rounded,
                             size: 15,
-                            color: (confirmpasswordvalide)?Colors.white70:Colors.red,
+                            color: (confirmpasswordvalide)
+                                ? Colors.white70
+                                : Colors.red,
                           ),
                         ),
                         style: TextStyle(
-                          color: (confirmpasswordvalide)?Colors.white70:Colors.red,
+                          color: (confirmpasswordvalide)
+                              ? Colors.white70
+                              : Colors.red,
                         ),
                         maxLines: 1,
                         minLines: 1,
                         scrollPadding: EdgeInsets.zero,
                         cursorColor: Colors.white,
-
-                        onFieldSubmitted: (v){
-
-                          if(confirmPasswordController.text.length>=6 && confirmPasswordController.text == passwordController.text){
+                        onFieldSubmitted: (v) {
+                          if (confirmPasswordController.text.length >= 6 &&
+                              confirmPasswordController.text ==
+                                  passwordController.text) {
                             confirmpasswordvalide = true;
-                          }else{
+                          } else {
                             confirmpasswordvalide = false;
-
                           }
-                          setState(() {
-
-                          });
+                          setState(() {});
                           FocusScope.of(context).requestFocus(main_focus_node);
-                          pos_y= 1;
-                          setState(() {
-
-                          });
+                          pos_y = 1;
+                          setState(() {});
                         },
                       ),
-                      if(_visibile_error)
+                      if (_visibile_error)
                         Container(
                           width: double.infinity,
                           margin: EdgeInsets.symmetric(vertical: 5),
-                          padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                           decoration: BoxDecoration(
-                            border: Border.all(color: Colors.red,width: 0.3),
+                            border: Border.all(color: Colors.red, width: 0.3),
                             borderRadius: BorderRadius.circular(5),
-                            color:  Colors.redAccent,
+                            color: Colors.redAccent,
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,25 +433,21 @@ class _PasswordState extends State<Password> {
                               Flexible(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                      _message_error ,
+                                  child: Text(_message_error,
                                       style: TextStyle(
-                                        color:Colors.white,
+                                        color: Colors.white,
                                         fontSize: 11,
                                         fontWeight: FontWeight.w500,
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ),
                             ],
                           ),
                         ),
                       GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           pos_y = 1;
-                          setState(() {
-
-                          });
+                          setState(() {});
                           _goToValidate();
                         },
                         child: Container(
@@ -417,54 +455,55 @@ class _PasswordState extends State<Password> {
                           height: 45,
                           width: double.infinity,
                           decoration: BoxDecoration(
-                            border:Border.all(color: (pos_y == 1)? Colors.white:  Colors.deepPurple,width: 2),
+                            border: Border.all(
+                                color: (pos_y == 1)
+                                    ? Colors.white
+                                    : Colors.deepPurple,
+                                width: 2),
                             color: Colors.deepPurple,
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              (loading)?
-                              Container(
-                                  height:40,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white10,
-                                      borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                  ),
-                                  child: Center(
-                                    child: Container(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
-                                        )
-                                    ),
-                                  )
-                              )
-                                  :
-                              Container(
-                                  height:40,
-                                  width: 40,
-                                  decoration: BoxDecoration(
-                                      color: Colors.white10,
-                                      borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
-                                  ),
-                                  child: Icon( FontAwesomeIcons.lock ,color: Colors.white)
-                              ),
+                              (loading)
+                                  ? Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white10,
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(4),
+                                              topLeft: Radius.circular(4))),
+                                      child: Center(
+                                        child: Container(
+                                            width: 20,
+                                            height: 20,
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                              strokeWidth: 2,
+                                            )),
+                                      ))
+                                  : Container(
+                                      height: 40,
+                                      width: 40,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white10,
+                                          borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(4),
+                                              topLeft: Radius.circular(4))),
+                                      child: Icon(FontAwesomeIcons.lock,
+                                          color: Colors.white)),
                               Expanded(
                                 child: Center(
                                   child: Text(
-                                    (loading)?
-                                    "Operation in progress ..."
-                                        :
-                                    "Change your password  !",
+                                    (loading)
+                                        ? "Operation in progress ..."
+                                        : "Change your password  !",
                                     style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.white
-                                    ),
+                                        color: Colors.white),
                                   ),
                                 ),
                               )
@@ -472,9 +511,6 @@ class _PasswordState extends State<Password> {
                           ),
                         ),
                       ),
-
-
-
                     ],
                   ),
                 ),
@@ -487,34 +523,28 @@ class _PasswordState extends State<Password> {
   }
 
   void _goToValidate() {
-    if(pos_y == 1){
-
-      if(oldPasswordController.text.length>=6){
+    if (pos_y == 1) {
+      if (oldPasswordController.text.length >= 6) {
         oldvalide = true;
-      }else{
+      } else {
         oldvalide = false;
       }
-      if(passwordController.text.length>=6){
+      if (passwordController.text.length >= 6) {
         passwordvalide = true;
-      }else{
+      } else {
         passwordvalide = false;
-
       }
-      if(confirmPasswordController.text.length>=6 && confirmPasswordController.text == passwordController.text){
+      if (confirmPasswordController.text.length >= 6 &&
+          confirmPasswordController.text == passwordController.text) {
         confirmpasswordvalide = true;
-      }else{
+      } else {
         confirmpasswordvalide = false;
-
       }
-      setState(() {
+      setState(() {});
 
-      });
-
-      if(passwordvalide && oldvalide && confirmpasswordvalide){
+      if (passwordvalide && oldvalide && confirmpasswordvalide) {
         _changePassword();
       }
     }
   }
-
-
 }

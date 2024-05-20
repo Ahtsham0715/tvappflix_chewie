@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:flutter_app_tv/key_code.dart';
-import 'package:flutter_app_tv/model/comment.dart';
 import 'package:flutter_app_tv/model/subscription.dart';
-import 'package:flutter_app_tv/ui/auth/profile_item_widget.dart';
 import 'package:flutter_app_tv/ui/auth/subscription_item_widget.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';
 import 'package:flutter_app_tv/ui/comment/comment_empty_widget.dart';
@@ -106,23 +103,20 @@ class _SubscriptionsState extends State<Subscriptions> {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
+    return KeyboardListener(
       focusNode: main_focus_node,
-      onKey: (RawKeyEvent event) {
-        if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
-          RawKeyDownEvent rawKeyDownEvent = event;
-          RawKeyEventDataAndroid rawKeyEventDataAndroid =
-              rawKeyDownEvent.data as RawKeyEventDataAndroid;
-          print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
-          switch (rawKeyEventDataAndroid.keyCode) {
-            case KEY_CENTER:
+      onKeyEvent: (KeyEvent event) {
+        if (event is KeyDownEvent) {
+          final logicalKey = event.logicalKey;
+          switch (logicalKey) {
+            case LogicalKeyboardKey.select:
               break;
-            case KEY_UP:
+            case LogicalKeyboardKey.arrowUp:
               if (pos_y > 0) {
                 pos_y--;
               }
               break;
-            case KEY_DOWN:
+            case LogicalKeyboardKey.arrowDown:
               if (pos_y < 4) {
                 pos_y++;
               }
@@ -131,13 +125,11 @@ class _SubscriptionsState extends State<Subscriptions> {
             default:
               break;
           }
-          if (subscriptionScrollController != null) {
-            subscriptionScrollController.scrollTo(
-                index: pos_y,
-                alignment: 0.43,
-                duration: Duration(milliseconds: 500),
-                curve: Curves.easeInOutQuart);
-          }
+          subscriptionScrollController.scrollTo(
+              index: pos_y,
+              alignment: 0.43,
+              duration: Duration(milliseconds: 500),
+              curve: Curves.easeInOutQuart);
           setState(() {});
         }
       },

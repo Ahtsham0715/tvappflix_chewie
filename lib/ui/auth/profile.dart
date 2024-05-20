@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/key_code.dart';
@@ -60,17 +59,13 @@ class _ProfileState extends ResumableState<Profile> {
         }
         return true;
       },
-      child: RawKeyboardListener(
+      child: KeyboardListener(
         focusNode: main_focus_node,
-        onKey: (RawKeyEvent event) {
-          if (event is RawKeyDownEvent &&
-              event.data is RawKeyEventDataAndroid) {
-            RawKeyDownEvent rawKeyDownEvent = event;
-            RawKeyEventDataAndroid rawKeyEventDataAndroid =
-                rawKeyDownEvent.data as RawKeyEventDataAndroid;
-            print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
-            switch (rawKeyEventDataAndroid.keyCode) {
-              case KEY_CENTER:
+        onKeyEvent: (KeyEvent event) {
+          if (event is KeyDownEvent) {
+            final logicalKey = event.logicalKey;
+            switch (logicalKey) {
+              case LogicalKeyboardKey.select:
                 if (infos) break;
                 _showInfos();
                 _logout();
@@ -78,13 +73,13 @@ class _ProfileState extends ResumableState<Profile> {
                 _goToEditProfile();
                 _goToSubscriptions();
                 break;
-              case KEY_UP:
+              case LogicalKeyboardKey.arrowUp:
                 if (infos) break;
                 if (pos_y > 0) {
                   pos_y--;
                 }
                 break;
-              case KEY_DOWN:
+              case LogicalKeyboardKey.arrowDown:
                 if (infos) break;
                 if (pos_y < 4) {
                   pos_y++;

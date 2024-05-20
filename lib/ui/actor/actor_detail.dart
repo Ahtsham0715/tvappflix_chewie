@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
-import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/model/actor.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';

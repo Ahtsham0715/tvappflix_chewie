@@ -1,8 +1,6 @@
 import 'package:flutter_app_tv/model/category.dart';
 import 'package:flutter_app_tv/model/country.dart';
-import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/source.dart';
-import 'package:json_annotation/json_annotation.dart';
 
 class Channel{
   int id ;

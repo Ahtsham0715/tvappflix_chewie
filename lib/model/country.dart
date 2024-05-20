@@ -1,4 +1,3 @@
-import 'package:flutter_app_tv/model/poster.dart';
 
 class Country{
   int id;
