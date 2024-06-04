@@ -28,12 +28,14 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
           onPageStarted: (String url) {},
           onPageFinished: (String url) {},
           // onHttpError: (HttpResponseError error) {},
+
           onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://www.youtube.com/')) {
-              return NavigationDecision.prevent;
-            }
-            return NavigationDecision.navigate;
+            // if (request.url.startsWith('https://www.youtube.com/')) {
+            //   return NavigationDecision.prevent;
+            // }
+            // return NavigationDecision.navigate;
+            return NavigationDecision.prevent;
           },
         ),
       )
