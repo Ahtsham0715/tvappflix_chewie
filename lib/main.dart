@@ -21,6 +21,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   WakelockPlus.enable();
+
   runApp(MyApp());
 }
 
@@ -60,7 +61,7 @@ class _MyAppState extends State<MyApp> {
         "/comments": (context) => Comments(),
         "/comment_add": (context) => CommentAdd(image: "", id: 1, type: ""),
         "/login": (context) => Login(),
-        "/video_player": (context) => VideoPlayer(focused_source: 0),
+        // "/video_player": (context) => VideoPlayer(focused_source: 0),
       },
     );
   }

@@ -20,6 +20,8 @@ import 'package:flutter_app_tv/ui/home/home.dart';
 import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/ui/movie/movie.dart';
 import 'package:flutter_app_tv/ui/movie/related_loading_widget.dart';
+import 'package:flutter_app_tv/ui/player/embed_player.dart';
+import 'package:flutter_app_tv/ui/player/vlc_player.dart';
 import 'package:flutter_app_tv/ui/review/review_add.dart';
 import 'package:flutter_app_tv/ui/player/video_player.dart';
 import 'package:flutter_app_tv/ui/movie/movies_widget.dart';
@@ -1680,8 +1682,10 @@ class _SerieState extends State<Serie> {
   }
 
   void _playSource() async {
-    if (sources[_selected_source].type == "youtube" ||
-        sources[_selected_source].type == "embed") {
+    if (sources[_selected_source].type == "youtube"
+        // ||
+        //     sources[_selected_source].type == "embed"
+        ) {
       String url = sources[_selected_source].url;
       if (await canLaunch(url)) {
         await launch(url);
@@ -1701,20 +1705,40 @@ class _SerieState extends State<Serie> {
           j++;
         }
       }
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(
-              sourcesList: _sources,
-              selected_source: _new_selected_source,
-              focused_source: _new_selected_source,
-              poster: widget.serie,
-              episode: selected_episode!,
-              season: selected_season,
-              seasons: seasons),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      if (sources[_selected_source].type == "embed") {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => EmbedPlayer(
+              url: _sources.first.url,
+            ),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => VlcPlayerPage(
+                sourcesList: _sources,
+                selected_source: _new_selected_source,
+                focused_source: _new_selected_source,
+                poster: widget.serie,
+                episode: selected_episode!,
+                season: selected_season,
+                seasons: seasons),
+            //  VideoPlayer(
+            //     sourcesList: _sources,
+            //     selected_source: _new_selected_source,
+            //     focused_source: _new_selected_source,
+            //     poster: widget.serie,
+            //     episode: selected_episode!,
+            //     season: selected_season,
+            //     seasons: seasons),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
 

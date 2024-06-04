@@ -21,4 +21,11 @@ class Subtitle {
         url: parsedJson['url'],
         image: parsedJson['image']);
   }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'type': type,
+        'language': language,
+        'url': url,
+        'image': image,
+      };
 }

@@ -13,9 +13,9 @@ import 'package:flutter_app_tv/ui/channel/related_channel_loading_widget.dart';
 import 'package:flutter_app_tv/ui/comment/comments.dart';
 import 'package:flutter_app_tv/ui/dialogs/sources_dialog.dart';
 import 'package:flutter_app_tv/ui/dialogs/subscribe_dialog.dart';
-import 'package:flutter_app_tv/key_code.dart';
+import 'package:flutter_app_tv/ui/player/embed_player.dart';
+import 'package:flutter_app_tv/ui/player/vlc_player.dart';
 import 'package:flutter_app_tv/ui/review/review_add.dart';
-import 'package:flutter_app_tv/ui/player/video_player.dart';
 import 'package:flutter_app_tv/ui/channel/channels_widget.dart';
 import 'package:flutter_app_tv/ui/review/reviews.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -1000,8 +1000,10 @@ class _ChannelDetailState extends State<ChannelDetail> {
       List<Source> _sources = [];
       int j = 0;
       for (var i = 0; i < widget.channel!.sources.length; i++) {
-        if (widget.channel!.sources[i].type != "youtube" &&
-            widget.channel!.sources[_selected_source].type != "embed") {
+        if (widget.channel!.sources[i].type != "youtube"
+            // &&
+            //     widget.channel!.sources[_selected_source].type != "embed"
+            ) {
           print(widget.channel!.sources[i].url);
           _sources.add(widget.channel!.sources[i]);
           if (_selected_source == i) {
@@ -1010,17 +1012,36 @@ class _ChannelDetailState extends State<ChannelDetail> {
           j++;
         }
       }
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(
-              sourcesList: _sources,
-              selected_source: _new_selected_source,
-              focused_source: _new_selected_source,
-              channel: widget.channel),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      if (widget.channel!.sources[_selected_source].type != "embed") {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => EmbedPlayer(
+              url: _sources.first.url,
+            ),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) =>
+
+                // VideoPlayer(
+                //     sourcesList: _sources,
+                //     selected_source: _new_selected_source,
+                //     focused_source: _new_selected_source,
+                //     channel: widget.channel),
+                VlcPlayerPage(
+                    sourcesList: _sources,
+                    selected_source: _new_selected_source,
+                    focused_source: _new_selected_source,
+                    channel: widget.channel),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
 

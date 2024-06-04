@@ -5,7 +5,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
-import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/model/actor.dart';
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
@@ -20,7 +19,10 @@ import 'package:flutter_app_tv/ui/dialogs/sources_dialog.dart';
 import 'package:flutter_app_tv/ui/dialogs/subscribe_dialog.dart';
 import 'package:flutter_app_tv/ui/movie/movies_widget.dart';
 import 'package:flutter_app_tv/ui/movie/related_loading_widget.dart';
-import 'package:flutter_app_tv/ui/player/video_player.dart';
+import 'package:flutter_app_tv/ui/player/embed_player.dart';
+
+import 'package:flutter_app_tv/ui/player/vlc_player.dart';
+import 'package:flutter_app_tv/ui/player/youtube_player.dart';
 import 'package:flutter_app_tv/ui/review/review_add.dart';
 import 'package:flutter_app_tv/ui/review/reviews.dart';
 import 'package:flutter_app_tv/ui/serie/serie.dart';
@@ -716,9 +718,14 @@ class _MovieState extends State<Movie> {
                                                               MaterialPageRoute(
                                                                 builder:
                                                                     (context) =>
-                                                                        TrailerScreen(
-                                                                  url: url,
+                                                                        YoutubePlayerPage(
+                                                                  videoUrls: [
+                                                                    url
+                                                                  ],
                                                                 ),
+                                                                //         TrailerScreen(
+                                                                //   url: url,
+                                                                // ),
                                                               ));
                                                         }
                                                       }
@@ -1363,14 +1370,25 @@ class _MovieState extends State<Movie> {
   }
 
   void _playSource() async {
-    if (widget.movie!.sources[_selected_source].type == "youtube" ||
-        widget.movie!.sources[_selected_source].type == "embed") {
+    if (widget.movie!.sources[_selected_source].type == "youtube"
+        // ||
+        //     widget.movie!.sources[_selected_source].type == "embed"
+        ) {
       String url = widget.movie!.sources[_selected_source].url;
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
-      }
+      // if (await canLaunch(url)) {
+      //   await launch(url);
+      // } else {
+      //   throw 'Could not launch $url';
+      // }
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => YoutubePlayerPage(
+            videoUrls: [url],
+          ),
+          transitionDuration: Duration(seconds: 0),
+        ),
+      );
     } else {
       int _new_selected_source = 0;
       List<Source> _sources = [];
@@ -1384,17 +1402,34 @@ class _MovieState extends State<Movie> {
           j++;
         }
       }
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(
-              sourcesList: _sources,
-              selected_source: _new_selected_source,
-              focused_source: _new_selected_source,
-              poster: widget.movie),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      if (widget.movie!.sources[_selected_source].type == "embed") {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => EmbedPlayer(
+              url: _sources.first.url,
+            ),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      } else {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => VlcPlayerPage(
+                sourcesList: _sources,
+                selected_source: _new_selected_source,
+                focused_source: _new_selected_source,
+                poster: widget.movie),
+            // VideoPlayer(
+            // sourcesList: _sources,
+            // selected_source: _new_selected_source,
+            // focused_source: _new_selected_source,
+            // poster: widget.movie),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
 
