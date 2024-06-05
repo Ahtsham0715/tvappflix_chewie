@@ -1710,7 +1710,7 @@ class _SerieState extends State<Serie> {
           context,
           PageRouteBuilder(
             pageBuilder: (context, animation1, animation2) => EmbedPlayer(
-              url: _sources.first.url,
+              url: sources[_selected_source].url,
             ),
             transitionDuration: Duration(seconds: 0),
           ),

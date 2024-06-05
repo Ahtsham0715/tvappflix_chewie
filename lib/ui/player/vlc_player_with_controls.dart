@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_app_tv/ui/player/controls_overlay.dart';
 import 'package:flutter_app_tv/ui/player/video_state_saver.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
@@ -60,8 +61,11 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
   //
   List<double> playbackSpeeds = [0.5, 1.0, 2.0];
   int playbackSpeedIndex = 1;
-  bool hideSeekControls = true;
+  bool hideControls = false;
+  bool timerRunning = false;
   bool resumedPlayback = false;
+  static const Duration _seekStepForward = Duration(seconds: 10);
+  static const Duration _seekStepBackward = Duration(seconds: -10);
   @override
   void initState() {
     super.initState();
@@ -72,6 +76,7 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
     // }
     // });
     _controller.addListener(listener);
+    // hideSeekControls();
   }
 
   // void resumePlayback() async {
@@ -154,215 +159,254 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
     }
   }
 
+  // void hideSeekControls() async {
+  //   Future.delayed(Duration(seconds: 3), () {
+  //     if (timerRunning) {
+  //       timerRunning = false;
+  //     } else {
+  //       setState(() {
+  //         hideControls = true;
+  //       });
+  //     }
+  //     timerRunning = true;
+  //   });
+  //   // final timer = Timer(Duration(seconds: 3), () {
+  //   //   setState(() {
+  //   //     hideControls = true;
+  //   //   });
+  //   // });
+  //   // timer.cancel();
+  // }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
+    return Stack(
+      // mainAxisSize: MainAxisSize.max,
+      fit: StackFit.expand,
+      alignment: Alignment.center,
       children: [
-        Expanded(
-          child: ColoredBox(
-            color: Colors.black,
-            child: Stack(
-              fit: StackFit.expand,
-              alignment: Alignment.bottomCenter,
-              children: <Widget>[
-                VlcPlayer(
-                  controller: _controller,
-                  aspectRatio: _aspectRatio,
-                  // virtualDisplay: false,
-                  placeholder: const Center(child: CircularProgressIndicator()),
-                ),
-                ControlsOverlay(controller: _controller),
-              ],
+        Positioned.fill(
+          // aspectRatio: _aspectRatio,
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                hideControls = !hideControls;
+              });
+              // hideSeekControls();
+              print('screen tapped');
+            },
+            child: VlcPlayer(
+              controller: _controller,
+              aspectRatio: _aspectRatio,
+              virtualDisplay: true,
+              placeholder: const Center(child: CircularProgressIndicator()),
             ),
           ),
         ),
         Visibility(
-          visible: widget.showControls,
-          child: Container(
-            child: Row(
+          visible: !hideControls,
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  color: Colors.white,
-                  icon: _controller.value.isPlaying
-                      ? const Icon(Icons.pause_circle_outline)
-                      : const Icon(Icons.play_circle_outline),
-                  onPressed: _togglePlaying,
+                Row(
+                  children: [
+                    IconButton(
+                      color: Colors.white,
+                      icon: _controller.value.isPlaying
+                          ? const Icon(Icons.pause_circle_outline)
+                          : const Icon(Icons.play_circle_outline),
+                      onPressed: _togglePlaying,
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            position,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          Expanded(
+                            child: Slider(
+                              activeColor: Colors.redAccent,
+                              inactiveColor: Colors.white70,
+                              value: sliderValue,
+                              max: !validPosition
+                                  ? 1.0
+                                  : _controller.value.duration.inSeconds
+                                      .toDouble(),
+                              onChanged: validPosition
+                                  ? _onSliderPositionChanged
+                                  : null,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(right: 10.0),
+                            child: Text(
+                              duration,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                Expanded(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                SizedBox(
+                  width: double.infinity,
+                  child: Wrap(
+                    alignment: WrapAlignment.spaceBetween,
                     children: [
-                      Text(
-                        position,
-                        style: const TextStyle(color: Colors.white),
+                      Wrap(
+                        children: [
+                          Stack(
+                            children: [
+                              IconButton(
+                                tooltip: 'Get Subtitle Tracks',
+                                icon: const Icon(
+                                    CupertinoIcons.captions_bubble_fill),
+                                color: Colors.white,
+                                onPressed: _getSubtitleTracks,
+                              ),
+                              Positioned(
+                                top: _numberPositionOffset,
+                                right: _numberPositionOffset,
+                                child: IgnorePointer(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 1,
+                                      horizontal: 2,
+                                    ),
+                                    child: Text(
+                                      '${widget.subtitlesList.isEmpty ? numberOfCaptions : widget.subtitlesList.length}',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Stack(
+                            children: [
+                              IconButton(
+                                tooltip: 'Get Audio Tracks',
+                                icon: const Icon(Icons.audiotrack_rounded),
+                                color: Colors.white,
+                                onPressed: _getAudioTracks,
+                              ),
+                              Positioned(
+                                top: _numberPositionOffset,
+                                right: _numberPositionOffset,
+                                child: IgnorePointer(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 1,
+                                      horizontal: 2,
+                                    ),
+                                    child: Text(
+                                      '$numberOfAudioTracks',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Stack(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.speed),
+                                color: Colors.white,
+                                onPressed: _cyclePlaybackSpeed,
+                              ),
+                              Positioned(
+                                bottom: _positionedBottomSpace,
+                                right: _positionedRightSpace,
+                                child: IgnorePointer(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius: BorderRadius.circular(1),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 1,
+                                      horizontal: 2,
+                                    ),
+                                    child: Text(
+                                      '${playbackSpeeds.elementAt(playbackSpeedIndex)}x',
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 8,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            onPressed: () => _seekRelative(_seekStepBackward),
+                            color: Colors.white,
+                            // iconSize: _seekButtonIconSize,
+                            icon: const Icon(Icons.replay_10),
+                          ),
+                          IconButton(
+                            onPressed: () => _seekRelative(_seekStepForward),
+                            color: Colors.white,
+                            // iconSize: _seekButtonIconSize,
+                            icon: const Icon(Icons.forward_10),
+                          ),
+                          // IconButton(
+                          //   icon: const Icon(Icons.keyboard_double_arrow_right),
+                          //   color: Colors.white,
+                          //   onPressed: widget.prepareNextEpisode,
+                          // ),
+                        ],
                       ),
-                      Expanded(
-                        child: Slider(
-                          activeColor: Colors.redAccent,
-                          inactiveColor: Colors.white70,
-                          value: sliderValue,
-                          max: !validPosition
-                              ? 1.0
-                              : _controller.value.duration.inSeconds.toDouble(),
-                          onChanged:
-                              validPosition ? _onSliderPositionChanged : null,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 10.0),
-                        child: Text(
-                          duration,
-                          style: const TextStyle(color: Colors.white),
+                      Visibility(
+                        visible: widget.showControls,
+                        child: Container(
+                          width: 200,
+                          // color: _playerControlsBgColor,
+                          padding: const EdgeInsets.symmetric(horizontal: 5.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            // mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.volume_up_rounded,
+                                color: Colors.white,
+                              ),
+                              Expanded(
+                                child: Slider(
+                                  max: _overlayWidth,
+                                  value: volumeValue,
+                                  onChanged: _setSoundVolume,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        Visibility(
-          visible: widget.showControls,
-          child: SizedBox(
-            width: double.infinity,
-            child: Wrap(
-              alignment: WrapAlignment.spaceBetween,
-              children: [
-                Wrap(
-                  children: [
-                    Stack(
-                      children: [
-                        IconButton(
-                          tooltip: 'Get Subtitle Tracks',
-                          icon: const Icon(Icons.closed_caption),
-                          color: Colors.white,
-                          onPressed: _getSubtitleTracks,
-                        ),
-                        Positioned(
-                          top: _numberPositionOffset,
-                          right: _numberPositionOffset,
-                          child: IgnorePointer(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(1),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 1,
-                                horizontal: 2,
-                              ),
-                              child: Text(
-                                '${widget.subtitlesList.length}',
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Stack(
-                      children: [
-                        IconButton(
-                          tooltip: 'Get Audio Tracks',
-                          icon: const Icon(CupertinoIcons.captions_bubble_fill),
-                          color: Colors.white,
-                          onPressed: _getAudioTracks,
-                        ),
-                        Positioned(
-                          top: _numberPositionOffset,
-                          right: _numberPositionOffset,
-                          child: IgnorePointer(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(1),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 1,
-                                horizontal: 2,
-                              ),
-                              child: Text(
-                                '$numberOfAudioTracks',
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Stack(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.speed),
-                          color: Colors.white,
-                          onPressed: _cyclePlaybackSpeed,
-                        ),
-                        Positioned(
-                          bottom: _positionedBottomSpace,
-                          right: _positionedRightSpace,
-                          child: IgnorePointer(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.orange,
-                                borderRadius: BorderRadius.circular(1),
-                              ),
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 1,
-                                horizontal: 2,
-                              ),
-                              child: Text(
-                                '${playbackSpeeds.elementAt(playbackSpeedIndex)}x',
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 8,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    // IconButton(
-                    //   icon: const Icon(Icons.keyboard_double_arrow_right),
-                    //   color: Colors.white,
-                    //   onPressed: widget.prepareNextEpisode,
-                    // ),
-                  ],
-                ),
-                Visibility(
-                  visible: widget.showControls,
-                  child: Container(
-                    width: 200,
-                    // color: _playerControlsBgColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 5.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(
-                          Icons.volume_up_rounded,
-                          color: Colors.white,
-                        ),
-                        Expanded(
-                          child: Slider(
-                            max: _overlayWidth,
-                            value: volumeValue,
-                            onChanged: _setSoundVolume,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ],
@@ -377,6 +421,10 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
   void dispose() {
     _controller.removeListener(listener);
     super.dispose();
+  }
+
+  Future<void> _seekRelative(Duration seekStep) {
+    return _controller.seekTo(_controller.value.position + seekStep);
   }
 
   Future<void> _cyclePlaybackSpeed() async {
@@ -421,13 +469,18 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
 
   Future<void> _getSubtitleTracks() async {
     // if (!_controller.value.isPlaying) return;
-    await loadSubtitles();
+    if (widget.subtitlesList.isNotEmpty) {
+      await loadSubtitles();
+    }
     final subtitleTracks = await _controller.getSpuTracks();
     //
 
-    if (widget.subtitlesList.isNotEmpty) {
+    if (subtitleTracks.isNotEmpty) {
       if (!mounted) return;
 
+      setState(() {
+        numberOfCaptions = subtitleTracks.length;
+      });
       final selectedSubId = await showDialog<int>(
         context: context,
         builder: (BuildContext context) {
@@ -437,12 +490,20 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
               width: 150,
               height: 200,
               child: ListView.builder(
-                itemCount: widget.subtitlesList.length + 1,
+                itemCount: (widget.subtitlesList.isNotEmpty
+                        ? widget.subtitlesList.length
+                        : subtitleTracks.keys.length) +
+                    1,
                 itemBuilder: (context, index) {
                   return ListTile(
                     title: Text(
-                      index < widget.subtitlesList.length
-                          ? widget.subtitlesList[index].language
+                      index <
+                              (widget.subtitlesList.isNotEmpty
+                                  ? widget.subtitlesList.length
+                                  : subtitleTracks.length)
+                          ? widget.subtitlesList.isEmpty
+                              ? subtitleTracks.values.elementAt(index)
+                              : widget.subtitlesList[index].language
                           : 'Disable',
                     ),
                     onTap: () {

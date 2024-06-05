@@ -73,7 +73,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   //subtitl prfs
   int? subtitleTextColorPref;
   int? subtitleBackgroundColorPref;
-  int? subtitleSizePref;
+  int subtitleSizePref = 25;
   @override
   void initState() {
     super.initState();
@@ -90,9 +90,11 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   }
 
   void loadSubtitlePrefs() async {
+    subtitleSizePref = (await getSubtitleValue('subtitle_size') ?? 25);
     subtitleTextColorPref = await getSubtitleValue("subtitle_color");
     subtitleBackgroundColorPref = await getSubtitleValue("subtitle_background");
-    subtitleSizePref = await getSubtitleValue('subtitle_size');
+
+    print('subtitleFontSize: $subtitleSizePref');
     setState(() {});
   }
 
@@ -181,8 +183,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
           ]),
           subtitle: VlcSubtitleOptions([
             VlcSubtitleOptions.boldStyle(true),
-            VlcSubtitleOptions.fontSize(subtitleSizePref ?? 30),
-            VlcSubtitleOptions.font('TTF'),
+            VlcSubtitleOptions.fontSize(subtitleSizePref),
             VlcSubtitleOptions.backgroundOpacity(150),
             VlcSubtitleOptions.backgroundColor(subtitleBackgroundColorPref ==
                     null
@@ -334,36 +335,39 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Colors.black,
-        body: _videoPlayerController == null ||
-                _videoPlayerController!.value.isBuffering
-            ? Center(
-                child: CircularProgressIndicator(color: Colors.white),
-              )
-            : VlcPlayerWithControls(
-                key: _key,
-                prepareNextEpisode: _prepareNext,
-                subtitlesList: _subtitlesList,
-                showControls: true,
-                controller: _videoPlayerController!,
-                onStopRecording: (recordPath) {
-                  // setState(() {
-                  //   listVideos.add(
-                  //     VideoData(
-                  //       name: 'Recorded Video',
-                  //       path: recordPath,
-                  //       type: VideoType.recorded,
-                  //     ),
-                  //   );
-                  // });
-                  // ScaffoldMessenger.of(context).showSnackBar(
-                  //   const SnackBar(
-                  //     content: Text(
-                  //       'The recorded video file has been added to the end of list.',
-                  //     ),
-                  //   ),
-                  // );
-                },
-              ));
+      backgroundColor: Colors.black,
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      body: _videoPlayerController == null ||
+              _videoPlayerController!.value.isBuffering
+          ? Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+          : VlcPlayerWithControls(
+              key: _key,
+              prepareNextEpisode: _prepareNext,
+              subtitlesList: _subtitlesList,
+              showControls: true,
+              controller: _videoPlayerController!,
+              onStopRecording: (recordPath) {
+                // setState(() {
+                //   listVideos.add(
+                //     VideoData(
+                //       name: 'Recorded Video',
+                //       path: recordPath,
+                //       type: VideoType.recorded,
+                //     ),
+                //   );
+                // });
+                // ScaffoldMessenger.of(context).showSnackBar(
+                //   const SnackBar(
+                //     content: Text(
+                //       'The recorded video file has been added to the end of list.',
+                //     ),
+                //   ),
+                // );
+              },
+            ),
+    );
   }
 }

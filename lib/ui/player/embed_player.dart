@@ -31,11 +31,11 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
 
           onWebResourceError: (WebResourceError error) {},
           onNavigationRequest: (NavigationRequest request) {
-            // if (request.url.startsWith('https://www.youtube.com/')) {
-            //   return NavigationDecision.prevent;
-            // }
-            // return NavigationDecision.navigate;
-            return NavigationDecision.prevent;
+            if (request.url != widget.url) {
+              return NavigationDecision.prevent;
+            }
+            return NavigationDecision.navigate;
+            // return NavigationDecision.prevent;
           },
         ),
       )
