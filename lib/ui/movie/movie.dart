@@ -247,8 +247,9 @@ class _MovieState extends State<Movie> {
             if (event is KeyDownEvent) {
               final logicalKey = event.logicalKey;
               switch (logicalKey) {
-                case LogicalKeyboardKey
-                      .select: // Replace KEY_CENTER with a more general key
+                case (LogicalKeyboardKey.enter ||
+                      LogicalKeyboardKey
+                          .select): // Replace KEY_CENTER with a more general key
                   _openSource();
                   _goToReview();
                   _goToPlayer();

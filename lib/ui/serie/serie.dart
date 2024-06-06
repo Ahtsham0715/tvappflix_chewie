@@ -22,6 +22,7 @@ import 'package:flutter_app_tv/ui/movie/movie.dart';
 import 'package:flutter_app_tv/ui/movie/related_loading_widget.dart';
 import 'package:flutter_app_tv/ui/player/embed_player.dart';
 import 'package:flutter_app_tv/ui/player/vlc_player.dart';
+import 'package:flutter_app_tv/ui/player/youtube_player.dart';
 import 'package:flutter_app_tv/ui/review/review_add.dart';
 import 'package:flutter_app_tv/ui/player/video_player.dart';
 import 'package:flutter_app_tv/ui/movie/movies_widget.dart';
@@ -277,7 +278,7 @@ class _SerieState extends State<Serie> {
             if (event is KeyDownEvent) {
               final logicalKey = event.logicalKey;
               switch (logicalKey) {
-                case LogicalKeyboardKey.select:
+                case (LogicalKeyboardKey.enter || LogicalKeyboardKey.select):
                   _openSource();
                   _selectSeason();
                   _goToPlayer();
@@ -1662,14 +1663,23 @@ class _SerieState extends State<Serie> {
     if (posty == 0 && postx == 1) {
       String? url = widget.serie?.trailer?.url;
       if (url != null) {
-        if (await canLaunchUrl(Uri.parse(url))) {
-          await launchUrl(
-            Uri.parse(url),
-            mode: LaunchMode.platformDefault,
-          );
-        } else {
-          print('Could not launch $url');
-        }
+        // if (await canLaunchUrl(Uri.parse(url))) {
+        //   await launchUrl(
+        //     Uri.parse(url),
+        //     mode: LaunchMode.platformDefault,
+        //   );
+        // } else {
+        //   print('Could not launch $url');
+        // }
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => YoutubePlayerPage(
+              videoUrls: [url],
+            ),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
       }
     }
   }
@@ -1687,11 +1697,20 @@ class _SerieState extends State<Serie> {
         //     sources[_selected_source].type == "embed"
         ) {
       String url = sources[_selected_source].url;
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
-      }
+      // if (await canLaunch(url)) {
+      //   await launch(url);
+      // } else {
+      //   throw 'Could not launch $url';
+      // }
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => YoutubePlayerPage(
+            videoUrls: [url],
+          ),
+          transitionDuration: Duration(seconds: 0),
+        ),
+      );
     } else {
       int _new_selected_source = 0;
       List<Source> _sources = [];

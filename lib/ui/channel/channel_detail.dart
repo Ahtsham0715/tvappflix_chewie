@@ -15,6 +15,7 @@ import 'package:flutter_app_tv/ui/dialogs/sources_dialog.dart';
 import 'package:flutter_app_tv/ui/dialogs/subscribe_dialog.dart';
 import 'package:flutter_app_tv/ui/player/embed_player.dart';
 import 'package:flutter_app_tv/ui/player/vlc_player.dart';
+import 'package:flutter_app_tv/ui/player/youtube_player.dart';
 import 'package:flutter_app_tv/ui/review/review_add.dart';
 import 'package:flutter_app_tv/ui/channel/channels_widget.dart';
 import 'package:flutter_app_tv/ui/review/reviews.dart';
@@ -216,7 +217,7 @@ class _ChannelDetailState extends State<ChannelDetail> {
             if (event is KeyDownEvent) {
               final logicalKey = event.logicalKey;
               switch (logicalKey) {
-                case LogicalKeyboardKey.select:
+                case (LogicalKeyboardKey.enter || LogicalKeyboardKey.select):
                   _goToReview();
                   _goToComments();
                   _goToReviews();
@@ -548,12 +549,11 @@ class _ChannelDetailState extends State<ChannelDetail> {
                                                 setState(() {
                                                   posty = 0;
                                                   postx = 1;
-                                                  Future.delayed(
-                                                      Duration(
-                                                          milliseconds: 100),
-                                                      () {
-                                                    _goToWebsite();
-                                                  });
+                                                });
+                                                Future.delayed(
+                                                    Duration(milliseconds: 100),
+                                                    () {
+                                                  _goToWebsite();
                                                 });
                                               },
                                               child: Container(
@@ -990,11 +990,20 @@ class _ChannelDetailState extends State<ChannelDetail> {
     if (widget.channel!.sources[_selected_source].type == "youtube" ||
         widget.channel!.sources[_selected_source].type == "embed") {
       String url = widget.channel!.sources[_selected_source].url;
-      if (await canLaunch(url)) {
-        await launch(url);
-      } else {
-        throw 'Could not launch $url';
-      }
+      // if (await canLaunch(url)) {
+      //   await launch(url);
+      // } else {
+      //   throw 'Could not launch $url';
+      // }
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => YoutubePlayerPage(
+            videoUrls: [url],
+          ),
+          transitionDuration: Duration(seconds: 0),
+        ),
+      );
     } else {
       int _new_selected_source = 0;
       List<Source> _sources = [];
@@ -1146,10 +1155,10 @@ class _ChannelDetailState extends State<ChannelDetail> {
 
   void _goToWebsite() async {
     if (postx == 1 && posty == 0) {
-      String url = widget.channel!.website!;
-      print(url);
-      if (await canLaunch(url)) {
-        await launch(url);
+      String url = widget.channel!.website ?? '';
+      print('website url: $url');
+      if (await canLaunchUrl(Uri.parse(url))) {
+        await launchUrl(Uri.parse(url));
       } else {
         throw 'Could not launch $url';
       }

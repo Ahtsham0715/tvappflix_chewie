@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/channel.dart';
@@ -64,7 +65,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   bool visible_subscribe_dialog = false;
   bool visibileSourcesDialog = false;
   AnimationController? _animated_controller;
-  // Timer? _visibile_controllers_future;
+  // Timer? _visibile_videoPlayerController!s_future;
   bool _visibile_controllers = true;
   final _key = GlobalKey<VlcPlayerWithControlsState>();
   int post_x = 0;
@@ -74,6 +75,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   int? subtitleTextColorPref;
   int? subtitleBackgroundColorPref;
   int subtitleSizePref = 25;
+
   @override
   void initState() {
     super.initState();
@@ -187,7 +189,11 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
             VlcSubtitleOptions.backgroundOpacity(150),
             VlcSubtitleOptions.backgroundColor(subtitleBackgroundColorPref ==
                     null
-                ? VlcSubtitleColor.black
+                ? VlcSubtitleColor.rgb(
+                    blue: 0,
+                    green: 0,
+                    red: 0,
+                  )
                 : VlcSubtitleColor.rgb(
                     red: subtitleBackgroundColors[subtitleBackgroundColorPref!]
                         .red,
