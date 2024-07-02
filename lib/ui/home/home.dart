@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/model/channel.dart' as model;
@@ -28,12 +29,11 @@ import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:flutter_app_tv/ui/channel/channels_widget.dart';
 import 'package:flutter_app_tv/ui/movie/movies_widget.dart';
 import 'package:flutter_app_tv/widget/navigation_widget.dart';
+import 'package:flutter_app_tv/widget/navigation_widget_mobile.dart';
 import 'package:flutter_app_tv/widget/slide_widget.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'dart:convert' as convert;
-import 'package:transparent_image/transparent_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// A [StatelessWidget] which demonstrates
@@ -67,9 +67,10 @@ class _HomeState extends ResumableState<Home> {
   bool _visibile_success = false;
   bool? logged;
   Image image = Image.asset("assets/images/profile.jpg");
+  bool isMobile = true;
   @override
   void initState() {
-    // TODO: implement initState
+    context.isMobile.then((value) => isMobile = value);
     super.initState();
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(home_focus_node);
@@ -155,292 +156,307 @@ class _HomeState extends ResumableState<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey,
-      body: KeyboardListener(
-        focusNode: home_focus_node,
-        onKeyEvent: (KeyEvent event) {
-          if (event is KeyDownEvent) {
-            final logicalKey = event.logicalKey;
+    return SafeArea(
+      top: isMobile,
+      child: Scaffold(
+        backgroundColor: Colors.grey,
+        body: KeyboardListener(
+          focusNode: home_focus_node,
+          onKeyEvent: (KeyEvent event) {
+            if (event is KeyDownEvent) {
+              final logicalKey = event.logicalKey;
 
-            switch (logicalKey) {
-              case LogicalKeyboardKey.select:
-                _goToSearch();
-                _openSlide();
-                _goToMovies();
-                _goToSeries();
-                _goToChannels();
-                _goToMyList();
-                _goToSettings();
-                _goToProfile();
-                _tryAgain();
-                _goToMovieDetail();
-                _goToChannelDetail();
-                break;
-              case LogicalKeyboardKey.arrowUp:
-                if (_visibile_loading) {
-                  print("playing sound ");
+              switch (logicalKey) {
+                case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
+                  _goToSearch();
+                  _openSlide();
+                  _goToMovies();
+                  _goToSeries();
+                  _goToChannels();
+                  _goToMyList();
+                  _goToSettings();
+                  _goToProfile();
+                  _tryAgain();
+                  _goToMovieDetail();
+                  _goToChannelDetail();
                   break;
-                }
-                if (_visibile_error) {
+                case LogicalKeyboardKey.arrowUp:
+                  if (_visibile_loading) {
+                    print("playing sound ");
+                    break;
+                  }
+                  if (_visibile_error) {
+                    if (posty == -2) {
+                      print("playing sound ");
+                    } else if (posty == -1) {
+                      posty--;
+                      postx = 0;
+                    }
+                    break;
+                  }
                   if (posty == -2) {
                     print("playing sound ");
                   } else if (posty == -1) {
                     posty--;
+                    postx = 1;
+                  } else if (posty == 0) {
+                    posty--;
                     postx = 0;
-                  }
-                  break;
-                }
-                if (posty == -2) {
-                  print("playing sound ");
-                } else if (posty == -1) {
-                  posty--;
-                  postx = 1;
-                } else if (posty == 0) {
-                  posty--;
-                  postx = 0;
-                } else {
-                  posty--;
-                  postx = _position_x_line_saver[posty];
-                  _scrollToIndexXY(postx, posty);
-                }
-                break;
-              case LogicalKeyboardKey.arrowDown:
-                if (_visibile_error) {
-                  if (posty < -1)
-                    posty++;
-                  else
-                    print("playing sound ");
-                  break;
-                }
-                if (_visibile_loading) {
-                  print("playing sound ");
-                  break;
-                }
-                if (genres.length - 1 == posty) {
-                  print("playing sound ");
-                } else {
-                  posty++;
-                  if (posty >= 0) {
+                  } else {
+                    posty--;
                     postx = _position_x_line_saver[posty];
                     _scrollToIndexXY(postx, posty);
                   }
-                }
-                break;
-              case LogicalKeyboardKey.arrowLeft:
-                if (_visibile_error) {
-                  if (posty < -1)
-                    posty++;
-                  else
-                    print("playing sound ");
                   break;
-                }
-                if (posty == -2) {
-                  if (postx == 0) {
-                    print("playing sound ");
-                  } else {
-                    postx--;
-                  }
-                } else if (posty == -1) {
-                  _carouselController.previousPage();
-                } else {
-                  if (postx == 0) {
-                    print("playing sound ");
-                  } else {
-                    postx--;
-                    _position_x_line_saver[posty] = postx;
-                    _scrollToIndexXY(postx, posty);
-                  }
-                }
-                break;
-              case LogicalKeyboardKey.arrowRight:
-                switch (posty) {
-                  case -1:
-                    if (_visibile_loading || _visibile_error) {
-                      print("playing sound ");
-                      break;
-                    }
-                    _carouselController.nextPage();
-                    break;
-                  case -2:
-                    if (postx == 7)
-                      print("playing sound ");
+                case LogicalKeyboardKey.arrowDown:
+                  if (_visibile_error) {
+                    if (posty < -1)
+                      posty++;
                     else
-                      postx++;
+                      print("playing sound ");
                     break;
-                  default:
-                    if (_counts_x_line_saver[posty] - 1 == postx) {
+                  }
+                  if (_visibile_loading) {
+                    print("playing sound ");
+                    break;
+                  }
+                  if (genres.length - 1 == posty) {
+                    print("playing sound ");
+                  } else {
+                    posty++;
+                    if (posty >= 0) {
+                      postx = _position_x_line_saver[posty];
+                      _scrollToIndexXY(postx, posty);
+                    }
+                  }
+                  break;
+                case LogicalKeyboardKey.arrowLeft:
+                  if (_visibile_error) {
+                    if (posty < -1)
+                      posty++;
+                    else
+                      print("playing sound ");
+                    break;
+                  }
+                  if (posty == -2) {
+                    if (postx == 0) {
                       print("playing sound ");
                     } else {
-                      postx++;
+                      postx--;
+                    }
+                  } else if (posty == -1) {
+                    _carouselController.previousPage();
+                  } else {
+                    if (postx == 0) {
+                      print("playing sound ");
+                    } else {
+                      postx--;
                       _position_x_line_saver[posty] = postx;
                       _scrollToIndexXY(postx, posty);
                     }
-                    break;
+                  }
+                  break;
+                case LogicalKeyboardKey.arrowRight:
+                  switch (posty) {
+                    case -1:
+                      if (_visibile_loading || _visibile_error) {
+                        print("playing sound ");
+                        break;
+                      }
+                      _carouselController.nextPage();
+                      break;
+                    case -2:
+                      if (postx == 7)
+                        print("playing sound ");
+                      else
+                        postx++;
+                      break;
+                    default:
+                      if (_counts_x_line_saver[posty] - 1 == postx) {
+                        print("playing sound ");
+                      } else {
+                        postx++;
+                        _position_x_line_saver[posty] = postx;
+                        _scrollToIndexXY(postx, posty);
+                      }
+                      break;
+                  }
+
+                  break;
+                default:
+                  break;
+              }
+              if (genres.length > 0) {
+                if (genres[0].id == -3 && posty == 0) {
+                  selected_poster = null;
+                  selected_channel = channels[postx];
                 }
 
-                break;
-              default:
-                break;
+                if (genres[0].id != -3 && posty == 0) {
+                  selected_channel = null;
+                  selected_poster = genres[posty].posters![postx];
+                }
+                if (posty > 0) {
+                  selected_channel = null;
+                  selected_poster = genres[posty].posters![postx];
+                }
+              }
+              setState(() {});
             }
-            if (genres.length > 0) {
-              if (genres[0].id == -3 && posty == 0) {
-                selected_poster = null;
-                selected_channel = channels[postx];
-              }
-
-              if (genres[0].id != -3 && posty == 0) {
-                selected_channel = null;
-                selected_poster = genres[posty].posters![postx];
-              }
-              if (posty > 0) {
-                selected_channel = null;
-                selected_poster = genres[posty].posters![postx];
-              }
-            }
-            setState(() {});
-          }
-        },
-        child: Stack(
-          children: [
-            Positioned(
-              right: 0,
-              top: 0,
-              left: MediaQuery.of(context).size.width / 4,
-              bottom: MediaQuery.of(context).size.height / 4,
-              child: AnimatedSwitcher(
-                child: getBackgroundImage(),
-                duration: Duration(seconds: 1),
-              ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              top: 0,
-              child: Container(
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Colors.black,
-                  Colors.black,
-                  Colors.black54,
-                  Colors.black54,
-                  Colors.black54
-                ],
-              ))),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                  height: MediaQuery.of(context).size.height -
-                      (MediaQuery.of(context).size.height / 3),
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      Colors.black,
-                      Colors.black,
-                      Colors.transparent,
-                      Colors.transparent
-                    ],
-                  ))),
-            ),
-            Positioned(
-              top: 10,
-              left: 50,
-              right: 50,
-              child: AnimatedOpacity(
-                opacity: (posty < 0) ? 0 : 1,
-                duration: Duration(milliseconds: 200),
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      posty = -1;
-                    });
-                  },
-                  child: Container(
-                    child: Icon(
-                      Icons.keyboard_arrow_up,
-                      color: Colors.white,
-                      size: 30,
-                    ),
-                  ),
+          },
+          child: Stack(
+            children: [
+              Positioned(
+                right: 0,
+                top: 0,
+                left: MediaQuery.of(context).size.width / 4,
+                bottom: MediaQuery.of(context).size.height / 4,
+                child: AnimatedSwitcher(
+                  child: getBackgroundImage(),
+                  duration: Duration(seconds: 1),
                 ),
               ),
-            ),
-            if (_visibile_success)
-              SlideWidget(
-                  poster: selected_poster,
-                  channel: selected_channel,
-                  posty: posty,
-                  postx: postx,
-                  carouselController: _carouselController,
-                  side_current: side_current,
-                  slides: slides,
-                  move: (value) {
-                    setState(() {
-                      side_current = value;
-                    });
-                  }),
-            if (_visibile_loading) HomeLoadingWidget(),
-            if (_visibile_error) _tryAgainWidget(),
-            if (_visibile_success)
-              AnimatedPositioned(
-                bottom: 0,
+              Positioned(
                 left: 0,
                 right: 0,
-                duration: Duration(milliseconds: 200),
-                height: (posty < 0)
-                    ? (MediaQuery.of(context).size.height / 2) - 70
-                    : (MediaQuery.of(context).size.height / 2),
+                bottom: 0,
+                top: 0,
                 child: Container(
-                  height: (posty < 0)
-                      ? (MediaQuery.of(context).size.height / 2) - 70
-                      : (MediaQuery.of(context).size.height / 2),
-                  child: ScrollConfiguration(
-                    behavior:
-                        MyBehavior(), // From this behaviour you can change the behaviour
-                    child: ScrollablePositionedList.builder(
-                      itemCount: genres.length,
-                      scrollDirection: Axis.vertical,
-                      itemScrollController: _scrollController,
-                      itemBuilder: (context, jndex) {
-                        if (genres[jndex].id == -3) {
-                          return ChannelsWidget(
-                              jndex: jndex,
-                              postx: postx,
-                              posty: posty,
-                              scrollController: _scrollControllers[jndex],
-                              size: 15,
-                              title: "TV Channels",
-                              channels: channels);
-                        } else {
-                          return MoviesWidget(
-                              jndex: jndex,
-                              posty: posty,
-                              postx: postx,
-                              scrollController: _scrollControllers[jndex],
-                              title: genres[jndex].title,
-                              posters: genres[jndex].posters);
-                        }
-                      },
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Colors.black,
+                    Colors.black,
+                    Colors.black54,
+                    Colors.black54,
+                    Colors.black54
+                  ],
+                ))),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                    height: MediaQuery.of(context).size.height -
+                        (MediaQuery.of(context).size.height / 3),
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black,
+                        Colors.black,
+                        Colors.transparent,
+                        Colors.transparent
+                      ],
+                    ))),
+              ),
+              Positioned(
+                top: 10,
+                left: 50,
+                right: 50,
+                child: AnimatedOpacity(
+                  opacity: (posty < 0) ? 0 : 1,
+                  duration: Duration(milliseconds: 200),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        posty = -1;
+                      });
+                    },
+                    child: Container(
+                      child: Icon(
+                        Icons.keyboard_arrow_up,
+                        color: Colors.white,
+                        size: 30,
+                      ),
                     ),
                   ),
                 ),
               ),
-            NavigationWidget(
-                postx: postx,
-                posty: posty,
-                selectedItem: 1,
-                image: image,
-                logged: logged),
-          ],
+              if (_visibile_success)
+                SlideWidget(
+                    poster: selected_poster,
+                    channel: selected_channel,
+                    posty: posty,
+                    postx: postx,
+                    carouselController: _carouselController,
+                    side_current: side_current,
+                    slides: slides,
+                    move: (value) {
+                      setState(() {
+                        side_current = value;
+                      });
+                    }),
+              if (_visibile_loading) HomeLoadingWidget(),
+              if (_visibile_error) _tryAgainWidget(),
+              if (_visibile_success)
+                AnimatedPositioned(
+                  bottom: isMobile ? null : 0,
+                  left: isMobile ? -30 : null,
+                  right: 0,
+                  top: isMobile ? 200 : null,
+                  duration: Duration(milliseconds: 200),
+                  height: isMobile
+                      ? (MediaQuery.of(context).size.height / 1) - 20
+                      : (posty < 0)
+                          ? (MediaQuery.of(context).size.height / 2) - 70
+                          : (MediaQuery.of(context).size.height / 2),
+                  child: Container(
+                    height: (posty < 0)
+                        ? (MediaQuery.of(context).size.height / 2) - 70
+                        : (MediaQuery.of(context).size.height / 2),
+                    child: ScrollConfiguration(
+                      behavior:
+                          MyBehavior(), // From this behaviour you can change the behaviour
+                      child: ScrollablePositionedList.builder(
+                        itemCount: genres.length,
+                        scrollDirection: Axis.vertical,
+                        itemScrollController: _scrollController,
+                        itemBuilder: (context, jndex) {
+                          if (genres[jndex].id == -3) {
+                            return ChannelsWidget(
+                                jndex: jndex,
+                                postx: postx,
+                                posty: posty,
+                                scrollController: _scrollControllers[jndex],
+                                size: 15,
+                                title: "TV Channels",
+                                channels: channels);
+                          } else {
+                            return MoviesWidget(
+                                jndex: jndex,
+                                posty: posty,
+                                postx: postx,
+                                scrollController: _scrollControllers[jndex],
+                                title: genres[jndex].title,
+                                posters: genres[jndex].posters);
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              // context.isPortrait
+              //     ? NavigationWidgetMobile(
+              //         postx: postx,
+              //         posty: posty,
+              //         selectedItem: 1,
+              //         image: image,
+              //         logged: logged)
+              //     :
+              if (!isMobile)
+                NavigationWidget(
+                    postx: postx,
+                    posty: posty,
+                    selectedItem: 1,
+                    image: image,
+                    logged: logged),
+            ],
+          ),
         ),
       ),
     );

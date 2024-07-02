@@ -133,7 +133,7 @@ class _PasswordState extends State<Password> {
           if (event is KeyDownEvent) {
             final logicalKey = event.logicalKey;
             switch (logicalKey) {
-              case LogicalKeyboardKey.select:
+              case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                 if (!loading) _goToValidate();
                 break;
               case LogicalKeyboardKey.arrowUp:

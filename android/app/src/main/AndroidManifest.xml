@@ -82,8 +82,8 @@
             android:hardwareAccelerated="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
-            android:screenOrientation="landscape"
             android:windowSoftInputMode="adjustResize" >
+            <!-- android:screenOrientation="landscape" -->
 
             <!--
                  Specifies an Android theme to apply to this Activity as soon as

@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/ui/auth/auth.dart';
@@ -10,28 +10,21 @@ import 'package:flutter_app_tv/ui/auth/profile.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';
 import 'package:flutter_app_tv/ui/dialogs/genres_dialog.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
-import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/ui/home/mylist.dart';
-import 'package:flutter_app_tv/ui/movie/movie.dart';
 import 'package:flutter_app_tv/ui/movie/movie_loading_widget.dart';
 import 'package:flutter_app_tv/ui/movie/movie_widget.dart';
 import 'package:flutter_app_tv/ui/movie/movies.dart';
 import 'package:flutter_app_tv/ui/search/search.dart';
 import 'package:flutter_app_tv/ui/serie/serie.dart';
-import 'package:flutter_app_tv/ui/serie/series.dart';
 import 'package:flutter_app_tv/ui/setting/settings.dart';
-
 import 'package:flutter_app_tv/ui/movie/movie_short_detail_mini.dart';
-
 import 'package:flutter_app_tv/widget/navigation_widget.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'dart:convert' as convert;
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
@@ -77,10 +70,10 @@ class _SeriesState extends ResumableState<Series> {
   bool _visibile_success = false;
   bool? logged;
   Image image = Image.asset("assets/images/profile.jpg");
-
+  bool isMobile = true;
   @override
   void initState() {
-    // TODO: implement initState
+    context.isMobile.then((value) => isMobile = value);
     super.initState();
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(home_focus_node);
@@ -216,699 +209,758 @@ class _SeriesState extends ResumableState<Series> {
         }
         return true;
       },
-      child: Scaffold(
-        backgroundColor: Colors.black,
-        body: KeyboardListener(
-          focusNode: home_focus_node,
-          onKeyEvent: (KeyEvent event) {
-            if (event is KeyDownEvent) {
-              final logicalKey = event.logicalKey;
-              switch (logicalKey) {
-                case LogicalKeyboardKey.select:
-                  _selectFilter();
+      child: SafeArea(
+        top: isMobile,
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body: KeyboardListener(
+            focusNode: home_focus_node,
+            onKeyEvent: (KeyEvent event) {
+              if (event is KeyDownEvent) {
+                final logicalKey = event.logicalKey;
+                switch (logicalKey) {
+                  case LogicalKeyboardKey.select:
+                    _selectFilter();
 
-                  _goToSearch();
-                  _goToHome();
-                  _goToMovies();
-                  _goToChannels();
-                  _goToMyList();
-                  _goToSettings();
-                  _goToProfile();
+                    _goToSearch();
+                    _goToHome();
+                    _goToMovies();
+                    _goToChannels();
+                    _goToMyList();
+                    _goToSettings();
+                    _goToProfile();
 
-                  _goToSerieDetail();
-                  _tryAgain();
-                  if (_visibile_genres_dialog == true) {
-                    _selectedGenre();
-                  } else {
-                    _showGenresDialog();
-                  }
-                  break;
-                case LogicalKeyboardKey.arrowUp:
-                  if (_visibile_loading) {
-                    print("playing sound ");
+                    _goToSerieDetail();
+                    _tryAgain();
+                    if (_visibile_genres_dialog == true) {
+                      _selectedGenre();
+                    } else {
+                      _showGenresDialog();
+                    }
                     break;
-                  }
-                  if (_visibile_error) {
+                  case LogicalKeyboardKey.arrowUp:
+                    if (_visibile_loading) {
+                      print("playing sound ");
+                      break;
+                    }
+                    if (_visibile_error) {
+                      if (posty == -2) {
+                        print("playing sound ");
+                      } else if (posty == -1) {
+                        print("go to menu");
+                        posty--;
+                        postx = 0;
+                      }
+                      break;
+                    }
+                    if (_visibile_genres_dialog) {
+                      (_focused_genre == 0)
+                          ? print("play sound")
+                          : _focused_genre--;
+                      break;
+                    }
                     if (posty == -2) {
                       print("playing sound ");
                     } else if (posty == -1) {
                       print("go to menu");
                       posty--;
+                      postx = 3;
+                    } else if (posty == 0) {
+                      print("go to slide");
+                      posty--;
                       postx = 0;
-                    }
-                    break;
-                  }
-                  if (_visibile_genres_dialog) {
-                    (_focused_genre == 0)
-                        ? print("play sound")
-                        : _focused_genre--;
-                    break;
-                  }
-                  if (posty == -2) {
-                    print("playing sound ");
-                  } else if (posty == -1) {
-                    print("go to menu");
-                    posty--;
-                    postx = 3;
-                  } else if (posty == 0) {
-                    print("go to slide");
-                    posty--;
-                    postx = 0;
-                  } else {
-                    posty--;
-                    _scrollToIndexXY(postx, posty);
-                    _focused_poster = ((posty * 8) + postx);
-                  }
-                  break;
-                case LogicalKeyboardKey.arrowDown:
-                  if (_visibile_error) {
-                    if (posty < -1)
-                      posty++;
-                    else
-                      print("playing sound ");
-                    break;
-                  }
-                  if (_visibile_loading) {
-                    print("playing sound ");
-                    break;
-                  }
-                  if (_visibile_genres_dialog) {
-                    (_focused_genre == genres.length - 1)
-                        ? print("play sound")
-                        : _focused_genre++;
-                    break;
-                  }
-                  if ((series.length / 8).ceil() - 1 == posty) {
-                    print("playing sound ");
-                  } else {
-                    posty++;
-                    if (posty >= 0) {
-                      if (postx > (_counts_x_line_saver[posty] - 1)) {
-                        postx = _counts_x_line_saver[posty] - 1;
-                      }
+                    } else {
+                      posty--;
                       _scrollToIndexXY(postx, posty);
                       _focused_poster = ((posty * 8) + postx);
-                    } else {
-                      postx = 0;
                     }
-                    if (posty == (series.length / 8).ceil() - 3) {
-                      _loadMore();
-                    }
-                  }
-                  break;
-                case LogicalKeyboardKey.arrowLeft:
-                  if (_visibile_genres_dialog) {
-                    print("playing sound ");
                     break;
-                  }
-
-                  if (posty == -2) {
-                    if (postx == 0) {
-                      print("playing sound ");
-                    } else {
-                      postx--;
-                    }
-                  } else if (posty == -1) {
-                    if (_visibile_loading || _visibile_error) {
-                      print("playing sound ");
-                      break;
-                    }
-                    (postx == 0) ? print("playing sound ") : postx--;
-                  } else {
-                    if (_visibile_loading || _visibile_error) {
-                      print("playing sound ");
-                      break;
-                    }
-                    if (postx == 0) {
-                      print("playing sound ");
-                    } else {
-                      postx--;
-                      _scrollToIndexXY(postx, posty);
-                    }
-                    _focused_poster = ((posty * 8) + postx);
-                  }
-                  break;
-                case LogicalKeyboardKey.arrowRight:
-                  if (_visibile_genres_dialog) {
-                    print("playing sound ");
-                    break;
-                  }
-                  switch (posty) {
-                    case -1:
-                      if (_visibile_loading || _visibile_error) {
-                        print("playing sound ");
-                        break;
-                      }
-                      (postx == 6) ? print("playing sound ") : postx++;
-                      break;
-                    case -2:
-                      if (postx == 7)
-                        print("playing sound ");
+                  case LogicalKeyboardKey.arrowDown:
+                    if (_visibile_error) {
+                      if (posty < -1)
+                        posty++;
                       else
-                        postx++;
-                      break;
-                    default:
-                      if (_visibile_loading || _visibile_error) {
                         print("playing sound ");
-                        break;
+                      break;
+                    }
+                    if (_visibile_loading) {
+                      print("playing sound ");
+                      break;
+                    }
+                    if (_visibile_genres_dialog) {
+                      (_focused_genre == genres.length - 1)
+                          ? print("play sound")
+                          : _focused_genre++;
+                      break;
+                    }
+                    if ((series.length / 8).ceil() - 1 == posty) {
+                      print("playing sound ");
+                    } else {
+                      posty++;
+                      if (posty >= 0) {
+                        if (postx > (_counts_x_line_saver[posty] - 1)) {
+                          postx = _counts_x_line_saver[posty] - 1;
+                        }
+                        _scrollToIndexXY(postx, posty);
+                        _focused_poster = ((posty * 8) + postx);
+                      } else {
+                        postx = 0;
                       }
-                      if (_counts_x_line_saver[posty] - 1 == postx) {
+                      if (posty == (series.length / 8).ceil() - 3) {
+                        _loadMore();
+                      }
+                    }
+                    break;
+                  case LogicalKeyboardKey.arrowLeft:
+                    if (_visibile_genres_dialog) {
+                      print("playing sound ");
+                      break;
+                    }
+
+                    if (posty == -2) {
+                      if (postx == 0) {
                         print("playing sound ");
                       } else {
-                        postx++;
+                        postx--;
+                      }
+                    } else if (posty == -1) {
+                      if (_visibile_loading || _visibile_error) {
+                        print("playing sound ");
+                        break;
+                      }
+                      (postx == 0) ? print("playing sound ") : postx--;
+                    } else {
+                      if (_visibile_loading || _visibile_error) {
+                        print("playing sound ");
+                        break;
+                      }
+                      if (postx == 0) {
+                        print("playing sound ");
+                      } else {
+                        postx--;
                         _scrollToIndexXY(postx, posty);
                       }
                       _focused_poster = ((posty * 8) + postx);
-
+                    }
+                    break;
+                  case LogicalKeyboardKey.arrowRight:
+                    if (_visibile_genres_dialog) {
+                      print("playing sound ");
                       break;
-                  }
+                    }
+                    switch (posty) {
+                      case -1:
+                        if (_visibile_loading || _visibile_error) {
+                          print("playing sound ");
+                          break;
+                        }
+                        (postx == 6) ? print("playing sound ") : postx++;
+                        break;
+                      case -2:
+                        if (postx == 7)
+                          print("playing sound ");
+                        else
+                          postx++;
+                        break;
+                      default:
+                        if (_visibile_loading || _visibile_error) {
+                          print("playing sound ");
+                          break;
+                        }
+                        if (_counts_x_line_saver[posty] - 1 == postx) {
+                          print("playing sound ");
+                        } else {
+                          postx++;
+                          _scrollToIndexXY(postx, posty);
+                        }
+                        _focused_poster = ((posty * 8) + postx);
 
-                  break;
-                default:
-                  break;
-              }
-              print("_focused_poster ${_focused_poster}");
+                        break;
+                    }
 
-              setState(() {});
-              if (_visibile_genres_dialog && _genresScrollController != null) {
-                _genresScrollController.scrollTo(
-                    index: _focused_genre,
-                    alignment: 0.43,
-                    duration: Duration(milliseconds: 500),
-                    curve: Curves.easeInOutQuart);
+                    break;
+                  default:
+                    break;
+                }
+                print("_focused_poster ${_focused_poster}");
+
+                setState(() {});
+                if (_visibile_genres_dialog &&
+                    _genresScrollController != null) {
+                  _genresScrollController.scrollTo(
+                      index: _focused_genre,
+                      alignment: 0.43,
+                      duration: Duration(milliseconds: 500),
+                      curve: Curves.easeInOutQuart);
+                }
               }
-            }
-          },
-          child: Stack(
-            children: [
-              if (!series.isEmpty)
+            },
+            child: Stack(
+              children: [
+                if (!series.isEmpty)
+                  Positioned(
+                      right: 0,
+                      top: 0,
+                      left: MediaQuery.of(context).size.width / 4,
+                      bottom: MediaQuery.of(context).size.height / 4,
+                      child: CachedNetworkImage(
+                          imageUrl: series[_focused_poster].cover,
+                          fit: BoxFit.cover,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          fadeInDuration: Duration(seconds: 1))),
                 Positioned(
-                    right: 0,
-                    top: 0,
-                    left: MediaQuery.of(context).size.width / 4,
-                    bottom: MediaQuery.of(context).size.height / 4,
-                    child: CachedNetworkImage(
-                        imageUrl: series[_focused_poster].cover,
-                        fit: BoxFit.cover,
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height,
-                        fadeInDuration: Duration(seconds: 1))),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                top: 0,
-                child: Container(
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Colors.black,
-                    Colors.black,
-                    Colors.black54,
-                    Colors.black54,
-                    Colors.black54
-                  ],
-                ))),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                    height: MediaQuery.of(context).size.height -
-                        (MediaQuery.of(context).size.height / 3),
-                    decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black,
-                        Colors.black,
-                        Colors.transparent,
-                        Colors.transparent
-                      ],
-                    ))),
-              ),
-              NavigationWidget(
-                  postx: postx,
-                  posty: posty,
-                  selectedItem: 3,
-                  image: image,
-                  logged: logged),
-              if (_visibile_loading) MovieLoadingWidget(),
-              if (_visibile_error) _tryAgainWidget(),
-              if (series.length > 0 && !_visibile_loading && !_visibile_error)
-                AnimatedPositioned(
-                    top: (posty < 0) ? 70 : 40,
-                    left: 0,
-                    right: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  top: 0,
+                  child: Container(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      Colors.black,
+                      Colors.black,
+                      Colors.black54,
+                      Colors.black54,
+                      Colors.black54
+                    ],
+                  ))),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                      height: MediaQuery.of(context).size.height -
+                          (MediaQuery.of(context).size.height / 3),
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black,
+                          Colors.black,
+                          Colors.transparent,
+                          Colors.transparent
+                        ],
+                      ))),
+                ),
+                // context.isPortrait
+                //     ? NavigationWidgetMobile(
+                //         postx: postx,
+                //         posty: posty,
+                //         selectedItem: 3,
+                //         image: image,
+                //         logged: logged)
+                //     :
+                if (!isMobile)
+                  NavigationWidget(
+                      postx: postx,
+                      posty: posty,
+                      selectedItem: 3,
+                      image: image,
+                      logged: logged),
+                if (_visibile_loading) MovieLoadingWidget(),
+                if (_visibile_error) _tryAgainWidget(),
+                if (series.length > 0 && !_visibile_loading && !_visibile_error)
+                  AnimatedPositioned(
+                      top: (posty < 0)
+                          ? isMobile && context.isLandscape
+                              ? 30
+                              : context.isPortrait
+                                  ? 20
+                                  : 70
+                          : 40,
+                      left: 0,
+                      right: 0,
+                      duration: Duration(milliseconds: 200),
+                      child: MovieShortDetailMiniWidget(
+                          movie: series[_focused_poster])),
+                Positioned(
+                  top: 10,
+                  left: 45,
+                  right: 45,
+                  child: AnimatedOpacity(
+                    opacity: (posty < 0) ? 0 : 1,
                     duration: Duration(milliseconds: 200),
-                    child: MovieShortDetailMiniWidget(
-                        movie: series[_focused_poster])),
-              Positioned(
-                top: 10,
-                left: 45,
-                right: 45,
-                child: AnimatedOpacity(
-                  opacity: (posty < 0) ? 0 : 1,
-                  duration: Duration(milliseconds: 200),
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        posty = -1;
-                      });
-                    },
-                    child: Container(
-                      child: Icon(
-                        Icons.keyboard_arrow_up,
-                        color: Colors.white,
-                        size: 30,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          posty = -1;
+                        });
+                      },
+                      child: Container(
+                        child: Icon(
+                          Icons.keyboard_arrow_up,
+                          color: Colors.white,
+                          size: 30,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              if (_visibile_success)
-                AnimatedPositioned(
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  duration: Duration(milliseconds: 200),
-                  height: (posty < 0)
-                      ? (MediaQuery.of(context).size.height / 2) + 20
-                      : (MediaQuery.of(context).size.height / 2) + 50,
-                  child: Column(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 45),
-                        height: 50,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  posty = -1;
-                                  postx = 0;
-                                  Future.delayed(Duration(milliseconds: 50),
-                                      () {
-                                    _showGenresDialog();
-                                  });
-                                });
-                              },
-                              child: Container(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                margin: EdgeInsets.symmetric(vertical: 7),
-                                height: 50,
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      genres[_selected_genre].title,
-                                      style: TextStyle(
+                if (_visibile_success)
+                  AnimatedPositioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    duration: Duration(milliseconds: 200),
+                    height: isMobile && context.isLandscape
+                        ? (MediaQuery.of(context).size.height / 6.5) + 25
+                        : context.isPortrait
+                            ? (MediaQuery.of(context).size.height / 1.8) + 5
+                            : (posty < 0)
+                                ? (MediaQuery.of(context).size.height / 2) + 20
+                                : (MediaQuery.of(context).size.height / 2) + 50,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: context.isPortrait ? 25 : 45),
+                          height: 60,
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      posty = -1;
+                                      postx = 0;
+                                      Future.delayed(Duration(milliseconds: 50),
+                                          () {
+                                        _showGenresDialog();
+                                      });
+                                    });
+                                  },
+                                  child: Container(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 10),
+                                    margin: EdgeInsets.symmetric(
+                                      vertical: 7,
+                                      // horizontal: 10,
+                                    ),
+                                    height: 50,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          genres[_selected_genre].title,
+                                          style: TextStyle(
+                                              color: (posty == -1 && postx == 0)
+                                                  ? Colors.black
+                                                  : Colors.white70,
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_drop_down,
                                           color: (posty == -1 && postx == 0)
                                               ? Colors.black
                                               : Colors.white70,
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700),
+                                          size: 30,
+                                        ),
+                                      ],
                                     ),
-                                    Icon(
-                                      Icons.arrow_drop_down,
-                                      color: (posty == -1 && postx == 0)
-                                          ? Colors.black
-                                          : Colors.white70,
-                                      size: 30,
-                                    ),
-                                  ],
-                                ),
-                                decoration: BoxDecoration(
-                                    color: (posty == -1 && postx == 0)
-                                        ? Colors.white
-                                        : Colors.transparent,
-                                    border: Border.all(
-                                        color: Colors.white70, width: 2),
-                                    borderRadius: BorderRadius.circular(5)),
-                              ),
-                            ),
-                            AnimatedOpacity(
-                              opacity: (posty == -1 && postx > 0) ? 1 : 0.8,
-                              duration: Duration(milliseconds: 250),
-                              child: Container(
-                                height: 50,
-                                margin: EdgeInsets.symmetric(vertical: 7),
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.white, width: 2),
-                                    borderRadius: BorderRadius.circular(5)),
-                                child: Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 1;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        height: 50,
-                                        color: ((posty == -1 && postx == 1) ||
-                                                selected_sort == 1)
+                                    decoration: BoxDecoration(
+                                        color: (posty == -1 && postx == 0)
                                             ? Colors.white
                                             : Colors.transparent,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.access_time,
-                                              color: ((posty == -1 &&
-                                                          postx == 1) ||
-                                                      selected_sort == 1)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Newest",
-                                              style: TextStyle(
+                                        border: Border.all(
+                                            color: Colors.white70, width: 2),
+                                        borderRadius: BorderRadius.circular(5)),
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 20,
+                                ),
+                                AnimatedOpacity(
+                                  opacity: (posty == -1 && postx > 0) ? 1 : 0.8,
+                                  duration: Duration(milliseconds: 250),
+                                  child: Container(
+                                    height: 50,
+                                    margin: EdgeInsets.symmetric(vertical: 7),
+                                    decoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: Colors.white, width: 2),
+                                        borderRadius: BorderRadius.circular(5)),
+                                    child: Row(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              posty = -1;
+                                              postx = 1;
+                                              Future.delayed(
+                                                  Duration(milliseconds: 50),
+                                                  () {
+                                                _selectFilter();
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                            height: 50,
+                                            color:
+                                                ((posty == -1 && postx == 1) ||
+                                                        selected_sort == 1)
+                                                    ? Colors.white
+                                                    : Colors.transparent,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.access_time,
                                                   color: ((posty == -1 &&
                                                               postx == 1) ||
                                                           selected_sort == 1)
                                                       ? Colors.black
                                                       : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "Newest",
+                                                  style: TextStyle(
+                                                      color: ((posty == -1 &&
+                                                                  postx == 1) ||
+                                                              selected_sort ==
+                                                                  1)
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
+                                              ],
                                             ),
-                                          ],
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 2;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        height: 50,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.remove_red_eye,
-                                              color: ((posty == -1 &&
-                                                          postx == 2) ||
-                                                      selected_sort == 2)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Views",
-                                              style: TextStyle(
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              posty = -1;
+                                              postx = 2;
+                                              Future.delayed(
+                                                  Duration(milliseconds: 50),
+                                                  () {
+                                                _selectFilter();
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                            height: 50,
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.remove_red_eye,
                                                   color: ((posty == -1 &&
                                                               postx == 2) ||
                                                           selected_sort == 2)
                                                       ? Colors.black
                                                       : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "Views",
+                                                  style: TextStyle(
+                                                      color: ((posty == -1 &&
+                                                                  postx == 2) ||
+                                                              selected_sort ==
+                                                                  2)
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 2) ||
-                                                  selected_sort == 2)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 3;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.star_half,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                  left: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 1)),
                                               color: ((posty == -1 &&
-                                                          postx == 3) ||
-                                                      selected_sort == 3)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
+                                                          postx == 2) ||
+                                                      selected_sort == 2)
+                                                  ? Colors.white
+                                                  : Colors.transparent,
                                             ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Rating",
-                                              style: TextStyle(
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              posty = -1;
+                                              postx = 3;
+                                              Future.delayed(
+                                                  Duration(milliseconds: 50),
+                                                  () {
+                                                _selectFilter();
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 50,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.star_half,
                                                   color: ((posty == -1 &&
                                                               postx == 3) ||
                                                           selected_sort == 3)
                                                       ? Colors.black
                                                       : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "Rating",
+                                                  style: TextStyle(
+                                                      color: ((posty == -1 &&
+                                                                  postx == 3) ||
+                                                              selected_sort ==
+                                                                  3)
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 3) ||
-                                                  selected_sort == 3)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 4;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              FontAwesomeIcons.imdb,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                  left: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 1)),
                                               color: ((posty == -1 &&
-                                                          postx == 4) ||
-                                                      selected_sort == 4)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
+                                                          postx == 3) ||
+                                                      selected_sort == 3)
+                                                  ? Colors.white
+                                                  : Colors.transparent,
                                             ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Imdb Rating",
-                                              style: TextStyle(
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              posty = -1;
+                                              postx = 4;
+                                              Future.delayed(
+                                                  Duration(milliseconds: 50),
+                                                  () {
+                                                _selectFilter();
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 50,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  FontAwesomeIcons.imdb,
                                                   color: ((posty == -1 &&
                                                               postx == 4) ||
                                                           selected_sort == 4)
                                                       ? Colors.black
                                                       : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "Imdb Rating",
+                                                  style: TextStyle(
+                                                      color: ((posty == -1 &&
+                                                                  postx == 4) ||
+                                                              selected_sort ==
+                                                                  4)
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 4) ||
-                                                  selected_sort == 4)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 5;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.text_fields,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                  left: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 1)),
                                               color: ((posty == -1 &&
-                                                          postx == 5) ||
-                                                      selected_sort == 5)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
+                                                          postx == 4) ||
+                                                      selected_sort == 4)
+                                                  ? Colors.white
+                                                  : Colors.transparent,
                                             ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Title",
-                                              style: TextStyle(
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              posty = -1;
+                                              postx = 5;
+                                              Future.delayed(
+                                                  Duration(milliseconds: 50),
+                                                  () {
+                                                _selectFilter();
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 50,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.text_fields,
                                                   color: ((posty == -1 &&
                                                               postx == 5) ||
                                                           selected_sort == 5)
                                                       ? Colors.black
                                                       : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "Title",
+                                                  style: TextStyle(
+                                                      color: ((posty == -1 &&
+                                                                  postx == 5) ||
+                                                              selected_sort ==
+                                                                  5)
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 5) ||
-                                                  selected_sort == 5)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 6;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.date_range,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                  left: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 1)),
                                               color: ((posty == -1 &&
-                                                          postx == 6) ||
-                                                      selected_sort == 6)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
+                                                          postx == 5) ||
+                                                      selected_sort == 5)
+                                                  ? Colors.white
+                                                  : Colors.transparent,
                                             ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Year",
-                                              style: TextStyle(
+                                          ),
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            setState(() {
+                                              posty = -1;
+                                              postx = 6;
+                                              Future.delayed(
+                                                  Duration(milliseconds: 50),
+                                                  () {
+                                                _selectFilter();
+                                              });
+                                            });
+                                          },
+                                          child: Container(
+                                            height: 50,
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.date_range,
                                                   color: ((posty == -1 &&
                                                               postx == 6) ||
                                                           selected_sort == 6)
                                                       ? Colors.black
                                                       : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
+                                                  size: 18,
+                                                ),
+                                                SizedBox(width: 5),
+                                                Text(
+                                                  "Year",
+                                                  style: TextStyle(
+                                                      color: ((posty == -1 &&
+                                                                  postx == 6) ||
+                                                              selected_sort ==
+                                                                  6)
+                                                          ? Colors.black
+                                                          : Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
+                                              ],
                                             ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 6) ||
-                                                  selected_sort == 6)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: ScrollConfiguration(
-                            behavior:
-                                MyBehavior(), // From this behaviour you can change the behaviour
-                            child: ScrollablePositionedList.builder(
-                              itemCount: (series.length / 8).ceil(),
-                              scrollDirection: Axis.vertical,
-                              itemScrollController: _scrollController,
-                              itemBuilder: (context, jndex) {
-                                int items_line_count =
-                                    (series.length - ((jndex + 1) * 8) > 0)
-                                        ? 8
-                                        : (series.length - (jndex * 8)).abs();
-                                return _seriesLineGridWidget(
-                                    jndex, items_line_count);
-                              },
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                  left: BorderSide(
+                                                      color: Colors.white,
+                                                      width: 1)),
+                                              color: ((posty == -1 &&
+                                                          postx == 6) ||
+                                                      selected_sort == 6)
+                                                  ? Colors.white
+                                                  : Colors.transparent,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: Container(
+                            child: ScrollConfiguration(
+                              behavior:
+                                  MyBehavior(), // From this behaviour you can change the behaviour
+                              child: ScrollablePositionedList.builder(
+                                itemCount: (series.length / 8).ceil(),
+                                scrollDirection: Axis.vertical,
+                                itemScrollController: _scrollController,
+                                itemBuilder: (context, jndex) {
+                                  int items_line_count =
+                                      (series.length - ((jndex + 1) * 8) > 0)
+                                          ? 8
+                                          : (series.length - (jndex * 8)).abs();
+                                  return _seriesLineGridWidget(
+                                      jndex, items_line_count);
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              GenresDialog(
-                  genresScrollController: _genresScrollController,
-                  visibile: _visibile_genres_dialog,
-                  genresList: genres,
-                  focused_genre: _focused_genre,
-                  selected_genre: _selected_genre,
-                  close: closeGenreDialog,
-                  select: selectGenre),
-            ],
+                GenresDialog(
+                    genresScrollController: _genresScrollController,
+                    visibile: _visibile_genres_dialog,
+                    genresList: genres,
+                    focused_genre: _focused_genre,
+                    selected_genre: _selected_genre,
+                    close: closeGenreDialog,
+                    select: selectGenre),
+              ],
+            ),
           ),
         ),
       ),
@@ -1092,7 +1144,8 @@ class _SeriesState extends ResumableState<Series> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 40),
+            padding:
+                EdgeInsets.symmetric(horizontal: context.isPortrait ? 25 : 40),
             height: 150,
             width: double.infinity,
             child: ScrollablePositionedList.builder(

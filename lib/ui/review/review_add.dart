@@ -111,7 +111,7 @@ class _ReviewAddState extends State<ReviewAdd> {
           if (event is KeyDownEvent) {
             final logicalKey = event.logicalKey;
             switch (logicalKey) {
-              case LogicalKeyboardKey.select:
+              case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                 _setRating();
                 _addReview();
                 break;

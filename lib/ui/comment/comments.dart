@@ -132,7 +132,7 @@ class _CommentsState extends ResumableState<Comments> {
           if (event is KeyDownEvent) {
             final logicalKey = event.logicalKey;
             switch (logicalKey) {
-              case LogicalKeyboardKey.select:
+              case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                 goToComment();
                 break;
               case LogicalKeyboardKey.arrowUp:

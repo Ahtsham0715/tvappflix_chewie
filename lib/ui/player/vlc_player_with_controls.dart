@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_app_tv/ui/player/controls_overlay.dart';
 import 'package:flutter_app_tv/ui/player/video_state_saver.dart';
 import 'package:flutter_vlc_player/flutter_vlc_player.dart';
@@ -16,6 +15,11 @@ class VlcPlayerWithControls extends StatefulWidget {
   final OnStopRecordingCallback? onStopRecording;
   final List<model.Subtitle> subtitlesList;
   final VoidCallback prepareNextEpisode;
+  final VoidCallback preparePreviousEpisode;
+  final List episodesList;
+  final int currentVideoIndex;
+  final int? episode;
+  final String videoTitle;
   const VlcPlayerWithControls({
     required this.controller,
     this.showControls = true,
@@ -23,6 +27,11 @@ class VlcPlayerWithControls extends StatefulWidget {
     super.key,
     required this.subtitlesList,
     required this.prepareNextEpisode,
+    required this.preparePreviousEpisode,
+    required this.episodesList,
+    required this.currentVideoIndex,
+    required this.episode,
+    required this.videoTitle,
   });
 
   @override
@@ -68,15 +77,17 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
   static const Duration _seekStepForward = Duration(seconds: 10);
   static const Duration _seekStepBackward = Duration(seconds: -10);
   FocusNode videoPlayerFocusNode = FocusNode();
+  Map btnFocusNodes = {};
+  String currentFocusedElement = '';
+  int currentFocusedLine = 0;
+  bool selectedSlider = false;
   @override
   void initState() {
     super.initState();
+
     _controller = widget.controller;
-    // _controller.addOnInitListener(() {
-    // if (_controller.value.isPlaying) {
-    // resumePlayback();
-    // }
-    // });
+    initializebtnFocusNodesMap();
+
     _controller.addListener(listener);
     hideSeekControls();
   }
@@ -94,6 +105,95 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
   //     } catch (e) {
   //       print('seeking error: $e');
   //     }
+  //   }
+  // }
+
+  void initializebtnFocusNodesMap() {
+    btnFocusNodes = {
+      // 'play_pause_btn_large': {'isFocused': false, 'onTap': () {}},
+      'play_pause_btn_small': {
+        'isFocused': false,
+        'onTap': _togglePlaying(),
+        'currentFocusedLine': 0
+      },
+      'seek_slider_btn': {
+        'isFocused': false,
+        'onTap': () {},
+        'currentFocusedLine': 0
+      },
+      'subtitle_btn': {
+        'isFocused': false,
+        'onTap': _getSubtitleTracks(),
+        'currentFocusedLine': 1
+      },
+      'audio_track_btn': {
+        'isFocused': false,
+        'onTap': _getAudioTracks(),
+        'currentFocusedLine': 1
+      },
+      'speed_btn': {
+        'isFocused': false,
+        'onTap': _cyclePlaybackSpeed(),
+        'currentFocusedLine': 1
+      },
+
+      'minus_10_sec_btn': {
+        'isFocused': false,
+        'onTap': () {
+          _onSliderPositionChanged(
+              (_controller.value.position - Duration(seconds: 10))
+                  .inSeconds
+                  .toDouble());
+        },
+        'currentFocusedLine': 1
+      },
+      'plus_10_sec_btn': {
+        'isFocused': false,
+        'onTap': () {
+          _onSliderPositionChanged(
+              (_controller.value.position + Duration(seconds: 10))
+                  .inSeconds
+                  .toDouble());
+        },
+        'currentFocusedLine': 1
+      },
+      'prev_episode_btn': {
+        'isFocused': false,
+        'onTap': widget.preparePreviousEpisode,
+        'currentFocusedLine': 1
+      },
+      'next_episode_btn': {
+        'isFocused': false,
+        'onTap': widget.prepareNextEpisode,
+        'currentFocusedLine': 1
+      },
+      'volume_slider_btn': {
+        'isFocused': false,
+        'onTap': () {},
+        'currentFocusedLine': 1
+      },
+      // 'prev_episode_btn': {'isFocused': false, 'onTap': () {}},
+    };
+    setState(() {});
+    // btnFocusNodes['play_pause_small']['onTap'] = ;
+    // btnFocusNodes['next_episode_btn']['onTap'] = ;
+    // btnFocusNodes['prev_episode_btn']['onTap'] = widget.preparePreviousEpisode;
+    // btnFocusNodes['subtitle_btn']['onTap'] = ;
+    // btnFocusNodes['audio_track_btn']['onTap'] = ;
+    // btnFocusNodes['speed_btn']['onTap'] = ;
+    // btnFocusNodes['plus_10_sec_btn']['onTap'] = () {
+
+    // };
+    // btnFocusNodes['minus_10_sec_btn']['onTap'] = () {
+
+    // };
+  }
+
+  // void togglePlayPause() {
+  //   if (_controller.value.isPlaying) {
+  //     _controller.pause();
+  //   } else {
+  //     _controller.play();
   //   }
   // }
 
@@ -162,29 +262,79 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
   }
 
   void hideSeekControls() async {
-    await Future.delayed(Duration(seconds: 3), () {
+    await Future.delayed(Duration(seconds: 8), () {
       // if (!timerRunning) {
       setState(() {
         hideControls = true;
         timerRunning = false;
       });
-      // } else {
-      // timerRunning = true;
-      // }
     });
-    // final timer = Timer(Duration(seconds: 3), () {
-    //   setState(() {
-    //     hideControls = true;
-    //   });
-    // });
-    // timer.cancel();
+  }
+
+  void changeFocus(bool isForward, {bool isUpArrow = false}) {
+    String nextItem = '';
+    if (currentFocusedElement.isEmpty) {
+      if (isForward) {
+        nextItem = btnFocusNodes.entries.first.key;
+      } else {
+        nextItem = btnFocusNodes.entries.last.key;
+      }
+    } else {
+      btnFocusNodes[currentFocusedElement]['isFocused'] = false;
+      List keys = btnFocusNodes.keys.toList();
+      if (isForward) {
+        // if (currentFocusedLine == 0) {
+        //   if (keys.indexOf(currentFocusedElement) == 0) {
+        //     nextItem = btnFocusNodes.entries.elementAt(1).key;
+        //   } else {
+        //     nextItem = btnFocusNodes.entries.first.key;
+        //   }
+        // } else {
+        //   if (keys.indexOf(currentFocusedElement) + 1 < btnFocusNodes.length) {
+        //     nextItem = keys[keys.indexOf(currentFocusedElement) + 1];
+        //   } else {
+        //     nextItem = btnFocusNodes.entries.first.key;
+        //   }
+        // }
+        if (keys.indexOf(currentFocusedElement) + 1 < btnFocusNodes.length) {
+          nextItem = keys[keys.indexOf(currentFocusedElement) + 1];
+        } else {
+          nextItem = btnFocusNodes.entries.first.key;
+        }
+      } else {
+        // if (currentFocusedLine == 0) {
+        //   if (keys.indexOf(currentFocusedElement) == 1) {
+        //     nextItem = btnFocusNodes.entries.first.key;
+        //   } else {
+        //     nextItem = btnFocusNodes.entries.elementAt(1).key;
+        //   }
+        // } else {
+        //   if (keys.indexOf(currentFocusedElement) - 1 >= 0) {
+        //     nextItem = keys[keys.indexOf(currentFocusedElement) - 1];
+        //   } else {
+        //     nextItem = btnFocusNodes.entries.last.key;
+        //   }
+        // }
+        if (keys.indexOf(currentFocusedElement) - 1 >= 0) {
+          nextItem = keys[keys.indexOf(currentFocusedElement) - 1];
+        } else {
+          nextItem = btnFocusNodes.entries.last.key;
+        }
+      }
+    }
+
+    setState(() {
+      currentFocusedElement = nextItem;
+      btnFocusNodes[currentFocusedElement]['isFocused'] = true;
+    });
+    print('next Item: ${nextItem}');
   }
 
   void _handleDpadPress(KeyEvent event) async {
     if (event is KeyDownEvent) {
       if (hideControls) {
         setState(() {
-          hideControls = !false;
+          hideControls = false;
         });
         if (!hideControls) {
           timerRunning = true;
@@ -195,58 +345,121 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
 
       switch (event.logicalKey) {
         case LogicalKeyboardKey.arrowLeft:
-          // Handle left press (e.g., rewind)
-          _onSliderPositionChanged(
-              (_controller.value.position - Duration(seconds: 10))
-                  .inSeconds
-                  .toDouble());
-          // _controller
-          //     .seekTo(_controller.value.position - Duration(seconds: 10));
+          if (selectedSlider) {
+            if (currentFocusedElement == 'seek_slider_btn') {
+              _onSliderPositionChanged(
+                  (_controller.value.position - Duration(seconds: 10))
+                      .inSeconds
+                      .toDouble());
+            } else if (currentFocusedElement == 'volume_slider_btn') {
+              _setSoundVolume((volumeValue - 10));
+            }
+          } else {
+            changeFocus(false);
+          }
+
           break;
         case LogicalKeyboardKey.arrowRight:
-          // Handle right press (e.g., fast-forward)
-          _onSliderPositionChanged(
-              (_controller.value.position + Duration(seconds: 10))
-                  .inSeconds
-                  .toDouble());
-          // _controller
-          //     .seekTo(_controller.value.position + Duration(seconds: 10));
+          if (selectedSlider) {
+            if (currentFocusedElement == 'seek_slider_btn') {
+              _onSliderPositionChanged(
+                  (_controller.value.position + Duration(seconds: 10))
+                      .inSeconds
+                      .toDouble());
+            } else if (currentFocusedElement == 'volume_slider_btn') {
+              _setSoundVolume((volumeValue + 10));
+            }
+          } else {
+            changeFocus(true);
+          }
+
           break;
         case LogicalKeyboardKey.arrowUp:
-          _setSoundVolume((volumeValue + 10));
-          // _controller.value.volume;
-          // _controller.setVolume(
-          //     (_controller.value.volume + 0.1)
-          //         .toInt()); // Adjust increment as needed
+
+          // setState(() {
+          if (currentFocusedLine == 0) {
+            currentFocusedLine = 1;
+          } else {
+            currentFocusedLine = 0;
+          }
+          // });
+
+          handleUpAndDownPress();
           break;
         case LogicalKeyboardKey.arrowDown:
-          // Handle down press (e.g., volume down)
-          _setSoundVolume((volumeValue - 10));
-          // _controller.setVolume(
-          //     (_controller.value.volume - 0.1)
-          //         .toInt()); // Adjust decrement as needed
-          // setState(() {});
+          if (currentFocusedLine == 0) {
+            currentFocusedLine = 1;
+          } else {
+            currentFocusedLine = 0;
+          }
+
+          handleUpAndDownPress();
           break;
         case (LogicalKeyboardKey.enter || LogicalKeyboardKey.select):
-          // Handle select/enter press (e.g., play/pause)
-          // if (_controller.value.isBuffering) {}
+          print('select button pressed: $currentFocusedElement');
+          decideOnTap();
 
-          if (_controller.value.isPlaying) {
-            _controller.pause();
-          } else {
-            _controller.play();
-          }
           break;
-        case LogicalKeyboardKey.subtitle:
-          // subtitleController!.isShowSubtitles =
-          //     !subtitleController!.showSubtitles;
-          // setState(() {});
-          break;
-        // Add other D-pad key handling as needed
+
         default:
           break;
       }
     }
+  }
+
+  void decideOnTap() async {
+    if (currentFocusedElement == 'volume_slider_btn') {
+      selectedSlider = !selectedSlider;
+    } else if (currentFocusedElement == 'seek_slider_btn') {
+      selectedSlider = !selectedSlider;
+    } else if (currentFocusedElement == 'play_pause_btn_small') {
+      _togglePlaying();
+    } else if (currentFocusedElement == 'prev_episode_btn') {
+      if (widget.currentVideoIndex > 0) {
+        widget.preparePreviousEpisode();
+      }
+    } else if (currentFocusedElement == 'next_episode_btn') {
+      if ((widget.currentVideoIndex < widget.episodesList.length - 1) &&
+          widget.episodesList.length > 1 &&
+          widget.episode != null) {
+        widget.prepareNextEpisode();
+      }
+    } else if (currentFocusedElement == 'subtitle_btn') {
+      _getSubtitleTracks();
+    } else if (currentFocusedElement == 'audio_track_btn') {
+      _getAudioTracks();
+    } else if (currentFocusedElement == 'speed_btn') {
+      _cyclePlaybackSpeed();
+    } else if (currentFocusedElement == 'plus_10_sec_btn') {
+      _onSliderPositionChanged(
+          (_controller.value.position + Duration(seconds: 10))
+              .inSeconds
+              .toDouble());
+    } else if (currentFocusedElement == 'minus_10_sec_btn') {
+      _onSliderPositionChanged(
+          (_controller.value.position - Duration(seconds: 10))
+              .inSeconds
+              .toDouble());
+    }
+  }
+
+  void handleUpAndDownPress() async {
+    var nextItem;
+    btnFocusNodes[currentFocusedElement]['isFocused'] = false;
+    List keys = btnFocusNodes.keys.toList();
+    if (currentFocusedLine == 0) {
+      if (keys.indexOf(currentFocusedElement) == 0) {
+        nextItem = btnFocusNodes.entries.elementAt(1).key;
+      } else {
+        nextItem = btnFocusNodes.entries.elementAt(0).key;
+      }
+    } else {
+      nextItem = btnFocusNodes.entries.elementAt(2).key;
+    }
+    setState(() {
+      currentFocusedElement = nextItem;
+      btnFocusNodes[currentFocusedElement]['isFocused'] = true;
+    });
   }
 
   @override
@@ -300,13 +513,31 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                 children: [
                   Row(
                     children: [
-                      IconButton(
-                        color: Colors.white,
-                        icon: _controller.value.isPlaying
-                            ? const Icon(Icons.pause_circle_outline)
-                            : const Icon(Icons.play_circle_outline),
-                        onPressed: _togglePlaying,
-                      ),
+                      CustomIconButton(
+                          hasFocus: btnFocusNodes['play_pause_btn_small']
+                              ['isFocused'],
+                          icon: _controller.value.isPlaying
+                              ? const Icon(Icons.pause_circle_outline)
+                              : const Icon(Icons.play_circle_outline),
+                          onTap: _togglePlaying),
+                      // Container(
+                      //   width: 40,
+                      //   height: 40,
+                      //   decoration: BoxDecoration(
+                      //     shape: BoxShape.circle,
+                      //     color: Colors.white.withOpacity(0.4),
+                      //   ),
+                      //   child: IconButton(
+                      //     color: Colors.white,
+                      //     icon: _controller.value.isPlaying
+                      //         ? const Icon(Icons.pause_circle_outline)
+                      //         : const Icon(Icons.play_circle_outline),
+                      //     onPressed: ,
+                      //     focusNode: ,
+                      //     autofocus: true,
+                      //   ),
+                      // ),
+
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -316,17 +547,35 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                               style: const TextStyle(color: Colors.white),
                             ),
                             Expanded(
-                              child: Slider(
-                                activeColor: Colors.redAccent,
-                                inactiveColor: Colors.white70,
-                                value: sliderValue,
-                                max: !validPosition
-                                    ? 1.0
-                                    : _controller.value.duration.inSeconds
-                                        .toDouble(),
-                                onChanged: validPosition
-                                    ? _onSliderPositionChanged
+                              child: Container(
+                                // width: 20,
+                                height: 20,
+                                margin: btnFocusNodes['seek_slider_btn']
+                                        ['isFocused']
+                                    ? EdgeInsets.symmetric(horizontal: 10.0)
                                     : null,
+                                decoration: BoxDecoration(
+                                  // shape: BoxShape.circle,
+                                  borderRadius: BorderRadius.circular(35.0),
+                                  color: btnFocusNodes['seek_slider_btn']
+                                          ['isFocused']
+                                      ? Colors.white.withOpacity(0.3)
+                                      : Colors.transparent,
+                                ),
+                                child: Slider(
+                                  // focusNode: btnFocusNodes['seek_slider_btn'],
+                                  activeColor: Colors.redAccent,
+                                  inactiveColor: Colors.white70,
+
+                                  value: sliderValue,
+                                  max: !validPosition
+                                      ? 1.0
+                                      : _controller.value.duration.inSeconds
+                                          .toDouble(),
+                                  onChanged: validPosition
+                                      ? _onSliderPositionChanged
+                                      : null,
+                                ),
                               ),
                             ),
                             Padding(
@@ -350,13 +599,21 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                           children: [
                             Stack(
                               children: [
-                                IconButton(
-                                  tooltip: 'Get Subtitle Tracks',
-                                  icon: const Icon(
-                                      CupertinoIcons.captions_bubble_fill),
-                                  color: Colors.white,
-                                  onPressed: _getSubtitleTracks,
-                                ),
+                                CustomIconButton(
+                                    hasFocus: btnFocusNodes['subtitle_btn']![
+                                            'isFocused'] ??
+                                        false,
+                                    icon: const Icon(
+                                        CupertinoIcons.captions_bubble_fill),
+                                    onTap: _getSubtitleTracks),
+                                // IconButton(
+                                //   focusNode: btnFocusNodes['subtitle_btn'],
+                                //   tooltip: 'Get Subtitle Tracks',
+                                //   icon: const Icon(
+                                //       CupertinoIcons.captions_bubble_fill),
+                                //   color: Colors.white,
+                                //   onPressed: _getSubtitleTracks,
+                                // ),
                                 Positioned(
                                   top: _numberPositionOffset,
                                   right: _numberPositionOffset,
@@ -385,12 +642,19 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                             ),
                             Stack(
                               children: [
-                                IconButton(
-                                  tooltip: 'Get Audio Tracks',
-                                  icon: const Icon(Icons.audiotrack_rounded),
-                                  color: Colors.white,
-                                  onPressed: _getAudioTracks,
-                                ),
+                                CustomIconButton(
+                                    hasFocus: btnFocusNodes['audio_track_btn']![
+                                            'isFocused'] ??
+                                        false,
+                                    icon: const Icon(Icons.audiotrack_rounded),
+                                    onTap: _getAudioTracks),
+                                // IconButton(
+                                //   focusNode: btnFocusNodes['audio_track_btn'],
+                                //   tooltip: 'Get Audio Tracks',
+                                //   icon: const Icon(Icons.audiotrack_rounded),
+                                //   color: Colors.white,
+                                //   onPressed: _getAudioTracks,
+                                // ),
                                 Positioned(
                                   top: _numberPositionOffset,
                                   right: _numberPositionOffset,
@@ -419,11 +683,18 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                             ),
                             Stack(
                               children: [
-                                IconButton(
-                                  icon: const Icon(Icons.speed),
-                                  color: Colors.white,
-                                  onPressed: _cyclePlaybackSpeed,
-                                ),
+                                CustomIconButton(
+                                    hasFocus: btnFocusNodes['speed_btn']![
+                                            'isFocused'] ??
+                                        false,
+                                    icon: const Icon(Icons.speed),
+                                    onTap: _cyclePlaybackSpeed),
+                                // IconButton(
+                                //   focusNode: btnFocusNodes['speed_btn'],
+                                //   icon: const Icon(Icons.speed),
+                                //   color: Colors.white,
+                                //   onPressed: _cyclePlaybackSpeed,
+                                // ),
                                 Positioned(
                                   bottom: _positionedBottomSpace,
                                   right: _positionedRightSpace,
@@ -450,24 +721,87 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                                 ),
                               ],
                             ),
-                            IconButton(
-                              onPressed: () => _seekRelative(_seekStepBackward),
-                              color: Colors.white,
-                              // iconSize: _seekButtonIconSize,
-                              icon: const Icon(Icons.replay_10),
-                            ),
-                            IconButton(
-                              onPressed: () => _seekRelative(_seekStepForward),
-                              color: Colors.white,
-                              // iconSize: _seekButtonIconSize,
-                              icon: const Icon(Icons.forward_10),
+                            CustomIconButton(
+                                hasFocus: btnFocusNodes['minus_10_sec_btn']![
+                                        'isFocused'] ??
+                                    false,
+                                icon: const Icon(Icons.replay_10),
+                                onTap: () => _seekRelative(_seekStepBackward)),
+                            // IconButton(
+                            //   focusNode: btnFocusNodes['minus_10_sec_btn'],
+                            //   onPressed: () => _seekRelative(_seekStepBackward),
+                            //   color: Colors.white,
+                            //   // iconSize: _seekButtonIconSize,
+                            //   icon: const Icon(Icons.replay_10),
+                            // ),
+                            CustomIconButton(
+                                hasFocus: btnFocusNodes['plus_10_sec_btn']![
+                                        'isFocused'] ??
+                                    false,
+                                icon: const Icon(Icons.forward_10),
+                                onTap: () => _seekRelative(_seekStepForward)),
+                            // IconButton(
+                            //   focusNode: btnFocusNodes['plus_10_sec_btn'],
+                            //   onPressed: () => _seekRelative(_seekStepForward),
+                            //   color: Colors.white,
+                            //   // iconSize: _seekButtonIconSize,
+                            //   icon: const Icon(Icons.forward_10),
+                            // ),
+
+                            // if (widget.currentVideoIndex > 0)
+                            CustomIconButton(
+                              hasFocus: btnFocusNodes['prev_episode_btn']![
+                                      'isFocused'] ??
+                                  false,
+                              icon: const Icon(Icons.skip_previous),
+                              onTap: widget.currentVideoIndex > 0
+                                  ? widget.preparePreviousEpisode
+                                  : null,
                             ),
                             // IconButton(
-                            //   icon: const Icon(Icons.keyboard_double_arrow_right),
+                            //   focusNode: btnFocusNodes['prev_episode_btn'],
+                            //   icon: const Icon(
+                            //       Icons.keyboard_double_arrow_left),
+                            //   color: Colors.white,
+                            //   onPressed: widget.preparePreviousEpisode,
+                            // ),
+                            // if ((widget.currentVideoIndex <
+                            //         widget.episodesList.length - 1) &&
+                            //     widget.episodesList.length > 1 &&
+                            //     widget.episode != null)
+                            CustomIconButton(
+                              hasFocus: btnFocusNodes['next_episode_btn']![
+                                      'isFocused'] ??
+                                  false,
+                              icon: const Icon(Icons.skip_next),
+                              onTap: (widget.currentVideoIndex <
+                                          widget.episodesList.length - 1) &&
+                                      widget.episodesList.length > 1 &&
+                                      widget.episode != null
+                                  ? widget.prepareNextEpisode
+                                  : null,
+                            ),
+                            // IconButton(
+                            //   focusNode: btnFocusNodes['next_episode_btn'],
+                            //   icon: const Icon(
+                            //       Icons.keyboard_double_arrow_right),
                             //   color: Colors.white,
                             //   onPressed: widget.prepareNextEpisode,
                             // ),
                           ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 10.0),
+                          child: Text(
+                            widget.videoTitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                         Visibility(
                           visible: widget.showControls,
@@ -480,12 +814,22 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               // mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(
-                                  Icons.volume_up_rounded,
-                                  color: Colors.white,
+                                CustomIconButton(
+                                  hasFocus: btnFocusNodes['volume_slider_btn']
+                                      ['isFocused'],
+                                  icon: const Icon(Icons.volume_up_rounded),
+                                  onTap: () {},
                                 ),
+                                // const Icon(
+                                //   Icons.volume_up_rounded,
+                                //   color: Colors.white,
+                                // ),
                                 Expanded(
                                   child: Slider(
+                                    // focusNode:
+                                    //     btnFocusNodes['volume_slider_btn'],
+                                    activeColor: Colors.redAccent,
+                                    inactiveColor: Colors.white70,
                                     max: _overlayWidth,
                                     value: volumeValue,
                                     onChanged: _setSoundVolume,
@@ -664,5 +1008,33 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
         await _controller.setAudioTrack(selectedAudioTrackId);
       }
     }
+  }
+}
+
+class CustomIconButton extends StatelessWidget {
+  final bool hasFocus;
+  final Icon icon;
+  final Function()? onTap;
+  const CustomIconButton(
+      {super.key,
+      required this.hasFocus,
+      required this.icon,
+      required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: hasFocus ? Colors.white.withOpacity(0.3) : Colors.transparent,
+      ),
+      child: IconButton(
+        color: Colors.white,
+        icon: icon,
+        onPressed: onTap,
+      ),
+    );
   }
 }

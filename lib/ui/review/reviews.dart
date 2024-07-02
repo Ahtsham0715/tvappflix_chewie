@@ -100,7 +100,7 @@ class _ReviewsState extends State<Reviews> {
           if (event is KeyDownEvent) {
             final logicalKey = event.logicalKey;
             switch (logicalKey) {
-              case LogicalKeyboardKey.select:
+              case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                 break;
               case LogicalKeyboardKey.arrowUp:
                 if (pos_x == 0) {

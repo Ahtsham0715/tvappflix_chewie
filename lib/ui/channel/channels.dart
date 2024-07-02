@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/category.dart';
 import 'package:flutter_app_tv/model/country.dart';
 
@@ -23,6 +24,7 @@ import 'package:flutter_app_tv/ui/search/search.dart';
 import 'package:flutter_app_tv/ui/serie/series.dart';
 import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:flutter_app_tv/widget/navigation_widget.dart';
+import 'package:flutter_app_tv/widget/navigation_widget_mobile.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'dart:convert' as convert;
 import 'package:need_resume/need_resume.dart';
@@ -80,10 +82,10 @@ class _ChannelsState extends ResumableState<Channels> {
 
   bool? logged;
   Image image = Image.asset("assets/images/profile.jpg");
-
+  bool isMobile = true;
   @override
   void initState() {
-    // TODO: implement initState
+    context.isMobile.then((value) => isMobile = value);
     super.initState();
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(home_focus_node);
@@ -250,7 +252,7 @@ class _ChannelsState extends ResumableState<Channels> {
               final logicalKey = event.logicalKey;
 
               switch (logicalKey) {
-                case LogicalKeyboardKey.select:
+                case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                   _selectFilter();
 
                   _goToSearch();
@@ -509,18 +511,33 @@ class _ChannelsState extends ResumableState<Channels> {
                       ],
                     ))),
               ),
-              NavigationWidget(
-                  postx: postx,
-                  posty: posty,
-                  selectedItem: 4,
-                  image: image,
-                  logged: logged),
+              // context.isPortrait
+              //     ? NavigationWidgetMobile(
+              //         postx: postx,
+              //         posty: posty,
+              //         selectedItem: 4,
+              //         image: image,
+              //         logged: logged)
+              //     :
+              if (!isMobile)
+                NavigationWidget(
+                    postx: postx,
+                    posty: posty,
+                    selectedItem: 4,
+                    image: image,
+                    logged: logged),
               if (_visibile_loading) ChannelLoadingWidget(),
               if (_visibile_error) _tryAgainWidget(),
               if (channles.length > 0 && !_visibile_loading && !_visibile_error)
                 AnimatedPositioned(
-                    top: (posty < 0) ? 70 : 40,
-                    left: 0,
+                    top: (posty < 0)
+                        ? isMobile && context.isLandscape
+                            ? 0
+                            : context.isPortrait
+                                ? 20
+                                : 70
+                        : 40,
+                    left: context.isPortrait ? -10 : 0,
                     right: 0,
                     duration: Duration(milliseconds: 200),
                     child: MovieShortDetailWidget(
@@ -554,336 +571,356 @@ class _ChannelsState extends ResumableState<Channels> {
                   left: 0,
                   right: 0,
                   duration: Duration(milliseconds: 200),
-                  height: (posty < 0)
-                      ? (MediaQuery.of(context).size.height / 2) + 20
-                      : (MediaQuery.of(context).size.height / 2) + 50,
+                  height: isMobile && context.isLandscape
+                      ? (MediaQuery.of(context).size.height / 5.5) + 25
+                      : context.isPortrait
+                          ? (MediaQuery.of(context).size.height / 2) + 20
+                          : (posty < 0)
+                              ? (MediaQuery.of(context).size.height / 2) + 20
+                              : (MediaQuery.of(context).size.height / 2) + 50,
                   child: Column(
                     children: [
                       Container(
-                        padding: EdgeInsets.only(left: 45, right: 50),
+                        padding: EdgeInsets.only(
+                            left: context.isPortrait ? 30 : 45,
+                            right: context.isPortrait ? 10 : 50),
                         height: 50,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        posty = -1;
-                                        postx = 0;
-                                        _showCategoriesDialog();
-                                      },
-                                      child: Container(
-                                        padding:
-                                            EdgeInsets.only(left: 7, right: 0),
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 7),
-                                        height: 50,
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              categories[_selected_category]
-                                                  .title,
-                                              style: TextStyle(
-                                                  color: (posty == -1 &&
-                                                          postx == 0)
-                                                      ? Colors.black
-                                                      : Colors.white70,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_drop_down,
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          posty = -1;
+                                          postx = 0;
+                                          _showCategoriesDialog();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.only(
+                                              left: 7, right: 0),
+                                          margin:
+                                              EdgeInsets.symmetric(vertical: 7),
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                categories[_selected_category]
+                                                    .title,
+                                                style: TextStyle(
+                                                    color: (posty == -1 &&
+                                                            postx == 0)
+                                                        ? Colors.black
+                                                        : Colors.white70,
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_drop_down,
+                                                color:
+                                                    (posty == -1 && postx == 0)
+                                                        ? Colors.black
+                                                        : Colors.white70,
+                                                size: 30,
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
                                               color: (posty == -1 && postx == 0)
-                                                  ? Colors.black
-                                                  : Colors.white70,
-                                              size: 30,
-                                            ),
-                                          ],
+                                                  ? Colors.white
+                                                  : Colors.transparent,
+                                              border: Border.all(
+                                                  color: Colors.white70,
+                                                  width: 2),
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
                                         ),
-                                        decoration: BoxDecoration(
-                                            color: (posty == -1 && postx == 0)
-                                                ? Colors.white
-                                                : Colors.transparent,
-                                            border: Border.all(
-                                                color: Colors.white70,
-                                                width: 2),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
                                       ),
-                                    ),
-                                    SizedBox(width: 7),
-                                    GestureDetector(
-                                      onTap: () {
-                                        posty = -1;
-                                        postx = 1;
-                                        _showCountriesDialog();
-                                      },
-                                      child: Container(
-                                        padding:
-                                            EdgeInsets.only(left: 10, right: 0),
-                                        margin:
-                                            EdgeInsets.symmetric(vertical: 7),
-                                        height: 50,
-                                        child: Row(
-                                          children: [
-                                            Text(
-                                              countries[_selected_country]
-                                                  .title,
-                                              style: TextStyle(
-                                                  color: (posty == -1 &&
-                                                          postx == 1)
-                                                      ? Colors.black
-                                                      : Colors.white70,
-                                                  fontSize: 16,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                            Icon(
-                                              Icons.arrow_drop_down,
+                                      SizedBox(width: 7),
+                                      GestureDetector(
+                                        onTap: () {
+                                          posty = -1;
+                                          postx = 1;
+                                          _showCountriesDialog();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.only(
+                                              left: 10, right: 0),
+                                          margin:
+                                              EdgeInsets.symmetric(vertical: 7),
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                countries[_selected_country]
+                                                    .title,
+                                                style: TextStyle(
+                                                    color: (posty == -1 &&
+                                                            postx == 1)
+                                                        ? Colors.black
+                                                        : Colors.white70,
+                                                    fontSize: 16,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_drop_down,
+                                                color:
+                                                    (posty == -1 && postx == 1)
+                                                        ? Colors.black
+                                                        : Colors.white70,
+                                                size: 30,
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
                                               color: (posty == -1 && postx == 1)
-                                                  ? Colors.black
-                                                  : Colors.white70,
-                                              size: 30,
-                                            ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                            color: (posty == -1 && postx == 1)
-                                                ? Colors.white
-                                                : Colors.transparent,
-                                            border: Border.all(
-                                                color: Colors.white70,
-                                                width: 2),
-                                            borderRadius:
-                                                BorderRadius.circular(5)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            AnimatedOpacity(
-                              opacity: (posty == -1 && postx > 0) ? 1 : 0.8,
-                              duration: Duration(milliseconds: 250),
-                              child: Container(
-                                height: 50,
-                                margin: EdgeInsets.symmetric(vertical: 7),
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                        color: Colors.white, width: 2),
-                                    borderRadius: BorderRadius.circular(5)),
-                                child: Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 2;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        height: 50,
-                                        color: ((posty == -1 && postx == 2) ||
-                                                selected_sort == 2)
-                                            ? Colors.white
-                                            : Colors.transparent,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.access_time,
-                                              color: ((posty == -1 &&
-                                                          postx == 2) ||
-                                                      selected_sort == 2)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Newest",
-                                              style: TextStyle(
-                                                  color: ((posty == -1 &&
-                                                              postx == 2) ||
-                                                          selected_sort == 2)
-                                                      ? Colors.black
-                                                      : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                          ],
+                                                  ? Colors.white
+                                                  : Colors.transparent,
+                                              border: Border.all(
+                                                  color: Colors.white70,
+                                                  width: 2),
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
                                         ),
                                       ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 3;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        height: 50,
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.remove_red_eye,
-                                              color: ((posty == -1 &&
-                                                          postx == 3) ||
-                                                      selected_sort == 3)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Views",
-                                              style: TextStyle(
-                                                  color: ((posty == -1 &&
-                                                              postx == 3) ||
-                                                          selected_sort == 3)
-                                                      ? Colors.black
-                                                      : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 3) ||
-                                                  selected_sort == 3)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 4;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.star_half,
-                                              color: ((posty == -1 &&
-                                                          postx == 4) ||
-                                                      selected_sort == 4)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Rating",
-                                              style: TextStyle(
-                                                  color: ((posty == -1 &&
-                                                              postx == 4) ||
-                                                          selected_sort == 4)
-                                                      ? Colors.black
-                                                      : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 4) ||
-                                                  selected_sort == 4)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        setState(() {
-                                          posty = -1;
-                                          postx = 5;
-                                          Future.delayed(
-                                              Duration(milliseconds: 50), () {
-                                            _selectFilter();
-                                          });
-                                        });
-                                      },
-                                      child: Container(
-                                        height: 50,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 12),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.text_fields,
-                                              color: ((posty == -1 &&
-                                                          postx == 5) ||
-                                                      selected_sort == 5)
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                              size: 18,
-                                            ),
-                                            SizedBox(width: 5),
-                                            Text(
-                                              "Title",
-                                              style: TextStyle(
-                                                  color: ((posty == -1 &&
-                                                              postx == 5) ||
-                                                          selected_sort == 5)
-                                                      ? Colors.black
-                                                      : Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w700),
-                                            ),
-                                          ],
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                              left: BorderSide(
-                                                  color: Colors.white,
-                                                  width: 1)),
-                                          color: ((posty == -1 && postx == 5) ||
-                                                  selected_sort == 5)
-                                              ? Colors.white
-                                              : Colors.transparent,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            )
-                          ],
+                              AnimatedOpacity(
+                                opacity: (posty == -1 && postx > 0) ? 1 : 0.8,
+                                duration: Duration(milliseconds: 250),
+                                child: Container(
+                                  height: 50,
+                                  margin: EdgeInsets.symmetric(vertical: 7),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: Colors.white, width: 2),
+                                      borderRadius: BorderRadius.circular(5)),
+                                  child: Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            posty = -1;
+                                            postx = 2;
+                                            Future.delayed(
+                                                Duration(milliseconds: 50), () {
+                                              _selectFilter();
+                                            });
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                          height: 50,
+                                          color: ((posty == -1 && postx == 2) ||
+                                                  selected_sort == 2)
+                                              ? Colors.white
+                                              : Colors.transparent,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.access_time,
+                                                color: ((posty == -1 &&
+                                                            postx == 2) ||
+                                                        selected_sort == 2)
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Newest",
+                                                style: TextStyle(
+                                                    color: ((posty == -1 &&
+                                                                postx == 2) ||
+                                                            selected_sort == 2)
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            posty = -1;
+                                            postx = 3;
+                                            Future.delayed(
+                                                Duration(milliseconds: 50), () {
+                                              _selectFilter();
+                                            });
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.remove_red_eye,
+                                                color: ((posty == -1 &&
+                                                            postx == 3) ||
+                                                        selected_sort == 3)
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Views",
+                                                style: TextStyle(
+                                                    color: ((posty == -1 &&
+                                                                postx == 3) ||
+                                                            selected_sort == 3)
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                                left: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 1)),
+                                            color:
+                                                ((posty == -1 && postx == 3) ||
+                                                        selected_sort == 3)
+                                                    ? Colors.white
+                                                    : Colors.transparent,
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            posty = -1;
+                                            postx = 4;
+                                            Future.delayed(
+                                                Duration(milliseconds: 50), () {
+                                              _selectFilter();
+                                            });
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.star_half,
+                                                color: ((posty == -1 &&
+                                                            postx == 4) ||
+                                                        selected_sort == 4)
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Rating",
+                                                style: TextStyle(
+                                                    color: ((posty == -1 &&
+                                                                postx == 4) ||
+                                                            selected_sort == 4)
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                                left: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 1)),
+                                            color:
+                                                ((posty == -1 && postx == 4) ||
+                                                        selected_sort == 4)
+                                                    ? Colors.white
+                                                    : Colors.transparent,
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            posty = -1;
+                                            postx = 5;
+                                            Future.delayed(
+                                                Duration(milliseconds: 50), () {
+                                              _selectFilter();
+                                            });
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.text_fields,
+                                                color: ((posty == -1 &&
+                                                            postx == 5) ||
+                                                        selected_sort == 5)
+                                                    ? Colors.black
+                                                    : Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Title",
+                                                style: TextStyle(
+                                                    color: ((posty == -1 &&
+                                                                postx == 5) ||
+                                                            selected_sort == 5)
+                                                        ? Colors.black
+                                                        : Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border(
+                                                left: BorderSide(
+                                                    color: Colors.white,
+                                                    width: 1)),
+                                            color:
+                                                ((posty == -1 && postx == 5) ||
+                                                        selected_sort == 5)
+                                                    ? Colors.white
+                                                    : Colors.transparent,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                       Expanded(
@@ -1139,7 +1176,9 @@ class _ChannelsState extends ResumableState<Channels> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 40),
+            padding: EdgeInsets.only(
+                left: context.isPortrait ? 30 : 45,
+                right: context.isPortrait ? 10 : 45),
             height: 75,
             width: double.infinity,
             child: ScrollablePositionedList.builder(

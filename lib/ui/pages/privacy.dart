@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_html/flutter_html.dart';
 // import 'package:flutter_html/shims/dart_ui_real.dart';
@@ -46,7 +49,7 @@ class _PrivacyState extends State<Privacy> {
         if (event is KeyDownEvent) {
           final logicalKey = event.logicalKey;
           switch (logicalKey) {
-            case LogicalKeyboardKey.select:
+            case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
               break;
             case LogicalKeyboardKey.arrowUp:
               if (pos_y > 0) {
@@ -86,20 +89,20 @@ class _PrivacyState extends State<Privacy> {
                   placeholder: MemoryImage(kTransparentImage),
                   image: AssetImage("assets/images/background.jpeg"),
                   fit: BoxFit.cover),
-              // ClipRRect( // Clip it cleanly.
-              //   child: BackdropFilter(
-              //     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              //     child: Container(
-              //       color: Colors.black.withOpacity(0.1),
-              //       alignment: Alignment.center,
-              //     ),
-              //   ),
-              // ),
-
+              ClipRRect(
+                // Clip it cleanly.
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.1),
+                    alignment: Alignment.center,
+                  ),
+                ),
+              ),
               Positioned(
                 right: 0,
-                bottom: -5,
-                top: -5,
+                bottom: context.isPortrait ? 0 : -5,
+                top: context.isPortrait ? null : -5,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.blueGrey,
@@ -110,7 +113,12 @@ class _PrivacyState extends State<Privacy> {
                           blurRadius: 5),
                     ],
                   ),
-                  width: MediaQuery.of(context).size.width / 2.5,
+                  height: context.isPortrait
+                      ? MediaQuery.of(context).size.height * 0.75
+                      : double.infinity,
+                  width: context.isPortrait
+                      ? MediaQuery.of(context).size.width
+                      : MediaQuery.of(context).size.width / 2.5,
                   child: Container(
                     width: double.infinity,
                     color: Colors.black54,

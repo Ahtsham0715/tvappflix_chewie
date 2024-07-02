@@ -393,54 +393,54 @@
 //     chewieController!.pause();
 //   }
 
-//   void _handleDpadPress(KeyEvent event) async {
-//     if (event is KeyDownEvent) {
-//       switch (event.logicalKey) {
-//         case LogicalKeyboardKey.arrowLeft:
-//           // Handle left press (e.g., rewind)
-//           chewieController!.seekTo(
-//               chewieController!.videoPlayerController.value.position -
-//                   Duration(seconds: 5));
-//           break;
-//         case LogicalKeyboardKey.arrowRight:
-//           // Handle right press (e.g., fast-forward)
-//           chewieController!.seekTo(
-//               chewieController!.videoPlayerController.value.position +
-//                   Duration(seconds: 5));
-//           break;
-//         case LogicalKeyboardKey.arrowUp:
-//           chewieController!.videoPlayerController.value.volume;
-//           chewieController!.setVolume(
-//               chewieController!.videoPlayerController.value.volume +
-//                   0.1); // Adjust increment as needed
-//           break;
-//         case LogicalKeyboardKey.arrowDown:
-//           // Handle down press (e.g., volume down)
+  // void _handleDpadPress(KeyEvent event) async {
+  //   if (event is KeyDownEvent) {
+  //     switch (event.logicalKey) {
+  //       case LogicalKeyboardKey.arrowLeft:
+  //         // Handle left press (e.g., rewind)
+  //         chewieController!.seekTo(
+  //             chewieController!.videoPlayerController.value.position -
+  //                 Duration(seconds: 5));
+  //         break;
+  //       case LogicalKeyboardKey.arrowRight:
+  //         // Handle right press (e.g., fast-forward)
+  //         chewieController!.seekTo(
+  //             chewieController!.videoPlayerController.value.position +
+  //                 Duration(seconds: 5));
+  //         break;
+  //       case LogicalKeyboardKey.arrowUp:
+  //         chewieController!.videoPlayerController.value.volume;
+  //         chewieController!.setVolume(
+  //             chewieController!.videoPlayerController.value.volume +
+  //                 0.1); // Adjust increment as needed
+  //         break;
+  //       case LogicalKeyboardKey.arrowDown:
+  //         // Handle down press (e.g., volume down)
 
-//           chewieController!.setVolume(
-//               chewieController!.videoPlayerController.value.volume -
-//                   0.1); // Adjust decrement as needed
-//           break;
-//         case LogicalKeyboardKey.select:
-//           // Handle select/enter press (e.g., play/pause)
-//           if (chewieController!.videoPlayerController.value.isBuffering) {}
-//           if (chewieController!.isPlaying) {
-//             chewieController!.pause();
-//           } else {
-//             chewieController!.play();
-//           }
-//           break;
-//         case LogicalKeyboardKey.subtitle:
-//           // subtitleController!.isShowSubtitles =
-//           //     !subtitleController!.showSubtitles;
-//           setState(() {});
-//           break;
-//         // Add other D-pad key handling as needed
-//         default:
-//           break;
-//       }
-//     }
-//   }
+  //         chewieController!.setVolume(
+  //             chewieController!.videoPlayerController.value.volume -
+  //                 0.1); // Adjust decrement as needed
+  //         break;
+  //       case LogicalKeyboardKey.select:
+  //         // Handle select/enter press (e.g., play/pause)
+  //         if (chewieController!.videoPlayerController.value.isBuffering) {}
+  //         if (chewieController!.isPlaying) {
+  //           chewieController!.pause();
+  //         } else {
+  //           chewieController!.play();
+  //         }
+  //         break;
+  //       case LogicalKeyboardKey.subtitle:
+  //         // subtitleController!.isShowSubtitles =
+  //         //     !subtitleController!.showSubtitles;
+  //         setState(() {});
+  //         break;
+  //       // Add other D-pad key handling as needed
+  //       default:
+  //         break;
+  //     }
+  //   }
+  // }
 
 //   @override
 //   Widget build(BuildContext context) {

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/key_code.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -169,13 +170,14 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      resizeToAvoidBottomInset: context.isPortrait ? false : null,
       body: KeyboardListener(
         focusNode: main_focus_node,
         onKeyEvent: (KeyEvent event) {
           if (event is KeyDownEvent) {
             final logicalKey = event.logicalKey;
             switch (logicalKey) {
-              case LogicalKeyboardKey.select:
+              case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                 _goToValidate();
                 _accept();
                 break;
@@ -228,8 +230,8 @@ class _RegisterState extends State<Register> {
             ),
             Positioned(
               right: 0,
-              bottom: -5,
-              top: -5,
+              bottom: context.isPortrait ? 0 : -5,
+              top: context.isPortrait ? null : -5,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.blueGrey,
@@ -240,7 +242,12 @@ class _RegisterState extends State<Register> {
                         blurRadius: 5),
                   ],
                 ),
-                width: MediaQuery.of(context).size.width / 2.5,
+                height: context.isPortrait
+                    ? MediaQuery.of(context).size.height * 0.75
+                    : double.infinity,
+                width: context.isPortrait
+                    ? MediaQuery.of(context).size.width
+                    : MediaQuery.of(context).size.width / 2.5,
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(50),

@@ -75,7 +75,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   int? subtitleTextColorPref;
   int? subtitleBackgroundColorPref;
   int subtitleSizePref = 25;
-
+  int currentVideoIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -83,8 +83,10 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
       widget.next = (widget.episode != null) ? true : false;
       widget.live = (widget.channel != null) ? true : false;
       // FocusScope.of(context).requestFocus(video_player_focus_node);
+      currentVideoIndex = widget.episode ?? 0;
+      print('initial vido indx $currentVideoIndex');
       loadSubtitlePrefs();
-      _prepareNext();
+      // _prepareNext();
       _getSubtitlesList();
       _checkLogged();
       initSettings();
@@ -142,14 +144,14 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
       if (widget.sourcesListDialog![widget.selected_source!].premium == "2" ||
           widget.sourcesListDialog![widget.selected_source!].premium == "3") {
         if (subscribed == "TRUE") {
-          _setupDataSource(widget.selected_source!);
+          // _setupDataSource(widget.selected_source!);
         } else {
           setState(() {
             visible_subscribe_dialog = true;
           });
         }
       } else {
-        _setupDataSource(widget.selected_source!);
+        // _setupDataSource(widget.selected_source!);
       }
     }
   }
@@ -160,8 +162,12 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
     _animated_controller!.forward();
 
     prefs = await SharedPreferences.getInstance();
-
-    _setupDataSource(widget.selected_source!);
+    print('selected source: ${widget.selected_source}');
+    // _setupDataSource(widget.selected_source!);
+    _setupDataSource(widget.episode == null
+        ? widget.sourcesList![widget.selected_source!].url
+        : widget.seasons![widget.season!].episodes[widget.episode!]
+            .sources[widget.selected_source!].url);
   }
 
   void _checkLogged() async {
@@ -170,13 +176,14 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
     this.subscribed = prefs.getString("NEW_SUBSCRIBE_ENABLED");
   }
 
-  void _setupDataSource(int index) async {
-    int? savedPosition = await VideoStateSaver.getVideoState(
-        key: widget.sourcesList![index].url);
+  void _setupDataSource(String url) async {
+    // widget.sourcesList![index].url
+    print('video url: ${url}');
+    int? savedPosition = await VideoStateSaver.getVideoState(key: url);
     // print(
     //     'savedPosition: $savedPosition url: ${widget.sourcesList![index].url}');
     _videoPlayerController = VlcPlayerController.network(
-      widget.sourcesList![index].url,
+      url,
       hwAcc: HwAcc.auto,
       startAt: Duration(milliseconds: savedPosition ?? 0),
       options: VlcPlayerOptions(
@@ -186,7 +193,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
           subtitle: VlcSubtitleOptions([
             VlcSubtitleOptions.boldStyle(true),
             VlcSubtitleOptions.fontSize(subtitleSizePref),
-            VlcSubtitleOptions.backgroundOpacity(150),
+            // VlcSubtitleOptions.backgroundOpacity(150),
             VlcSubtitleOptions.backgroundColor(subtitleBackgroundColorPref ==
                     null
                 ? VlcSubtitleColor.rgb(
@@ -214,9 +221,10 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
           http: VlcHttpOptions([
             VlcHttpOptions.httpReconnect(true),
           ]),
-          rtp: VlcRtpOptions([
-            VlcRtpOptions.rtpOverRtsp(true),
-          ]),
+          // rtp: VlcRtpOptions([
+          //   VlcRtpOptions.rtpOverRtsp(true),
+          // ]),
+
           sout: VlcStreamOutputOptions(
               [VlcStreamOutputOptions.soutMuxCaching(3500)]),
           video: VlcVideoOptions([
@@ -255,7 +263,9 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
       response = await apiRest.getSubtitlesByMovie(widget.poster!.id);
     else
       response = await apiRest.getSubtitlesByEpisode(
-          widget.seasons![widget.season!].episodes[widget.episode!].id);
+          widget.seasons![widget.season!].episodes[currentVideoIndex].id
+          // widget.seasons![widget.season!].episodes[widget.episode!].id
+          );
 
     if (response != null) {
       print('languageb: ${response.body}');
@@ -299,42 +309,102 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
     setState(() {});
   }
 
-  void _prepareNext() {
+  void _playNextEpisode() async {
+    // widget.sourcesList![index].url;
+    print('playNextEpisode button pressed: ${widget.episode}');
     if (widget.episode != null) {
-      if ((widget.episode! + 1) <
-          widget.seasons![widget.season!].episodes.length) {
-        widget.next_episode = widget.episode! + 1;
-        widget.next_season = widget.season!;
-        widget.next = true;
-        widget.next_title = widget.seasons![widget.next_season!].title +
-            " : " +
-            widget.seasons![widget.next_season!].episodes[widget.next_episode!]
-                .title;
-      } else {
-        if ((widget.season! + 1) < widget.seasons!.length) {
-          if (widget.seasons![widget.season! + 1].episodes.length > 0) {
-            widget.next_episode = 0;
-            widget.next_season = widget.season! + 1;
-            widget.next = true;
-            widget.next_title = widget.seasons![widget.next_season!].title +
-                " : " +
-                widget.seasons![widget.next_season!]
-                    .episodes[widget.next_episode!].title;
-          } else {
-            widget.next = false;
-          }
-        } else {
-          widget.next = false;
-        }
+      currentVideoIndex += 1;
+      // await _videoPlayerController!.stopRendererScanning();
+      // await _videoPlayerController!.dispose();
+      // widget.seasons!.first.episodes.first.title;
+      print(
+          'next episode title: ${widget.seasons![widget.season!].episodes[currentVideoIndex].title} url: ${widget.seasons![widget.season!].episodes[currentVideoIndex].sources[widget.selected_source ?? 0].url}');
+      try {
+        _videoPlayerController!
+            .setMediaFromNetwork(widget
+                .seasons![widget.season!]
+                .episodes[currentVideoIndex]
+                .sources[widget.selected_source ?? 0]
+                .url)
+            .then((value) {
+          _getSubtitlesList();
+        }).catchError((e) {});
+
+        print(
+            'next video loading error: ${_videoPlayerController!.value.errorDescription} state: ${_videoPlayerController!.value.playingState.name}');
+      } catch (e) {
+        print('next video loading c error: $e');
       }
       setState(() {});
+      // _setupDataSource(widget.sourcesList![currentVideoIndex].url);
     }
   }
+
+  void _playPreviousEpisode() async {
+    // widget.sourcesList![index].url;
+    print('playNextEpisode button pressed: ${widget.episode}');
+    if (widget.episode != null) {
+      currentVideoIndex -= 1;
+      // await _videoPlayerController!.stopRendererScanning();
+      // await _videoPlayerController!.dispose();
+      print(
+          'next episode title: ${widget.seasons![widget.season!].episodes[currentVideoIndex].title}');
+      try {
+        _videoPlayerController!
+            .setMediaFromNetwork(widget
+                .seasons![widget.season!]
+                .episodes[currentVideoIndex]
+                .sources[widget.selected_source!]
+                .url)
+            .then((value) {
+          _getSubtitlesList();
+        }).catchError((e) {});
+        print(
+            'next video loading error: ${_videoPlayerController!.value.errorDescription} state: ${_videoPlayerController!.value.playingState.name}');
+      } catch (e) {
+        print('next video loading c error: $e');
+      }
+      setState(() {});
+      // _setupDataSource(widget.sourcesList![currentVideoIndex].url);
+    }
+  }
+
+  // void _prepareNext() {
+  //   if (widget.episode != null) {
+  //     if ((widget.episode! + 1) <
+  //         widget.seasons![widget.season!].episodes.length) {
+  //       widget.next_episode = widget.episode! + 1;
+  //       widget.next_season = widget.season!;
+  //       widget.next = true;
+  //       widget.next_title = widget.seasons![widget.next_season!].title +
+  //           " : " +
+  //           widget.seasons![widget.next_season!].episodes[widget.next_episode!]
+  //               .title;
+  //     } else {
+  //       if ((widget.season! + 1) < widget.seasons!.length) {
+  //         if (widget.seasons![widget.season! + 1].episodes.length > 0) {
+  //           widget.next_episode = 0;
+  //           widget.next_season = widget.season! + 1;
+  //           widget.next = true;
+  //           widget.next_title = widget.seasons![widget.next_season!].title +
+  //               " : " +
+  //               widget.seasons![widget.next_season!]
+  //                   .episodes[widget.next_episode!].title;
+  //         } else {
+  //           widget.next = false;
+  //         }
+  //       } else {
+  //         widget.next = false;
+  //       }
+  //     }
+  //     setState(() {});
+  //   }
+  // }
 
   @override
   void dispose() async {
     super.dispose();
-    await _videoPlayerController!.stopRendererScanning();
+    // await _videoPlayerController!.stopRendererScanning();
     await _videoPlayerController!.dispose();
   }
 
@@ -351,7 +421,19 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
             )
           : VlcPlayerWithControls(
               key: _key,
-              prepareNextEpisode: _prepareNext,
+              episode: widget.episode,
+              videoTitle: widget.episode == null
+                  ? widget.poster == null
+                      ? ''
+                      : widget.poster!.title
+                  : widget.seasons![widget.season!].episodes[currentVideoIndex]
+                      .title,
+              currentVideoIndex: currentVideoIndex,
+              episodesList: widget.season == null
+                  ? []
+                  : widget.seasons![widget.season!].episodes,
+              preparePreviousEpisode: _playPreviousEpisode,
+              prepareNextEpisode: _playNextEpisode,
               subtitlesList: _subtitlesList,
               showControls: true,
               controller: _videoPlayerController!,

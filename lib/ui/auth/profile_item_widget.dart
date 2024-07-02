@@ -7,7 +7,12 @@ class ProfileItemWidget extends StatefulWidget {
   IconData? icon;
   Function()? action;
 
-  ProfileItemWidget({required this.isFocused, required this.title, required this.subtitle, required this.icon, required this.action});
+  ProfileItemWidget(
+      {required this.isFocused,
+      required this.title,
+      required this.subtitle,
+      required this.icon,
+      required this.action});
 
   @override
   _ProfileItemWidgetState createState() => _ProfileItemWidgetState();
@@ -17,9 +22,9 @@ class _ProfileItemWidgetState extends State<ProfileItemWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap:widget.action!,
+      onTap: widget.action!,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 7,vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 7, vertical: 5),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -40,27 +45,25 @@ class _ProfileItemWidgetState extends State<ProfileItemWidget> {
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w400,
-                        fontSize: 11
-
-                    ),
+                        fontSize: 11),
                   ),
-                  SizedBox(height:3),
+                  SizedBox(height: 3),
                   Text(
                     widget.subtitle!,
                     style: TextStyle(
                         color: Colors.white70,
                         fontWeight: FontWeight.normal,
-                        fontSize: 10
-                    ),
+                        fontSize: 10),
                   ),
                 ],
               ),
             ),
-
           ],
         ),
         decoration: BoxDecoration(
-          color:  (widget.isFocused!)?Colors.black.withOpacity(0.5):Colors.white.withOpacity(0),
+          color: (widget.isFocused!)
+              ? Colors.black.withOpacity(0.5)
+              : Colors.white.withOpacity(0),
         ),
       ),
     );

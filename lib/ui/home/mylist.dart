@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/model/channel.dart' as model;
@@ -29,6 +30,7 @@ import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:flutter_app_tv/ui/channel/channels_widget.dart';
 import 'package:flutter_app_tv/ui/movie/movies_widget.dart';
 import 'package:flutter_app_tv/widget/navigation_widget.dart';
+import 'package:flutter_app_tv/widget/navigation_widget_mobile.dart';
 import 'package:flutter_app_tv/widget/slide_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:need_resume/need_resume.dart';
@@ -67,9 +69,10 @@ class _MyListState extends ResumableState<MyList> {
   bool _visibile_success = false;
   bool? logged;
   Image image = Image.asset("assets/images/profile.jpg");
+  bool isMobile = true;
   @override
   void initState() {
-    // TODO: implement initState
+    context.isMobile.then((value) => isMobile = value);
     super.initState();
     getLogged();
     Future.delayed(Duration.zero, () {
@@ -174,7 +177,7 @@ class _MyListState extends ResumableState<MyList> {
           if (event is KeyDownEvent) {
             final logicalKey = event.logicalKey;
             switch (logicalKey) {
-              case LogicalKeyboardKey.select:
+              case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                 _goToSearch();
                 _goToHome();
                 _goToMovies();
@@ -447,12 +450,21 @@ class _MyListState extends ResumableState<MyList> {
                   ),
                 ),
               ),
-            NavigationWidget(
-                postx: postx,
-                posty: posty,
-                selectedItem: 5,
-                image: image,
-                logged: logged),
+            // context.isPortrait
+            //     ? NavigationWidgetMobile(
+            //         postx: postx,
+            //         posty: posty,
+            //         selectedItem: 5,
+            //         image: image,
+            //         logged: logged)
+            //     :
+            if (!isMobile)
+              NavigationWidget(
+                  postx: postx,
+                  posty: posty,
+                  selectedItem: 5,
+                  image: image,
+                  logged: logged),
           ],
         ),
       ),

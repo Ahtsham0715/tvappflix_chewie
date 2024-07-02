@@ -141,7 +141,7 @@ class _SearchState extends State<Search> {
           if (event is KeyDownEvent) {
             final logicalKey = event.logicalKey;
             switch (logicalKey) {
-              case LogicalKeyboardKey.select:
+              case (LogicalKeyboardKey.select || LogicalKeyboardKey.enter):
                 _tryAgain();
                 _goToMovieDetail();
                 _goToChannelDetail();

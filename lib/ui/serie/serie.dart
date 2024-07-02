@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/actor.dart';
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
@@ -92,10 +93,10 @@ class _SerieState extends State<Serie> {
   bool my_list_loading = false;
 
   String? subscribed = "FALSE";
-
+  bool isMobile = true;
   @override
   void initState() {
-    // TODO: implement initState
+    context.isMobile.then((value) => isMobile = value);
     super.initState();
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(movie_focus_node);
@@ -463,23 +464,18 @@ class _SerieState extends State<Serie> {
                           case 0:
                             return Container(
                               padding: EdgeInsets.only(
-                                  left: 50, right: 50, bottom: 20, top: 100),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          ClipRRect(
+                                  left: context.isPortrait ? 10 : 50,
+                                  right: context.isPortrait ? 10 : 50,
+                                  bottom: 20,
+                                  top: isMobile ? 50 : 100),
+                              child: isMobile
+                                  ? Column(
+                                      children: [
+                                        SizedBox(
+                                          height: 200,
+                                          // width:
+                                          //     MediaQuery.of(context).size.width,
+                                          child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(5),
                                               child: CachedNetworkImage(
@@ -489,327 +485,253 @@ class _SerieState extends State<Serie> {
                                                         Icon(Icons.error),
                                                 fit: BoxFit.cover,
                                               )),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Container(
-                                      padding: EdgeInsets.only(left: 20),
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.max,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            widget.serie!.title,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 22,
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          SizedBox(height: 15),
-                                          Row(
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Container(
+                                          padding: EdgeInsets.only(
+                                              left:
+                                                  context.isPortrait ? 10 : 20),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                "${widget.serie!.rating}/5",
+                                                widget.serie!.title,
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 22,
+                                                    fontWeight:
+                                                        FontWeight.w900),
+                                              ),
+                                              SizedBox(height: 15),
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    "${widget.serie!.rating}/5",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w800),
+                                                  ),
+                                                  RatingBar.builder(
+                                                    initialRating: 3.5,
+                                                    minRating: 1,
+                                                    direction: Axis.horizontal,
+                                                    allowHalfRating: true,
+                                                    itemCount: 5,
+                                                    itemSize: 15.0,
+                                                    ignoreGestures: true,
+                                                    unratedColor: Colors.amber
+                                                        .withOpacity(0.4),
+                                                    itemPadding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 4.0),
+                                                    itemBuilder: (context, _) =>
+                                                        Icon(
+                                                      Icons.star,
+                                                      color: Colors.amber,
+                                                    ),
+                                                    onRatingUpdate: (rating) {},
+                                                  ),
+                                                  SizedBox(width: 10),
+                                                  Text(
+                                                    " •  ${widget.serie!.imdb} / 10 ",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w800),
+                                                  ),
+                                                  Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 2,
+                                                            horizontal: 5),
+                                                    decoration: BoxDecoration(
+                                                        color:
+                                                            Colors.orangeAccent,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(5)),
+                                                    child: Text(
+                                                      "IMDb",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w800),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                              SizedBox(height: 10),
+                                              Text(
+                                                "${widget.serie!.year} • ${widget.serie!.classification} • ${widget.serie!.duration} ${widget.genres}",
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 13,
                                                     fontWeight:
-                                                        FontWeight.w800),
+                                                        FontWeight.w900),
                                               ),
-                                              RatingBar.builder(
-                                                initialRating: 3.5,
-                                                minRating: 1,
-                                                direction: Axis.horizontal,
-                                                allowHalfRating: true,
-                                                itemCount: 5,
-                                                itemSize: 15.0,
-                                                ignoreGestures: true,
-                                                unratedColor: Colors.amber
-                                                    .withOpacity(0.4),
-                                                itemPadding:
-                                                    EdgeInsets.symmetric(
-                                                        horizontal: 4.0),
-                                                itemBuilder: (context, _) =>
-                                                    Icon(
-                                                  Icons.star,
-                                                  color: Colors.amber,
-                                                ),
-                                                onRatingUpdate: (rating) {},
-                                              ),
-                                              SizedBox(width: 10),
+                                              SizedBox(height: 10),
                                               Text(
-                                                " •  ${widget.serie!.imdb} / 10 ",
+                                                widget.serie!.description,
                                                 style: TextStyle(
-                                                    color: Colors.white,
+                                                    color: Colors.white60,
                                                     fontSize: 11,
+                                                    height: 1.5,
                                                     fontWeight:
-                                                        FontWeight.w800),
+                                                        FontWeight.normal),
                                               ),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    vertical: 2, horizontal: 5),
-                                                decoration: BoxDecoration(
-                                                    color: Colors.orangeAccent,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5)),
-                                                child: Text(
-                                                  "IMDb",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.w800),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          SizedBox(height: 10),
-                                          Text(
-                                            "${widget.serie!.year} • ${widget.serie!.classification} • ${widget.serie!.duration} ${widget.genres}",
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 13,
-                                                fontWeight: FontWeight.w900),
-                                          ),
-                                          SizedBox(height: 10),
-                                          Text(
-                                            widget.serie!.description,
-                                            style: TextStyle(
-                                                color: Colors.white60,
-                                                fontSize: 11,
-                                                height: 1.5,
-                                                fontWeight: FontWeight.normal),
-                                          ),
-                                          SizedBox(height: 10),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  if (seasons.length > 0)
-                                                    if (seasons[0]
-                                                            .episodes
-                                                            .length >
-                                                        0)
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            posty = 0;
-                                                            postx = 0;
-                                                            Future.delayed(
-                                                                Duration(
-                                                                    milliseconds:
-                                                                        100),
-                                                                () {
-                                                              _goToPlayer();
-                                                            });
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          height: 35,
-                                                          padding: EdgeInsets
-                                                              .symmetric(
-                                                                  horizontal:
-                                                                      5),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            border: Border.all(
-                                                                color: Colors
-                                                                    .white,
-                                                                width: 0.3),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        5),
-                                                            color: (postx ==
-                                                                        0 &&
-                                                                    posty == 0)
-                                                                ? Colors.white
-                                                                : Colors
-                                                                    .white30,
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Container(
+                                              SizedBox(height: 10),
+                                              SingleChildScrollView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: [
+                                                    Row(
+                                                      children: [
+                                                        if (seasons.length > 0)
+                                                          if (seasons[0]
+                                                                  .episodes
+                                                                  .length >
+                                                              0)
+                                                            GestureDetector(
+                                                              onTap: () {
+                                                                setState(() {
+                                                                  posty = 0;
+                                                                  postx = 0;
+                                                                  Future.delayed(
+                                                                      Duration(
+                                                                          milliseconds:
+                                                                              100),
+                                                                      () {
+                                                                    _goToPlayer();
+                                                                  });
+                                                                });
+                                                              },
+                                                              child: Container(
                                                                 height: 35,
-                                                                width: 35,
-                                                                child: Icon(
-                                                                  Icons
-                                                                      .play_arrow,
+                                                                padding: EdgeInsets
+                                                                    .symmetric(
+                                                                        horizontal:
+                                                                            5),
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  border: Border.all(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      width:
+                                                                          0.3),
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              5),
                                                                   color: (postx ==
                                                                               0 &&
                                                                           posty ==
                                                                               0)
                                                                       ? Colors
-                                                                          .black
+                                                                          .white
                                                                       : Colors
-                                                                          .white,
-                                                                  size: 18,
+                                                                          .white30,
+                                                                ),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Container(
+                                                                      height:
+                                                                          35,
+                                                                      width: 35,
+                                                                      child:
+                                                                          Icon(
+                                                                        Icons
+                                                                            .play_arrow,
+                                                                        color: (postx == 0 &&
+                                                                                posty == 0)
+                                                                            ? Colors.black
+                                                                            : Colors.white,
+                                                                        size:
+                                                                            18,
+                                                                      ),
+                                                                    ),
+                                                                    Text(
+                                                                        seasons[0].title +
+                                                                            " | " +
+                                                                            seasons[0]
+                                                                                .episodes[
+                                                                                    0]
+                                                                                .title,
+                                                                        style: TextStyle(
+                                                                            color: (postx == 0 && posty == 0)
+                                                                                ? Colors.black
+                                                                                : Colors.white,
+                                                                            fontSize: 11,
+                                                                            fontWeight: FontWeight.w500)),
+                                                                    SizedBox(
+                                                                        width:
+                                                                            5),
+                                                                  ],
                                                                 ),
                                                               ),
-                                                              Text(
-                                                                  seasons[
-                                                                              0]
-                                                                          .title +
-                                                                      " | " +
-                                                                      seasons[
-                                                                              0]
-                                                                          .episodes[
-                                                                              0]
-                                                                          .title,
-                                                                  style: TextStyle(
-                                                                      color: (postx == 0 &&
-                                                                              posty ==
-                                                                                  0)
-                                                                          ? Colors
-                                                                              .black
-                                                                          : Colors
-                                                                              .white,
-                                                                      fontSize:
-                                                                          11,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500)),
-                                                              SizedBox(
-                                                                  width: 5),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                  SizedBox(width: 5),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        posty = 0;
-                                                        postx = 1;
-                                                        Future.delayed(
-                                                            Duration(
-                                                                milliseconds:
-                                                                    100), () {
-                                                          _goToTrailer();
-                                                        });
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      height: 35,
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 5),
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 0.3),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
-                                                        color: (postx == 1 &&
-                                                                posty == 0)
-                                                            ? Colors.white
-                                                            : Colors.white30,
-                                                      ),
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
+                                                            ),
+                                                        SizedBox(width: 5),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              posty = 0;
+                                                              postx = 1;
+                                                              Future.delayed(
+                                                                  Duration(
+                                                                      milliseconds:
+                                                                          100),
+                                                                  () {
+                                                                _goToTrailer();
+                                                              });
+                                                            });
+                                                          },
+                                                          child: Container(
                                                             height: 35,
-                                                            width: 35,
-                                                            child: Icon(
-                                                              FontAwesomeIcons
-                                                                  .bullhorn,
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        5),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 0.3),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5),
                                                               color: (postx ==
                                                                           1 &&
                                                                       posty ==
                                                                           0)
-                                                                  ? Colors.black
+                                                                  ? Colors.white
                                                                   : Colors
-                                                                      .white,
-                                                              size: 11,
+                                                                      .white30,
                                                             ),
-                                                          ),
-                                                          Text("Watch Trailer",
-                                                              style: TextStyle(
-                                                                  color: (postx ==
-                                                                              1 &&
-                                                                          posty ==
-                                                                              0)
-                                                                      ? Colors
-                                                                          .black
-                                                                      : Colors
-                                                                          .white,
-                                                                  fontSize: 11,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500)),
-                                                          SizedBox(width: 5)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      print(
-                                                          visibileSourcesDialog);
-                                                      setState(() {
-                                                        posty = 0;
-                                                        postx = 2;
-                                                        _addMylist();
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      height: 35,
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 5),
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 0.3),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(3),
-                                                        color: (postx == 2 &&
-                                                                posty == 0)
-                                                            ? Colors.white
-                                                            : Colors.white30,
-                                                      ),
-                                                      child: Row(
-                                                        children: [
-                                                          (my_list_loading)
-                                                              ? Container(
-                                                                  padding:
-                                                                      EdgeInsets
-                                                                          .all(
-                                                                              9),
-                                                                  height: 28,
-                                                                  width: 28,
-                                                                  child:
-                                                                      Container(
-                                                                          child:
-                                                                              CircularProgressIndicator(
-                                                                    color: Colors
-                                                                        .black,
-                                                                    strokeWidth:
-                                                                        2,
-                                                                  )))
-                                                              : Container(
-                                                                  height: 28,
-                                                                  width: 28,
+                                                            child: Row(
+                                                              children: [
+                                                                Container(
+                                                                  height: 35,
+                                                                  width: 35,
                                                                   child: Icon(
-                                                                    (added)
-                                                                        ? FontAwesomeIcons
-                                                                            .solidTimesCircle
-                                                                        : FontAwesomeIcons
-                                                                            .plusCircle,
+                                                                    FontAwesomeIcons
+                                                                        .bullhorn,
                                                                     color: (postx ==
-                                                                                2 &&
+                                                                                1 &&
                                                                             posty ==
                                                                                 0)
                                                                         ? Colors
@@ -819,292 +741,1068 @@ class _SerieState extends State<Serie> {
                                                                     size: 11,
                                                                   ),
                                                                 ),
-                                                          (my_list_loading)
-                                                              ? Text(
-                                                                  "Loading ...",
-                                                                  style: TextStyle(
-                                                                      color: (postx == 2 &&
-                                                                              posty ==
-                                                                                  0)
-                                                                          ? Colors
-                                                                              .black
-                                                                          : Colors
-                                                                              .white,
-                                                                      fontSize:
-                                                                          11,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500))
-                                                              : Text(
-                                                                  (added)
-                                                                      ? "Remove from List"
-                                                                      : "Add to My List",
-                                                                  style: TextStyle(
-                                                                      color: (postx ==
-                                                                                  2 &&
-                                                                              posty ==
-                                                                                  0)
-                                                                          ? Colors
-                                                                              .black
-                                                                          : Colors
-                                                                              .white,
-                                                                      fontSize:
-                                                                          11,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .w500)),
-                                                          SizedBox(width: 5)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        posty = 0;
-                                                        postx = 3;
-                                                        Future.delayed(
-                                                            Duration(
-                                                                milliseconds:
-                                                                    100), () {
-                                                          _goToReview();
-                                                        });
-                                                      });
-                                                    },
-                                                    child: Container(
-                                                      height: 35,
-                                                      padding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 5),
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 0.3),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
-                                                        color: (postx == 3 &&
-                                                                posty == 0)
-                                                            ? Colors.white
-                                                            : Colors.white30,
-                                                      ),
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
+                                                                Text(
+                                                                    "Watch Trailer",
+                                                                    style: TextStyle(
+                                                                        color: (postx == 1 && posty == 0)
+                                                                            ? Colors
+                                                                                .black
+                                                                            : Colors
+                                                                                .white,
+                                                                        fontSize:
+                                                                            11,
+                                                                        fontWeight:
+                                                                            FontWeight.w500)),
+                                                                SizedBox(
+                                                                    width: 5)
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 5),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            print(
+                                                                visibileSourcesDialog);
+                                                            setState(() {
+                                                              posty = 0;
+                                                              postx = 2;
+                                                              _addMylist();
+                                                            });
+                                                          },
+                                                          child: Container(
                                                             height: 35,
-                                                            width: 35,
-                                                            child: Icon(
-                                                              FontAwesomeIcons
-                                                                  .starHalfAlt,
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        5),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 0.3),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          3),
+                                                              color: (postx ==
+                                                                          2 &&
+                                                                      posty ==
+                                                                          0)
+                                                                  ? Colors.white
+                                                                  : Colors
+                                                                      .white30,
+                                                            ),
+                                                            child: Row(
+                                                              children: [
+                                                                (my_list_loading)
+                                                                    ? Container(
+                                                                        padding:
+                                                                            EdgeInsets.all(
+                                                                                9),
+                                                                        height:
+                                                                            28,
+                                                                        width:
+                                                                            28,
+                                                                        child: Container(
+                                                                            child: CircularProgressIndicator(
+                                                                          color:
+                                                                              Colors.black,
+                                                                          strokeWidth:
+                                                                              2,
+                                                                        )))
+                                                                    : Container(
+                                                                        height:
+                                                                            28,
+                                                                        width:
+                                                                            28,
+                                                                        child:
+                                                                            Icon(
+                                                                          (added)
+                                                                              ? FontAwesomeIcons.solidTimesCircle
+                                                                              : FontAwesomeIcons.plusCircle,
+                                                                          color: (postx == 2 && posty == 0)
+                                                                              ? Colors.black
+                                                                              : Colors.white,
+                                                                          size:
+                                                                              11,
+                                                                        ),
+                                                                      ),
+                                                                (my_list_loading)
+                                                                    ? Text(
+                                                                        "Loading ...",
+                                                                        style: TextStyle(
+                                                                            color: (postx == 2 && posty == 0)
+                                                                                ? Colors
+                                                                                    .black
+                                                                                : Colors
+                                                                                    .white,
+                                                                            fontSize:
+                                                                                11,
+                                                                            fontWeight: FontWeight
+                                                                                .w500))
+                                                                    : Text(
+                                                                        (added)
+                                                                            ? "Remove from List"
+                                                                            : "Add to My List",
+                                                                        style: TextStyle(
+                                                                            color: (postx == 2 && posty == 0)
+                                                                                ? Colors.black
+                                                                                : Colors.white,
+                                                                            fontSize: 11,
+                                                                            fontWeight: FontWeight.w500)),
+                                                                SizedBox(
+                                                                    width: 5)
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 5),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              posty = 0;
+                                                              postx = 3;
+                                                              Future.delayed(
+                                                                  Duration(
+                                                                      milliseconds:
+                                                                          100),
+                                                                  () {
+                                                                _goToReview();
+                                                              });
+                                                            });
+                                                          },
+                                                          child: Container(
+                                                            height: 35,
+                                                            padding: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        5),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 0.3),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5),
                                                               color: (postx ==
                                                                           3 &&
                                                                       posty ==
                                                                           0)
-                                                                  ? Colors.black
+                                                                  ? Colors.white
                                                                   : Colors
-                                                                      .white,
-                                                              size: 11,
+                                                                      .white30,
                                                             ),
-                                                          ),
-                                                          Text("Rate Serie",
-                                                              style: TextStyle(
-                                                                  color: (postx ==
-                                                                              3 &&
-                                                                          posty ==
-                                                                              0)
-                                                                      ? Colors
-                                                                          .black
-                                                                      : Colors
-                                                                          .white,
-                                                                  fontSize: 11,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500)),
-                                                          SizedBox(width: 5)
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Row(
-                                                children: [
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        posty = 0;
-                                                        postx = 4;
-                                                        Future.delayed(
-                                                            Duration(
-                                                                milliseconds:
-                                                                    250), () {
-                                                          _goToComments();
-                                                        });
-                                                      });
-                                                    },
-                                                    child: AnimatedContainer(
-                                                      duration: Duration(
-                                                          milliseconds: 200),
-                                                      height: 35,
-                                                      width: (postx == 4 &&
-                                                              posty == 0)
-                                                          ? 98
-                                                          : 35.6,
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 0.3),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
-                                                        color: (postx == 4 &&
-                                                                posty == 0)
-                                                            ? Colors.white
-                                                            : Colors.white30,
-                                                      ),
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
-                                                            height: 35,
-                                                            width: 35,
-                                                            child: Icon(
-                                                              FontAwesomeIcons
-                                                                  .comments,
-                                                              color: (postx ==
-                                                                          4 &&
-                                                                      posty ==
-                                                                          0)
-                                                                  ? Colors.black
-                                                                  : Colors
-                                                                      .white,
-                                                              size: 11,
-                                                            ),
-                                                          ),
-                                                          Flexible(
-                                                            child: Visibility(
-                                                              visible: (postx ==
-                                                                      4 &&
-                                                                  posty == 0),
-                                                              child: Text(
-                                                                "Comments",
-                                                                style: TextStyle(
-                                                                    color: (postx == 4 &&
+                                                            child: Row(
+                                                              children: [
+                                                                Container(
+                                                                  height: 35,
+                                                                  width: 35,
+                                                                  child: Icon(
+                                                                    FontAwesomeIcons
+                                                                        .starHalfAlt,
+                                                                    color: (postx ==
+                                                                                3 &&
                                                                             posty ==
                                                                                 0)
                                                                         ? Colors
                                                                             .black
                                                                         : Colors
                                                                             .white,
-                                                                    fontSize:
-                                                                        11,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w500),
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                              ),
+                                                                    size: 11,
+                                                                  ),
+                                                                ),
+                                                                Text(
+                                                                    "Rate Serie",
+                                                                    style: TextStyle(
+                                                                        color: (postx == 3 && posty == 0)
+                                                                            ? Colors
+                                                                                .black
+                                                                            : Colors
+                                                                                .white,
+                                                                        fontSize:
+                                                                            11,
+                                                                        fontWeight:
+                                                                            FontWeight.w500)),
+                                                                SizedBox(
+                                                                    width: 5)
+                                                              ],
                                                             ),
                                                           ),
-                                                        ],
-                                                      ),
+                                                        ),
+                                                      ],
                                                     ),
-                                                  ),
-                                                  SizedBox(width: 5),
-                                                  GestureDetector(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        posty = 0;
-                                                        postx = 5;
-                                                        Future.delayed(
-                                                            Duration(
+                                                    Row(
+                                                      children: [
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              posty = 0;
+                                                              postx = 4;
+                                                              Future.delayed(
+                                                                  Duration(
+                                                                      milliseconds:
+                                                                          250),
+                                                                  () {
+                                                                _goToComments();
+                                                              });
+                                                            });
+                                                          },
+                                                          child:
+                                                              AnimatedContainer(
+                                                            duration: Duration(
                                                                 milliseconds:
-                                                                    250), () {
-                                                          _goToReviews();
-                                                        });
-                                                      });
-                                                    },
-                                                    child: AnimatedContainer(
-                                                      duration: Duration(
-                                                          milliseconds: 200),
-                                                      height: 35,
-                                                      width: (postx == 5 &&
-                                                              posty == 0)
-                                                          ? 88
-                                                          : 35.6,
-                                                      decoration: BoxDecoration(
-                                                        border: Border.all(
-                                                            color: Colors.white,
-                                                            width: 0.3),
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(5),
-                                                        color: (postx == 5 &&
-                                                                posty == 0)
-                                                            ? Colors.white
-                                                            : Colors.white30,
-                                                      ),
-                                                      child: Row(
-                                                        children: [
-                                                          Container(
+                                                                    200),
                                                             height: 35,
-                                                            width: 35,
-                                                            child: Icon(
-                                                              FontAwesomeIcons
-                                                                  .star,
+                                                            width: (postx ==
+                                                                        4 &&
+                                                                    posty == 0)
+                                                                ? 98
+                                                                : 35.6,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 0.3),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5),
+                                                              color: (postx ==
+                                                                          4 &&
+                                                                      posty ==
+                                                                          0)
+                                                                  ? Colors.white
+                                                                  : Colors
+                                                                      .white30,
+                                                            ),
+                                                            child: Row(
+                                                              children: [
+                                                                Container(
+                                                                  height: 35,
+                                                                  width: 35,
+                                                                  child: Icon(
+                                                                    FontAwesomeIcons
+                                                                        .comments,
+                                                                    color: (postx ==
+                                                                                4 &&
+                                                                            posty ==
+                                                                                0)
+                                                                        ? Colors
+                                                                            .black
+                                                                        : Colors
+                                                                            .white,
+                                                                    size: 11,
+                                                                  ),
+                                                                ),
+                                                                Flexible(
+                                                                  child:
+                                                                      Visibility(
+                                                                    visible: (postx ==
+                                                                            4 &&
+                                                                        posty ==
+                                                                            0),
+                                                                    child: Text(
+                                                                      "Comments",
+                                                                      style: TextStyle(
+                                                                          color: (postx == 4 && posty == 0)
+                                                                              ? Colors
+                                                                                  .black
+                                                                              : Colors
+                                                                                  .white,
+                                                                          fontSize:
+                                                                              11,
+                                                                          fontWeight:
+                                                                              FontWeight.w500),
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 5),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            setState(() {
+                                                              posty = 0;
+                                                              postx = 5;
+                                                              Future.delayed(
+                                                                  Duration(
+                                                                      milliseconds:
+                                                                          250),
+                                                                  () {
+                                                                _goToReviews();
+                                                              });
+                                                            });
+                                                          },
+                                                          child:
+                                                              AnimatedContainer(
+                                                            duration: Duration(
+                                                                milliseconds:
+                                                                    200),
+                                                            height: 35,
+                                                            width: (postx ==
+                                                                        5 &&
+                                                                    posty == 0)
+                                                                ? 88
+                                                                : 35.6,
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border: Border.all(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  width: 0.3),
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          5),
                                                               color: (postx ==
                                                                           5 &&
                                                                       posty ==
                                                                           0)
-                                                                  ? Colors.black
+                                                                  ? Colors.white
                                                                   : Colors
-                                                                      .white,
-                                                              size: 11,
+                                                                      .white30,
+                                                            ),
+                                                            child: Row(
+                                                              children: [
+                                                                Container(
+                                                                  height: 35,
+                                                                  width: 35,
+                                                                  child: Icon(
+                                                                    FontAwesomeIcons
+                                                                        .star,
+                                                                    color: (postx ==
+                                                                                5 &&
+                                                                            posty ==
+                                                                                0)
+                                                                        ? Colors
+                                                                            .black
+                                                                        : Colors
+                                                                            .white,
+                                                                    size: 11,
+                                                                  ),
+                                                                ),
+                                                                Flexible(
+                                                                  child:
+                                                                      Visibility(
+                                                                    visible: (postx ==
+                                                                            5 &&
+                                                                        posty ==
+                                                                            0),
+                                                                    child: Text(
+                                                                      "Reviews",
+                                                                      style:
+                                                                          TextStyle(
+                                                                        color: (postx == 5 &&
+                                                                                posty == 0)
+                                                                            ? Colors.black
+                                                                            : Colors.white,
+                                                                        fontSize:
+                                                                            11,
+                                                                        fontWeight:
+                                                                            FontWeight.w500,
+                                                                      ),
+                                                                      overflow:
+                                                                          TextOverflow
+                                                                              .ellipsis,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
                                                           ),
-                                                          Flexible(
-                                                            child: Visibility(
-                                                              visible: (postx ==
-                                                                      5 &&
-                                                                  posty == 0),
-                                                              child: Text(
-                                                                "Reviews",
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: (postx ==
-                                                                              5 &&
-                                                                          posty ==
-                                                                              0)
-                                                                      ? Colors
-                                                                          .black
-                                                                      : Colors
-                                                                          .white,
-                                                                  fontSize: 11,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w500,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Row(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Expanded(
+                                          flex: context.isPortrait ? 2 : 1,
+                                          child: Container(
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                    child: CachedNetworkImage(
+                                                      imageUrl:
+                                                          widget.serie!.image,
+                                                      errorWidget: (context,
+                                                              url, error) =>
+                                                          Icon(Icons.error),
+                                                      fit: BoxFit.contain,
+                                                    )),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 5,
+                                          child: Container(
+                                            padding: EdgeInsets.only(
+                                                left: context.isPortrait
+                                                    ? 10
+                                                    : 20),
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.max,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  widget.serie!.title,
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 22,
+                                                      fontWeight:
+                                                          FontWeight.w900),
+                                                ),
+                                                SizedBox(height: 15),
+                                                Row(
+                                                  children: [
+                                                    Text(
+                                                      "${widget.serie!.rating}/5",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 13,
+                                                          fontWeight:
+                                                              FontWeight.w800),
+                                                    ),
+                                                    RatingBar.builder(
+                                                      initialRating: 3.5,
+                                                      minRating: 1,
+                                                      direction:
+                                                          Axis.horizontal,
+                                                      allowHalfRating: true,
+                                                      itemCount: 5,
+                                                      itemSize: 15.0,
+                                                      ignoreGestures: true,
+                                                      unratedColor: Colors.amber
+                                                          .withOpacity(0.4),
+                                                      itemPadding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 4.0),
+                                                      itemBuilder:
+                                                          (context, _) => Icon(
+                                                        Icons.star,
+                                                        color: Colors.amber,
+                                                      ),
+                                                      onRatingUpdate:
+                                                          (rating) {},
+                                                    ),
+                                                    SizedBox(width: 10),
+                                                    Text(
+                                                      " •  ${widget.serie!.imdb} / 10 ",
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w800),
+                                                    ),
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              vertical: 2,
+                                                              horizontal: 5),
+                                                      decoration: BoxDecoration(
+                                                          color: Colors
+                                                              .orangeAccent,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5)),
+                                                      child: Text(
+                                                        "IMDb",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w800),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                                SizedBox(height: 10),
+                                                Text(
+                                                  "${widget.serie!.year} • ${widget.serie!.classification} • ${widget.serie!.duration} ${widget.genres}",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 13,
+                                                      fontWeight:
+                                                          FontWeight.w900),
+                                                ),
+                                                SizedBox(height: 10),
+                                                Text(
+                                                  widget.serie!.description,
+                                                  style: TextStyle(
+                                                      color: Colors.white60,
+                                                      fontSize: 11,
+                                                      height: 1.5,
+                                                      fontWeight:
+                                                          FontWeight.normal),
+                                                ),
+                                                SizedBox(height: 10),
+                                                SingleChildScrollView(
+                                                  scrollDirection:
+                                                      Axis.horizontal,
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          if (seasons.length >
+                                                              0)
+                                                            if (seasons[0]
+                                                                    .episodes
+                                                                    .length >
+                                                                0)
+                                                              GestureDetector(
+                                                                onTap: () {
+                                                                  setState(() {
+                                                                    posty = 0;
+                                                                    postx = 0;
+                                                                    Future.delayed(
+                                                                        Duration(
+                                                                            milliseconds:
+                                                                                100),
+                                                                        () {
+                                                                      _goToPlayer();
+                                                                    });
+                                                                  });
+                                                                },
+                                                                child:
+                                                                    Container(
+                                                                  height: 35,
+                                                                  padding: EdgeInsets
+                                                                      .symmetric(
+                                                                          horizontal:
+                                                                              5),
+                                                                  decoration:
+                                                                      BoxDecoration(
+                                                                    border: Border.all(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        width:
+                                                                            0.3),
+                                                                    borderRadius:
+                                                                        BorderRadius
+                                                                            .circular(5),
+                                                                    color: (postx ==
+                                                                                0 &&
+                                                                            posty ==
+                                                                                0)
+                                                                        ? Colors
+                                                                            .white
+                                                                        : Colors
+                                                                            .white30,
+                                                                  ),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      Container(
+                                                                        height:
+                                                                            35,
+                                                                        width:
+                                                                            35,
+                                                                        child:
+                                                                            Icon(
+                                                                          Icons
+                                                                              .play_arrow,
+                                                                          color: (postx == 0 && posty == 0)
+                                                                              ? Colors.black
+                                                                              : Colors.white,
+                                                                          size:
+                                                                              18,
+                                                                        ),
+                                                                      ),
+                                                                      Text(seasons[0].title + " | " + seasons[0].episodes[0].title,
+                                                                          style: TextStyle(
+                                                                              color: (postx == 0 && posty == 0) ? Colors.black : Colors.white,
+                                                                              fontSize: 11,
+                                                                              fontWeight: FontWeight.w500)),
+                                                                      SizedBox(
+                                                                          width:
+                                                                              5),
+                                                                    ],
+                                                                  ),
                                                                 ),
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
+                                                              ),
+                                                          SizedBox(width: 5),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                posty = 0;
+                                                                postx = 1;
+                                                                Future.delayed(
+                                                                    Duration(
+                                                                        milliseconds:
+                                                                            100),
+                                                                    () {
+                                                                  _goToTrailer();
+                                                                });
+                                                              });
+                                                            },
+                                                            child: Container(
+                                                              height: 35,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          5),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: 0.3),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5),
+                                                                color: (postx ==
+                                                                            1 &&
+                                                                        posty ==
+                                                                            0)
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .white30,
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    height: 35,
+                                                                    width: 35,
+                                                                    child: Icon(
+                                                                      FontAwesomeIcons
+                                                                          .bullhorn,
+                                                                      color: (postx == 1 &&
+                                                                              posty ==
+                                                                                  0)
+                                                                          ? Colors
+                                                                              .black
+                                                                          : Colors
+                                                                              .white,
+                                                                      size: 11,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                      "Watch Trailer",
+                                                                      style: TextStyle(
+                                                                          color: (postx == 1 && posty == 0)
+                                                                              ? Colors
+                                                                                  .black
+                                                                              : Colors
+                                                                                  .white,
+                                                                          fontSize:
+                                                                              11,
+                                                                          fontWeight:
+                                                                              FontWeight.w500)),
+                                                                  SizedBox(
+                                                                      width: 5)
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              print(
+                                                                  visibileSourcesDialog);
+                                                              setState(() {
+                                                                posty = 0;
+                                                                postx = 2;
+                                                                _addMylist();
+                                                              });
+                                                            },
+                                                            child: Container(
+                                                              height: 35,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          5),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: 0.3),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            3),
+                                                                color: (postx ==
+                                                                            2 &&
+                                                                        posty ==
+                                                                            0)
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .white30,
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  (my_list_loading)
+                                                                      ? Container(
+                                                                          padding: EdgeInsets.all(
+                                                                              9),
+                                                                          height:
+                                                                              28,
+                                                                          width:
+                                                                              28,
+                                                                          child: Container(
+                                                                              child: CircularProgressIndicator(
+                                                                            color:
+                                                                                Colors.black,
+                                                                            strokeWidth:
+                                                                                2,
+                                                                          )))
+                                                                      : Container(
+                                                                          height:
+                                                                              28,
+                                                                          width:
+                                                                              28,
+                                                                          child:
+                                                                              Icon(
+                                                                            (added)
+                                                                                ? FontAwesomeIcons.solidTimesCircle
+                                                                                : FontAwesomeIcons.plusCircle,
+                                                                            color: (postx == 2 && posty == 0)
+                                                                                ? Colors.black
+                                                                                : Colors.white,
+                                                                            size:
+                                                                                11,
+                                                                          ),
+                                                                        ),
+                                                                  (my_list_loading)
+                                                                      ? Text(
+                                                                          "Loading ...",
+                                                                          style: TextStyle(
+                                                                              color: (postx == 2 && posty == 0)
+                                                                                  ? Colors
+                                                                                      .black
+                                                                                  : Colors
+                                                                                      .white,
+                                                                              fontSize:
+                                                                                  11,
+                                                                              fontWeight: FontWeight
+                                                                                  .w500))
+                                                                      : Text(
+                                                                          (added)
+                                                                              ? "Remove from List"
+                                                                              : "Add to My List",
+                                                                          style: TextStyle(
+                                                                              color: (postx == 2 && posty == 0) ? Colors.black : Colors.white,
+                                                                              fontSize: 11,
+                                                                              fontWeight: FontWeight.w500)),
+                                                                  SizedBox(
+                                                                      width: 5)
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                posty = 0;
+                                                                postx = 3;
+                                                                Future.delayed(
+                                                                    Duration(
+                                                                        milliseconds:
+                                                                            100),
+                                                                    () {
+                                                                  _goToReview();
+                                                                });
+                                                              });
+                                                            },
+                                                            child: Container(
+                                                              height: 35,
+                                                              padding: EdgeInsets
+                                                                  .symmetric(
+                                                                      horizontal:
+                                                                          5),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: 0.3),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5),
+                                                                color: (postx ==
+                                                                            3 &&
+                                                                        posty ==
+                                                                            0)
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .white30,
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    height: 35,
+                                                                    width: 35,
+                                                                    child: Icon(
+                                                                      FontAwesomeIcons
+                                                                          .starHalfAlt,
+                                                                      color: (postx == 3 &&
+                                                                              posty ==
+                                                                                  0)
+                                                                          ? Colors
+                                                                              .black
+                                                                          : Colors
+                                                                              .white,
+                                                                      size: 11,
+                                                                    ),
+                                                                  ),
+                                                                  Text(
+                                                                      "Rate Serie",
+                                                                      style: TextStyle(
+                                                                          color: (postx == 3 && posty == 0)
+                                                                              ? Colors
+                                                                                  .black
+                                                                              : Colors
+                                                                                  .white,
+                                                                          fontSize:
+                                                                              11,
+                                                                          fontWeight:
+                                                                              FontWeight.w500)),
+                                                                  SizedBox(
+                                                                      width: 5)
+                                                                ],
                                                               ),
                                                             ),
                                                           ),
                                                         ],
                                                       ),
-                                                    ),
+                                                      Row(
+                                                        children: [
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                posty = 0;
+                                                                postx = 4;
+                                                                Future.delayed(
+                                                                    Duration(
+                                                                        milliseconds:
+                                                                            250),
+                                                                    () {
+                                                                  _goToComments();
+                                                                });
+                                                              });
+                                                            },
+                                                            child:
+                                                                AnimatedContainer(
+                                                              duration: Duration(
+                                                                  milliseconds:
+                                                                      200),
+                                                              height: 35,
+                                                              width: (postx ==
+                                                                          4 &&
+                                                                      posty ==
+                                                                          0)
+                                                                  ? 98
+                                                                  : 35.6,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: 0.3),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5),
+                                                                color: (postx ==
+                                                                            4 &&
+                                                                        posty ==
+                                                                            0)
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .white30,
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    height: 35,
+                                                                    width: 35,
+                                                                    child: Icon(
+                                                                      FontAwesomeIcons
+                                                                          .comments,
+                                                                      color: (postx == 4 &&
+                                                                              posty ==
+                                                                                  0)
+                                                                          ? Colors
+                                                                              .black
+                                                                          : Colors
+                                                                              .white,
+                                                                      size: 11,
+                                                                    ),
+                                                                  ),
+                                                                  Flexible(
+                                                                    child:
+                                                                        Visibility(
+                                                                      visible: (postx ==
+                                                                              4 &&
+                                                                          posty ==
+                                                                              0),
+                                                                      child:
+                                                                          Text(
+                                                                        "Comments",
+                                                                        style: TextStyle(
+                                                                            color: (postx == 4 && posty == 0)
+                                                                                ? Colors.black
+                                                                                : Colors.white,
+                                                                            fontSize: 11,
+                                                                            fontWeight: FontWeight.w500),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          SizedBox(width: 5),
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              setState(() {
+                                                                posty = 0;
+                                                                postx = 5;
+                                                                Future.delayed(
+                                                                    Duration(
+                                                                        milliseconds:
+                                                                            250),
+                                                                    () {
+                                                                  _goToReviews();
+                                                                });
+                                                              });
+                                                            },
+                                                            child:
+                                                                AnimatedContainer(
+                                                              duration: Duration(
+                                                                  milliseconds:
+                                                                      200),
+                                                              height: 35,
+                                                              width: (postx ==
+                                                                          5 &&
+                                                                      posty ==
+                                                                          0)
+                                                                  ? 88
+                                                                  : 35.6,
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                border: Border.all(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: 0.3),
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            5),
+                                                                color: (postx ==
+                                                                            5 &&
+                                                                        posty ==
+                                                                            0)
+                                                                    ? Colors
+                                                                        .white
+                                                                    : Colors
+                                                                        .white30,
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    height: 35,
+                                                                    width: 35,
+                                                                    child: Icon(
+                                                                      FontAwesomeIcons
+                                                                          .star,
+                                                                      color: (postx == 5 &&
+                                                                              posty ==
+                                                                                  0)
+                                                                          ? Colors
+                                                                              .black
+                                                                          : Colors
+                                                                              .white,
+                                                                      size: 11,
+                                                                    ),
+                                                                  ),
+                                                                  Flexible(
+                                                                    child:
+                                                                        Visibility(
+                                                                      visible: (postx ==
+                                                                              5 &&
+                                                                          posty ==
+                                                                              0),
+                                                                      child:
+                                                                          Text(
+                                                                        "Reviews",
+                                                                        style:
+                                                                            TextStyle(
+                                                                          color: (postx == 5 && posty == 0)
+                                                                              ? Colors.black
+                                                                              : Colors.white,
+                                                                          fontSize:
+                                                                              11,
+                                                                          fontWeight:
+                                                                              FontWeight.w500,
+                                                                        ),
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ],
                                                   ),
-                                                ],
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                  )
-                                ],
-                              ),
                             );
                             break;
                           case 1:
@@ -1113,7 +1811,8 @@ class _SerieState extends State<Serie> {
                             else if (seasons.length > 0)
                               return Container(
                                 height: 35,
-                                margin: EdgeInsets.only(bottom: 20),
+                                margin:
+                                    EdgeInsets.only(bottom: isMobile ? 5 : 20),
                                 child: ScrollConfiguration(
                                   behavior: MyBehavior(),
                                   child: ScrollablePositionedList.builder(
@@ -1141,7 +1840,11 @@ class _SerieState extends State<Serie> {
                                             padding: EdgeInsets.only(
                                                 left: 20, right: 20),
                                             margin: EdgeInsets.only(
-                                                left: (index == 0) ? 50 : 5,
+                                                left: (index == 0)
+                                                    ? context.isPortrait
+                                                        ? 20
+                                                        : 50
+                                                    : 5,
                                                 right: 5),
                                             decoration: BoxDecoration(
                                               borderRadius:
@@ -1192,8 +1895,9 @@ class _SerieState extends State<Serie> {
                               );
                             else
                               return Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 50, bottom: 10),
+                                padding: EdgeInsets.only(
+                                    left: context.isPortrait ? 5 : 50,
+                                    bottom: 10),
                                 child: Text(
                                   "No Seasons Available",
                                   style: TextStyle(
@@ -1208,8 +1912,9 @@ class _SerieState extends State<Serie> {
                           case 2:
                             if (seasons.length > 0)
                               return Container(
-                                height: 150,
-                                margin: EdgeInsets.only(bottom: 20),
+                                height: isMobile ? 200 : 100,
+                                margin:
+                                    EdgeInsets.only(bottom: isMobile ? 10 : 20),
                                 child: ScrollConfiguration(
                                   behavior: MyBehavior(),
                                   child: ScrollablePositionedList.builder(
@@ -1264,7 +1969,11 @@ class _SerieState extends State<Serie> {
                                                 ],
                                               ),
                                               margin: EdgeInsets.only(
-                                                  left: (index == 0) ? 50 : 5,
+                                                  left: (index == 0)
+                                                      ? context.isPortrait
+                                                          ? 20
+                                                          : 50
+                                                      : 5,
                                                   right: 5),
                                               child: Stack(
                                                 children: [
@@ -1402,8 +2111,9 @@ class _SerieState extends State<Serie> {
                               );
                             else
                               return Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 50, bottom: 10),
+                                padding: EdgeInsets.only(
+                                    left: context.isPortrait ? 5 : 50,
+                                    bottom: 10),
                                 child: Text(
                                   "No Episodes Available",
                                   style: TextStyle(
@@ -1414,16 +2124,17 @@ class _SerieState extends State<Serie> {
                                       fontWeight: FontWeight.w900),
                                 ),
                               );
-                            break;
+                          // break;
                           case 3:
                             return Container(
-                              padding: EdgeInsets.symmetric(vertical: 0),
+                              // padding: EdgeInsets.symmetric(vertical: 0),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.only(left: 50),
+                                    padding: EdgeInsets.only(
+                                        left: context.isPortrait ? 20 : 50),
                                     child: Text(
                                       "Full Cast & Crew",
                                       style: TextStyle(

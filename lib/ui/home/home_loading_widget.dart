@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_tv/constants.dart';
 
-class HomeLoadingWidget extends StatelessWidget {
+class HomeLoadingWidget extends StatefulWidget {
+  @override
+  State<HomeLoadingWidget> createState() => _HomeLoadingWidgetState();
+}
+
+class _HomeLoadingWidgetState extends State<HomeLoadingWidget> {
+  bool isMobile = true;
+  @override
+  void initState() {
+    context.isMobile.then((value) => isMobile = value);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Positioned(
       bottom: 0,
       left: 45,
       right: 45,
+      top: isMobile ? 150 : null,
       child: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height - 70,
