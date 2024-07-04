@@ -21,6 +21,13 @@ class CastWidget extends StatefulWidget {
 }
 
 class _CastWidgetState extends State<CastWidget> {
+  bool isMobile = true;
+  @override
+  void initState() {
+    context.isMobile.then((value) => isMobile = value);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -28,7 +35,9 @@ class _CastWidgetState extends State<CastWidget> {
           left: (widget.index == 0)
               ? context.isPortrait
                   ? 10
-                  : 50
+                  : isMobile && context.isLandscape
+                      ? 30
+                      : 50
               : 0,
           right: 10),
       child: Column(

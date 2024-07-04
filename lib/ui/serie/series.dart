@@ -8,6 +8,7 @@ import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/ui/auth/auth.dart';
 import 'package:flutter_app_tv/ui/auth/profile.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';
+import 'package:flutter_app_tv/ui/dialogs/filters_dialog.dart';
 import 'package:flutter_app_tv/ui/dialogs/genres_dialog.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
 import 'package:flutter_app_tv/ui/home/mylist.dart';
@@ -56,15 +57,26 @@ class _SeriesState extends ResumableState<Series> {
   int _focused_poster = 0;
   int _focused_genre = 0;
   int _selected_genre = 0;
+  int _focused_filter = 0;
+  int _selected_filter = 0;
   ItemScrollController _scrollController = ItemScrollController();
+  ItemScrollController _filtersScrollController = ItemScrollController();
   ItemScrollController _genresScrollController = ItemScrollController();
 
   List<ItemScrollController> _scrollControllers = [];
   List<int> _position_x_line_saver = [];
   List<int> _counts_x_line_saver = [];
   FocusNode home_focus_node = FocusNode();
-
+  List<String> filters = [
+    'Newest',
+    'Views',
+    'Rating',
+    'Imdb Rating',
+    'Title',
+    'Year',
+  ];
   bool _visibile_genres_dialog = false;
+  bool _visibile_filters_dialog = false;
   bool _visibile_loading = false;
   bool _visibile_error = false;
   bool _visibile_success = false;
@@ -468,39 +480,42 @@ class _SeriesState extends ResumableState<Series> {
                   AnimatedPositioned(
                       top: (posty < 0)
                           ? isMobile && context.isLandscape
-                              ? 30
+                              ? -5
                               : context.isPortrait
                                   ? 20
                                   : 70
-                          : 40,
+                          : isMobile && context.isLandscape
+                              ? -5
+                              : 40, // 40
                       left: 0,
                       right: 0,
                       duration: Duration(milliseconds: 200),
                       child: MovieShortDetailMiniWidget(
                           movie: series[_focused_poster])),
-                Positioned(
-                  top: 10,
-                  left: 45,
-                  right: 45,
-                  child: AnimatedOpacity(
-                    opacity: (posty < 0) ? 0 : 1,
-                    duration: Duration(milliseconds: 200),
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          posty = -1;
-                        });
-                      },
-                      child: Container(
-                        child: Icon(
-                          Icons.keyboard_arrow_up,
-                          color: Colors.white,
-                          size: 30,
+                if (!context.isLandscape)
+                  Positioned(
+                    top: 10,
+                    left: 45,
+                    right: 45,
+                    child: AnimatedOpacity(
+                      opacity: (posty < 0) ? 0 : 1,
+                      duration: Duration(milliseconds: 200),
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            posty = -1;
+                          });
+                        },
+                        child: Container(
+                          child: Icon(
+                            Icons.keyboard_arrow_up,
+                            color: Colors.white,
+                            size: 30,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
                 if (_visibile_success)
                   AnimatedPositioned(
                     bottom: 0,
@@ -508,7 +523,7 @@ class _SeriesState extends ResumableState<Series> {
                     right: 0,
                     duration: Duration(milliseconds: 200),
                     height: isMobile && context.isLandscape
-                        ? (MediaQuery.of(context).size.height / 6.5) + 25
+                        ? (MediaQuery.of(context).size.height / 3.6) + 25
                         : context.isPortrait
                             ? (MediaQuery.of(context).size.height / 1.8) + 5
                             : (posty < 0)
@@ -518,65 +533,96 @@ class _SeriesState extends ResumableState<Series> {
                       children: [
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: context.isPortrait ? 25 : 45),
+                              horizontal: context.isPortrait ? 15 : 45),
                           height: 60,
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      posty = -1;
-                                      postx = 0;
-                                      Future.delayed(Duration(milliseconds: 50),
-                                          () {
-                                        _showGenresDialog();
-                                      });
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisSize: MainAxisSize.max,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    posty = -1;
+                                    postx = 0;
+                                    Future.delayed(Duration(milliseconds: 50),
+                                        () {
+                                      _showGenresDialog();
                                     });
-                                  },
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 10),
-                                    margin: EdgeInsets.symmetric(
-                                      vertical: 7,
-                                      // horizontal: 10,
-                                    ),
-                                    height: 50,
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          genres[_selected_genre].title,
-                                          style: TextStyle(
-                                              color: (posty == -1 && postx == 0)
-                                                  ? Colors.black
-                                                  : Colors.white70,
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w700),
-                                        ),
-                                        Icon(
-                                          Icons.arrow_drop_down,
-                                          color: (posty == -1 && postx == 0)
-                                              ? Colors.black
-                                              : Colors.white70,
-                                          size: 30,
-                                        ),
-                                      ],
-                                    ),
-                                    decoration: BoxDecoration(
-                                        color: (posty == -1 && postx == 0)
-                                            ? Colors.white
-                                            : Colors.transparent,
-                                        border: Border.all(
-                                            color: Colors.white70, width: 2),
-                                        borderRadius: BorderRadius.circular(5)),
+                                  });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  margin: EdgeInsets.symmetric(
+                                    vertical: 7,
+                                    // horizontal: 10,
                                   ),
+                                  height: 50,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        genres[_selected_genre].title,
+                                        style: TextStyle(
+                                            color: (posty == -1 && postx == 0)
+                                                ? Colors.black
+                                                : Colors.white70,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w700),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_drop_down,
+                                        color: (posty == -1 && postx == 0)
+                                            ? Colors.black
+                                            : Colors.white70,
+                                        size: 30,
+                                      ),
+                                    ],
+                                  ),
+                                  decoration: BoxDecoration(
+                                      color: (posty == -1 && postx == 0)
+                                          ? Colors.white
+                                          : Colors.transparent,
+                                      border: Border.all(
+                                          color: Colors.white70, width: 2),
+                                      borderRadius: BorderRadius.circular(5)),
                                 ),
+                              ),
+                              if (isMobile)
+                                Container(
+                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  margin: EdgeInsets.symmetric(vertical: 7),
+                                  height: 50,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        posty = -2;
+                                        postx = 0;
+                                        Future.delayed(
+                                            Duration(milliseconds: 50), () {
+                                          _showFiltersDialog();
+                                        });
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.menu,
+                                      color: (posty == -2 && postx == 0)
+                                          ? Colors.black
+                                          : Colors.white70,
+                                      size: 30,
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                      color: (posty == -2 && postx == 0)
+                                          ? Colors.white
+                                          : Colors.transparent,
+                                      border: Border.all(
+                                          color: Colors.white70, width: 2),
+                                      borderRadius: BorderRadius.circular(5)),
+                                ),
+                              if (!isMobile)
                                 SizedBox(
                                   width: 20,
                                 ),
+                              if (!isMobile)
                                 AnimatedOpacity(
                                   opacity: (posty == -1 && postx > 0) ? 1 : 0.8,
                                   duration: Duration(milliseconds: 250),
@@ -923,8 +969,7 @@ class _SeriesState extends ResumableState<Series> {
                                     ),
                                   ),
                                 )
-                              ],
-                            ),
+                            ],
                           ),
                         ),
                         Expanded(
@@ -959,6 +1004,14 @@ class _SeriesState extends ResumableState<Series> {
                     selected_genre: _selected_genre,
                     close: closeGenreDialog,
                     select: selectGenre),
+                FiltersDialog(
+                    genresScrollController: _filtersScrollController,
+                    visibile: _visibile_filters_dialog,
+                    genresList: filters,
+                    focused_genre: _focused_filter,
+                    selected_genre: selected_sort - 1,
+                    select: selectFilter,
+                    close: closeFilterDialog),
               ],
             ),
           ),
@@ -1037,6 +1090,29 @@ class _SeriesState extends ResumableState<Series> {
         );
       }
     }
+  }
+
+  void selectFilter(int selected_genre_pick) {
+    setState(() {
+      _focused_filter = selected_genre_pick;
+      Future.delayed(Duration(milliseconds: 200), () {
+        _selectedFilter();
+      });
+    });
+  }
+
+  void _selectedFilter() {
+    selected_sort = _focused_filter + 1;
+    setState(() {
+      _visibile_filters_dialog = false;
+    });
+    _getList();
+  }
+
+  void closeFilterDialog() {
+    setState(() {
+      _visibile_filters_dialog = false;
+    });
   }
 
   void _goToProfile() {
@@ -1127,6 +1203,21 @@ class _SeriesState extends ResumableState<Series> {
     }
   }
 
+  void _showFiltersDialog() {
+    if (posty == -2 && postx == 0) {
+      setState(() {
+        _visibile_filters_dialog = true;
+      });
+      Future.delayed(Duration(milliseconds: 100), () {
+        _filtersScrollController.scrollTo(
+            index: _selected_filter,
+            alignment: 0.43,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.easeInOutQuart);
+      });
+    }
+  }
+
   void _selectedGenre() {
     _selected_genre = _focused_genre;
     setState(() {
@@ -1145,7 +1236,7 @@ class _SeriesState extends ResumableState<Series> {
         children: [
           Container(
             padding:
-                EdgeInsets.symmetric(horizontal: context.isPortrait ? 25 : 40),
+                EdgeInsets.symmetric(horizontal: context.isPortrait ? 10 : 40),
             height: 150,
             width: double.infinity,
             child: ScrollablePositionedList.builder(

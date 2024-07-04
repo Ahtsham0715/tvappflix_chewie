@@ -532,7 +532,7 @@ class _ChannelsState extends ResumableState<Channels> {
                 AnimatedPositioned(
                     top: (posty < 0)
                         ? isMobile && context.isLandscape
-                            ? 0
+                            ? -10
                             : context.isPortrait
                                 ? 20
                                 : 70
@@ -572,7 +572,7 @@ class _ChannelsState extends ResumableState<Channels> {
                   right: 0,
                   duration: Duration(milliseconds: 200),
                   height: isMobile && context.isLandscape
-                      ? (MediaQuery.of(context).size.height / 5.5) + 25
+                      ? (MediaQuery.of(context).size.height / 4.5) + 25
                       : context.isPortrait
                           ? (MediaQuery.of(context).size.height / 2) + 20
                           : (posty < 0)
@@ -582,7 +582,7 @@ class _ChannelsState extends ResumableState<Channels> {
                     children: [
                       Container(
                         padding: EdgeInsets.only(
-                            left: context.isPortrait ? 30 : 45,
+                            left: context.isPortrait ? 15 : 45,
                             right: context.isPortrait ? 10 : 50),
                         height: 50,
                         child: SingleChildScrollView(
@@ -1177,7 +1177,7 @@ class _ChannelsState extends ResumableState<Channels> {
         children: [
           Container(
             padding: EdgeInsets.only(
-                left: context.isPortrait ? 30 : 45,
+                left: context.isPortrait ? 10 : 45,
                 right: context.isPortrait ? 10 : 45),
             height: 75,
             width: double.infinity,

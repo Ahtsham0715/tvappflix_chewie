@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/comment.dart';
 import 'package:flutter_app_tv/ui/auth/auth.dart';
 import 'package:flutter_app_tv/ui/comment/comment_add.dart';
@@ -202,7 +203,8 @@ class _CommentsState extends ResumableState<Comments> {
             if (widget.enabled!)
               Positioned(
                 right: MediaQuery.of(context).size.width / 3 + 20,
-                bottom: 20,
+                bottom: context.isPortrait ? null : 20,
+                top: context.isPortrait ? 250 : null,
                 child: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -248,8 +250,8 @@ class _CommentsState extends ResumableState<Comments> {
               ),
             Positioned(
               left: 0,
-              bottom: 0,
-              top: 0,
+              bottom: context.isPortrait ? null : 0,
+              top: context.isPortrait ? 330 : 0,
               child: Container(
                 padding: EdgeInsets.only(right: 0),
                 width: MediaQuery.of(context).size.width / 1.8,
@@ -278,7 +280,7 @@ class _CommentsState extends ResumableState<Comments> {
             Positioned(
               right: 0,
               bottom: 0,
-              top: 0,
+              top: context.isPortrait ? null : 0,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.blueGrey,
@@ -289,7 +291,12 @@ class _CommentsState extends ResumableState<Comments> {
                         blurRadius: 5),
                   ],
                 ),
-                width: MediaQuery.of(context).size.width / 3,
+                height: context.isPortrait
+                    ? MediaQuery.of(context).size.height * 0.5
+                    : double.infinity,
+                width: context.isPortrait
+                    ? MediaQuery.of(context).size.width
+                    : MediaQuery.of(context).size.width / 3,
                 child: Container(
                   width: double.infinity,
                   color: Colors.black45,

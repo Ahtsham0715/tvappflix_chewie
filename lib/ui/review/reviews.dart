@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/ui/home/home.dart' as mmm;
 import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/model/review.dart';
@@ -165,9 +166,9 @@ class _ReviewsState extends State<Reviews> {
               ),
             ),
             Positioned(
-              left: 0,
-              bottom: 0,
-              top: 0,
+              left: context.isPortrait ? 50 : 0,
+              bottom: context.isPortrait ? null : 0,
+              top: context.isPortrait ? 150 : 0,
               child: Container(
                 padding: EdgeInsets.only(right: 0),
                 width: MediaQuery.of(context).size.width / 1.8,
@@ -196,7 +197,7 @@ class _ReviewsState extends State<Reviews> {
             Positioned(
               right: 0,
               bottom: 0,
-              top: 0,
+              top: context.isPortrait ? null : 0,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.blueGrey,
@@ -207,7 +208,12 @@ class _ReviewsState extends State<Reviews> {
                         blurRadius: 5),
                   ],
                 ),
-                width: MediaQuery.of(context).size.width / 3,
+                height: context.isPortrait
+                    ? MediaQuery.of(context).size.height * 0.7
+                    : double.infinity,
+                width: context.isPortrait
+                    ? MediaQuery.of(context).size.width
+                    : MediaQuery.of(context).size.width / 3,
                 child: Container(
                   width: double.infinity,
                   color: Colors.black45,

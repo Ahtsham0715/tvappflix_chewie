@@ -35,7 +35,7 @@ class _MovieShortDetailMiniWidgetState
     return Container(
       width: MediaQuery.of(context).size.width,
       margin: EdgeInsets.only(
-          left: context.isPortrait ? 25 : 50,
+          left: context.isPortrait ? 15 : 50,
           right: context.isPortrait ? 0 : 50),
       child: Stack(
         children: [

@@ -474,11 +474,13 @@ class _MoviesState extends ResumableState<Movies> {
                   AnimatedPositioned(
                       top: (posty < 0)
                           ? isMobile && context.isLandscape
-                              ? 5
+                              ? -5
                               : context.isPortrait
                                   ? 10
                                   : 70
-                          : 40,
+                          : isMobile && context.isLandscape
+                              ? -5
+                              : 40,
                       left: 0,
                       right: 0,
                       duration: Duration(milliseconds: 200),
@@ -514,7 +516,7 @@ class _MoviesState extends ResumableState<Movies> {
                     right: 0,
                     duration: Duration(milliseconds: 200),
                     height: isMobile && context.isLandscape
-                        ? (MediaQuery.of(context).size.height / 4) + 25
+                        ? (MediaQuery.of(context).size.height / 3.6) + 25
                         : isMobile && context.isPortrait
                             ? (MediaQuery.of(context).size.height / 1.9) + 25
                             : (posty < 0)
@@ -524,7 +526,7 @@ class _MoviesState extends ResumableState<Movies> {
                       children: [
                         Container(
                           padding: EdgeInsets.symmetric(
-                              horizontal: context.isPortrait ? 25 : 45),
+                              horizontal: context.isPortrait ? 15 : 45),
                           height: 60,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1213,7 +1215,7 @@ class _MoviesState extends ResumableState<Movies> {
         children: [
           Container(
             padding:
-                EdgeInsets.symmetric(horizontal: context.isPortrait ? 25 : 40),
+                EdgeInsets.symmetric(horizontal: context.isPortrait ? 10 : 40),
             height: 150,
             width: double.infinity,
             child: ScrollablePositionedList.builder(

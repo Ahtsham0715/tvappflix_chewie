@@ -396,12 +396,18 @@ class _HomeState extends ResumableState<Home> {
               if (_visibile_success)
                 AnimatedPositioned(
                   bottom: isMobile ? null : 0,
-                  left: isMobile ? -30 : null,
+                  left: isMobile ? 2 : null,
                   right: 0,
-                  top: isMobile ? 200 : null,
+                  top: isMobile && context.isPortrait
+                      ? 200
+                      : isMobile && context.isLandscape
+                          ? 100
+                          : null,
                   duration: Duration(milliseconds: 200),
                   height: isMobile
-                      ? (MediaQuery.of(context).size.height / 1) - 20
+                      ? context.isLandscape
+                          ? (MediaQuery.of(context).size.height / 1.55) - 95
+                          : (MediaQuery.of(context).size.height / 1.46) - 95
                       : (posty < 0)
                           ? (MediaQuery.of(context).size.height / 2) - 70
                           : (MediaQuery.of(context).size.height / 2),

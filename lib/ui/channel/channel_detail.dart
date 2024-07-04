@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/category.dart';
 import 'package:flutter_app_tv/model/channel.dart';
 import 'package:flutter_app_tv/model/country.dart';
@@ -71,11 +72,11 @@ class _ChannelDetailState extends State<ChannelDetail> {
   bool my_list_loading = false;
 
   String subscribed = "FALSE";
-
+  bool isMobile = true;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    context.isMobile.then((value) => isMobile = value);
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(null);
       FocusScope.of(context).requestFocus(movie_focus_node);
@@ -338,137 +339,295 @@ class _ChannelDetailState extends State<ChannelDetail> {
                             case 0:
                               return Container(
                                 padding: EdgeInsets.only(
-                                    left: 50, right: 50, bottom: 20, top: 100),
+                                    left: isMobile && context.isPortrait
+                                        ? 10
+                                        : isMobile && context.isLandscape
+                                            ? 30
+                                            : 50,
+                                    right: isMobile ? 10 : 50,
+                                    bottom: 20,
+                                    top: isMobile
+                                        ? context.isPortrait
+                                            ? 70
+                                            : 40
+                                        : 100),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Row(
-                                      mainAxisSize: MainAxisSize.max,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          flex: 1,
-                                          child: Container(
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            5),
-                                                    child: CachedNetworkImage(
-                                                      imageUrl:
-                                                          widget.channel!.image,
-                                                      errorWidget: (context,
-                                                              url, error) =>
-                                                          Icon(Icons.error),
-                                                      fit: BoxFit.cover,
-                                                    )),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: Container(
-                                            padding: EdgeInsets.only(left: 20),
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.max,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  widget.channel!.title,
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.w900),
-                                                ),
-                                                SizedBox(height: 10),
-                                                Row(
+                                    isMobile
+                                        ? Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  child: CachedNetworkImage(
+                                                    imageUrl:
+                                                        widget.channel!.image,
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            Icon(Icons.error),
+                                                    fit: BoxFit.cover,
+                                                    width: double.infinity,
+                                                    height: 250,
+                                                  )),
+                                              Container(
+                                                padding: EdgeInsets.only(
+                                                    left: 0, top: 20),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.max,
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      widget.channel!.rating
-                                                          .toString(),
+                                                      widget.channel!.title,
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 20,
+                                                          fontWeight:
+                                                              FontWeight.w900),
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Row(
+                                                      children: [
+                                                        Text(
+                                                          widget.channel!.rating
+                                                              .toString(),
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 13,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w800),
+                                                        ),
+                                                        RatingBar.builder(
+                                                          initialRating: widget
+                                                              .channel!.rating!,
+                                                          minRating: 1,
+                                                          direction:
+                                                              Axis.horizontal,
+                                                          allowHalfRating: true,
+                                                          itemCount: 5,
+                                                          itemSize: 15.0,
+                                                          ignoreGestures: true,
+                                                          unratedColor: Colors
+                                                              .amber
+                                                              .withOpacity(0.4),
+                                                          itemPadding: EdgeInsets
+                                                              .symmetric(
+                                                                  horizontal:
+                                                                      4.0),
+                                                          itemBuilder:
+                                                              (context, _) =>
+                                                                  Icon(
+                                                            Icons.star,
+                                                            color: Colors.amber,
+                                                          ),
+                                                          onRatingUpdate:
+                                                              (rating) {
+                                                            print(rating);
+                                                          },
+                                                        ),
+                                                        SizedBox(width: 10),
+                                                        for (Country g in widget
+                                                            .channel!.countries)
+                                                          Container(
+                                                            child: Row(
+                                                              children: [
+                                                                Text(
+                                                                  " • ",
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .white,
+                                                                      fontSize:
+                                                                          20,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .w800),
+                                                                ),
+                                                                CachedNetworkImage(
+                                                                    imageUrl:
+                                                                        g.image,
+                                                                    width: 25),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 10),
+                                                    Text(
+                                                      " ${widget.channel!.classification}  ${widget.channel!.getCategoriesList()}",
                                                       style: TextStyle(
                                                           color: Colors.white,
                                                           fontSize: 13,
                                                           fontWeight:
-                                                              FontWeight.w800),
+                                                              FontWeight.w900),
                                                     ),
-                                                    RatingBar.builder(
-                                                      initialRating: widget
-                                                          .channel!.rating!,
-                                                      minRating: 1,
-                                                      direction:
-                                                          Axis.horizontal,
-                                                      allowHalfRating: true,
-                                                      itemCount: 5,
-                                                      itemSize: 15.0,
-                                                      ignoreGestures: true,
-                                                      unratedColor: Colors.amber
-                                                          .withOpacity(0.4),
-                                                      itemPadding:
-                                                          EdgeInsets.symmetric(
-                                                              horizontal: 4.0),
-                                                      itemBuilder:
-                                                          (context, _) => Icon(
-                                                        Icons.star,
-                                                        color: Colors.amber,
-                                                      ),
-                                                      onRatingUpdate: (rating) {
-                                                        print(rating);
-                                                      },
-                                                    ),
-                                                    SizedBox(width: 10),
-                                                    for (Country g in widget
-                                                        .channel!.countries)
-                                                      Container(
-                                                        child: Row(
-                                                          children: [
-                                                            Text(
-                                                              " • ",
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                  fontSize: 20,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w800),
-                                                            ),
-                                                            CachedNetworkImage(
-                                                                imageUrl:
-                                                                    g.image,
-                                                                width: 25),
-                                                          ],
-                                                        ),
-                                                      ),
                                                   ],
                                                 ),
-                                                SizedBox(height: 10),
-                                                Text(
-                                                  " ${widget.channel!.classification}  ${widget.channel!.getCategoriesList()}",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.w900),
+                                              )
+                                            ],
+                                          )
+                                        : Row(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                flex: 1,
+                                                child: Container(
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.end,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(5),
+                                                          child:
+                                                              CachedNetworkImage(
+                                                            imageUrl: widget
+                                                                .channel!.image,
+                                                            errorWidget:
+                                                                (context, url,
+                                                                        error) =>
+                                                                    Icon(Icons
+                                                                        .error),
+                                                            fit: BoxFit.cover,
+                                                          )),
+                                                    ],
+                                                  ),
                                                 ),
-                                              ],
-                                            ),
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: Container(
+                                                  padding:
+                                                      EdgeInsets.only(left: 20),
+                                                  child: Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        widget.channel!.title,
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 20,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w900),
+                                                      ),
+                                                      SizedBox(height: 10),
+                                                      Row(
+                                                        children: [
+                                                          Text(
+                                                            widget
+                                                                .channel!.rating
+                                                                .toString(),
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800),
+                                                          ),
+                                                          RatingBar.builder(
+                                                            initialRating:
+                                                                widget.channel!
+                                                                    .rating!,
+                                                            minRating: 1,
+                                                            direction:
+                                                                Axis.horizontal,
+                                                            allowHalfRating:
+                                                                true,
+                                                            itemCount: 5,
+                                                            itemSize: 15.0,
+                                                            ignoreGestures:
+                                                                true,
+                                                            unratedColor: Colors
+                                                                .amber
+                                                                .withOpacity(
+                                                                    0.4),
+                                                            itemPadding: EdgeInsets
+                                                                .symmetric(
+                                                                    horizontal:
+                                                                        4.0),
+                                                            itemBuilder:
+                                                                (context, _) =>
+                                                                    Icon(
+                                                              Icons.star,
+                                                              color:
+                                                                  Colors.amber,
+                                                            ),
+                                                            onRatingUpdate:
+                                                                (rating) {
+                                                              print(rating);
+                                                            },
+                                                          ),
+                                                          SizedBox(width: 10),
+                                                          for (Country g
+                                                              in widget.channel!
+                                                                  .countries)
+                                                            Container(
+                                                              child: Row(
+                                                                children: [
+                                                                  Text(
+                                                                    " • ",
+                                                                    style: TextStyle(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontSize:
+                                                                            20,
+                                                                        fontWeight:
+                                                                            FontWeight.w800),
+                                                                  ),
+                                                                  CachedNetworkImage(
+                                                                      imageUrl: g
+                                                                          .image,
+                                                                      width:
+                                                                          25),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(height: 10),
+                                                      Text(
+                                                        " ${widget.channel!.classification}  ${widget.channel!.getCategoriesList()}",
+                                                        style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w900),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            ],
                                           ),
-                                        )
-                                      ],
-                                    ),
                                     SizedBox(height: 20),
                                     Text(
                                       widget.channel!.description,

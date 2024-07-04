@@ -498,27 +498,38 @@ class _MovieState extends State<Movie> {
                           case 0:
                             return Container(
                               padding: EdgeInsets.only(
-                                  left: isMobile ? 10 : 50,
+                                  left: isMobile
+                                      ? 10
+                                      : isMobile && context.isLandscape
+                                          ? 30
+                                          : 50,
                                   right: isMobile ? 10 : 50,
                                   bottom: 20,
                                   top: isMobile ? 50 : 100),
                               child: isMobile
                                   ? Column(
                                       children: [
-                                        ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            child: CachedNetworkImage(
-                                              imageUrl: widget.movie!.image,
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      Icon(Icons.error),
-                                              fit: BoxFit.cover,
-                                              height: 200,
-                                              // width: MediaQuery.of(context)
-                                              //     .size
-                                              //     .width,
-                                            )),
+                                        SizedBox(
+                                          child: ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(5),
+                                              child: FittedBox(
+                                                child: CachedNetworkImage(
+                                                  imageUrl: widget.movie!.image,
+                                                  errorWidget:
+                                                      (context, url, error) =>
+                                                          Icon(Icons.error),
+                                                  fit: BoxFit.cover,
+                                                  // height: 200,
+                                                  // width: MediaQuery.of(context)
+                                                  //     .size
+                                                  //     .width,
+                                                  // height: double.infinity,
+                                                  // width: double.infinity,
+                                                  // fit: BoxFit.fill,
+                                                ),
+                                              )),
+                                        ),
                                         SizedBox(
                                           height: 10,
                                         ),
@@ -1884,7 +1895,11 @@ class _MovieState extends State<Movie> {
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.only(
-                                        left: context.isPortrait ? 10 : 50),
+                                        left: context.isPortrait
+                                            ? 10
+                                            : isMobile && context.isLandscape
+                                                ? 30
+                                                : 50),
                                     child: Text(
                                       "Full Cast & Crew",
                                       style: TextStyle(

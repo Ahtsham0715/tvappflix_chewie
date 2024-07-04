@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -177,9 +178,9 @@ class _ReviewAddState extends State<ReviewAdd> {
               ),
             ),
             Positioned(
-              left: 0,
-              bottom: 0,
-              top: 0,
+              left: context.isPortrait ? 50 : 0,
+              bottom: context.isPortrait ? null : 0,
+              top: context.isPortrait ? 250 : 0,
               child: Container(
                 padding: EdgeInsets.only(right: 0),
                 width: MediaQuery.of(context).size.width / 1.8,
@@ -207,8 +208,8 @@ class _ReviewAddState extends State<ReviewAdd> {
             ),
             Positioned(
               right: 0,
-              bottom: -5,
-              top: -5,
+              bottom: context.isPortrait ? 0 : -5,
+              top: context.isPortrait ? null : -5,
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.blueGrey,
@@ -219,7 +220,12 @@ class _ReviewAddState extends State<ReviewAdd> {
                         blurRadius: 5),
                   ],
                 ),
-                width: MediaQuery.of(context).size.width / 2.5,
+                height: context.isPortrait
+                    ? MediaQuery.of(context).size.height * 0.6
+                    : double.infinity,
+                width: context.isPortrait
+                    ? MediaQuery.of(context).size.width
+                    : MediaQuery.of(context).size.width / 2.5,
                 child: Container(
                   width: double.infinity,
                   padding: EdgeInsets.all(50),

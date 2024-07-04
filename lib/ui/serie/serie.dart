@@ -464,17 +464,29 @@ class _SerieState extends State<Serie> {
                           case 0:
                             return Container(
                               padding: EdgeInsets.only(
-                                  left: context.isPortrait ? 10 : 50,
+                                  left: context.isPortrait
+                                      ? 10
+                                      : isMobile && context.isLandscape
+                                          ? 30
+                                          : 50,
                                   right: context.isPortrait ? 10 : 50,
                                   bottom: 20,
-                                  top: isMobile ? 50 : 100),
+                                  top: isMobile
+                                      ? context.isLandscape
+                                          ? 40
+                                          : 50
+                                      : 100),
                               child: isMobile
                                   ? Column(
                                       children: [
                                         SizedBox(
-                                          height: 200,
-                                          // width:
-                                          //     MediaQuery.of(context).size.width,
+                                          // height:
+                                          //     context.isLandscape ? 250 : 200,
+                                          // width: context.isLandscape
+                                          //     ? MediaQuery.of(context)
+                                          //         .size
+                                          //         .width
+                                          //     : null,
                                           child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(5),
@@ -491,8 +503,12 @@ class _SerieState extends State<Serie> {
                                         ),
                                         Container(
                                           padding: EdgeInsets.only(
-                                              left:
-                                                  context.isPortrait ? 10 : 20),
+                                              left: context.isPortrait
+                                                  ? 10
+                                                  : isMobile &&
+                                                          context.isLandscape
+                                                      ? 0
+                                                      : 20),
                                           child: Column(
                                             mainAxisSize: MainAxisSize.max,
                                             mainAxisAlignment:
@@ -1843,7 +1859,11 @@ class _SerieState extends State<Serie> {
                                                 left: (index == 0)
                                                     ? context.isPortrait
                                                         ? 20
-                                                        : 50
+                                                        : isMobile &&
+                                                                context
+                                                                    .isLandscape
+                                                            ? 30
+                                                            : 50
                                                     : 5,
                                                 right: 5),
                                             decoration: BoxDecoration(
@@ -1972,7 +1992,11 @@ class _SerieState extends State<Serie> {
                                                   left: (index == 0)
                                                       ? context.isPortrait
                                                           ? 20
-                                                          : 50
+                                                          : isMobile &&
+                                                                  context
+                                                                      .isLandscape
+                                                              ? 30
+                                                              : 50
                                                       : 5,
                                                   right: 5),
                                               child: Stack(
@@ -2134,7 +2158,11 @@ class _SerieState extends State<Serie> {
                                 children: [
                                   Padding(
                                     padding: EdgeInsets.only(
-                                        left: context.isPortrait ? 20 : 50),
+                                        left: context.isPortrait
+                                            ? 20
+                                            : isMobile && context.isLandscape
+                                                ? 30
+                                                : 50),
                                     child: Text(
                                       "Full Cast & Crew",
                                       style: TextStyle(

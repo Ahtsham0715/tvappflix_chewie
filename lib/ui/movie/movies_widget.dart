@@ -30,6 +30,13 @@ class MoviesWidget extends StatefulWidget {
 }
 
 class _MoviesWidgetState extends State<MoviesWidget> {
+  bool isMobile = true;
+  @override
+  void initState() {
+    super.initState();
+    context.isMobile.then((value) => isMobile = value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -40,8 +47,13 @@ class _MoviesWidgetState extends State<MoviesWidget> {
         mainAxisSize: MainAxisSize.max,
         children: [
           Container(
-            padding:
-                EdgeInsets.only(left: context.isPortrait ? 10 : 50, bottom: 5),
+            padding: EdgeInsets.only(
+                left: context.isPortrait
+                    ? 15
+                    : isMobile && context.isLandscape
+                        ? 30
+                        : 50,
+                bottom: 5),
             height: 22,
             child: Text(
               widget.title!,
@@ -68,7 +80,9 @@ class _MoviesWidgetState extends State<MoviesWidget> {
                         left: (0 == index)
                             ? context.isPortrait
                                 ? 10
-                                : 40
+                                : isMobile && context.isLandscape
+                                    ? 25
+                                    : 40
                             : 0),
                     child: GestureDetector(
                         onTap: () {

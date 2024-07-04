@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/model/subscription.dart';
 import 'package:flutter_app_tv/ui/auth/subscription_item_widget.dart';
@@ -141,19 +144,20 @@ class _SubscriptionsState extends State<Subscriptions> {
                   placeholder: MemoryImage(kTransparentImage),
                   image: AssetImage("assets/images/background.jpeg"),
                   fit: BoxFit.cover),
-              // ClipRRect( // Clip it cleanly.
-              //   child: BackdropFilter(
-              //     filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-              //     child: Container(
-              //       color: Colors.black.withOpacity(0.1),
-              //       alignment: Alignment.center,
-              //     ),
-              //   ),
-              // ),
+              ClipRRect(
+                // Clip it cleanly.
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.1),
+                    alignment: Alignment.center,
+                  ),
+                ),
+              ),
               Positioned(
                 right: 0,
-                bottom: -5,
-                top: -5,
+                bottom: context.isPortrait ? 0 : -5,
+                top: context.isPortrait ? null : -5,
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.blueGrey,
@@ -164,7 +168,12 @@ class _SubscriptionsState extends State<Subscriptions> {
                           blurRadius: 5),
                     ],
                   ),
-                  width: MediaQuery.of(context).size.width / 2.5,
+                  height: context.isPortrait
+                      ? MediaQuery.of(context).size.height * 0.75
+                      : double.infinity,
+                  width: context.isPortrait
+                      ? MediaQuery.of(context).size.width
+                      : MediaQuery.of(context).size.width / 2.5,
                   child: Container(
                     width: double.infinity,
                     color: Colors.black54,
