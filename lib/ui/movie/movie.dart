@@ -520,7 +520,7 @@ class _MovieState extends State<Movie> {
                                                       (context, url, error) =>
                                                           Icon(Icons.error),
                                                   fit: BoxFit.cover,
-                                                  // height: 200,
+                                                  height: 200,
                                                   // width: MediaQuery.of(context)
                                                   //     .size
                                                   //     .width,

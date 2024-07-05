@@ -480,8 +480,8 @@ class _SerieState extends State<Serie> {
                                   ? Column(
                                       children: [
                                         SizedBox(
-                                          // height:
-                                          //     context.isLandscape ? 250 : 200,
+                                          height:
+                                              context.isLandscape ? 250 : 200,
                                           // width: context.isLandscape
                                           //     ? MediaQuery.of(context)
                                           //         .size
