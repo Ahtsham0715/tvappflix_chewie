@@ -43,6 +43,6 @@ jobs:
         - name: Push to Releases
           uses: ncipollo/release-action@v1
           with:
-            artifacts: "build/ios/iphoneos/Runner.app"
+            artifacts: "build/ios/iphoneos/app.ipa"
             tag: v1.0.${{ github.run_number }}
             token: ${{ secrets.TOKEN }}
