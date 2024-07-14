@@ -35,17 +35,17 @@ dependencies:
   flutter_math_fork: ^0.7.2
   provider: ^6.1.2
   transparent_image: ^2.0.1
-  chewie: ^1.8.1
+  # chewie: ^1.8.1
   video_player: ^2.8.6
   # pod_player: ^0.2.2
 
   cupertino_icons: ^1.0.0
-  subtitle_wrapper_package: ^2.2.1
+  # subtitle_wrapper_package: ^2.2.1
     # git:
     #   url: https://github.com/Ahtsham0715/flutter_subtitle_wrapper.git
     #   ref: main
-  flutter_vlc_player: #^7.4.1
-    path: flutter_vlc_player/flutter_vlc_player
+  flutter_vlc_player: ^7.4.2
+    # path: flutter_vlc_player/flutter_vlc_player
     # git:
     #   url: https://github.com/Ahtsham0715/flutter_vlc_player/tree/master/flutter_vlc_player.git
     #   ref: master
