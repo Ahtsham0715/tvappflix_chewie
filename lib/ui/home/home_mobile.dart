@@ -190,17 +190,17 @@ class _HomeMobileState extends State<HomeMobile> {
         backgroundColor: Colors.black,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
+            icon: Icon(Icons.home_outlined),
             label: 'Home',
             backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.movie),
+            icon: Icon(Icons.movie_creation_outlined),
             label: 'Movies',
             backgroundColor: Colors.black,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.movie_creation_sharp),
+            icon: Icon(Icons.ondemand_video_rounded),
             label: 'Shows',
             backgroundColor: Colors.black,
           ),

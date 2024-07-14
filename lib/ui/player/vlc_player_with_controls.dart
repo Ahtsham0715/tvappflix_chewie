@@ -493,7 +493,10 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                 controller: _controller,
                 aspectRatio: _aspectRatio,
                 virtualDisplay: true,
-                placeholder: const Center(child: CircularProgressIndicator()),
+                placeholder: const Center(
+                    child: CircularProgressIndicator(
+                  color: Colors.blue,
+                )),
               ),
             ),
           ),
@@ -564,7 +567,7 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                                 ),
                                 child: Slider(
                                   // focusNode: btnFocusNodes['seek_slider_btn'],
-                                  activeColor: Colors.redAccent,
+                                  activeColor: Colors.blue,
                                   inactiveColor: Colors.white70,
 
                                   value: sliderValue,
@@ -828,7 +831,7 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                                   child: Slider(
                                     // focusNode:
                                     //     btnFocusNodes['volume_slider_btn'],
-                                    activeColor: Colors.redAccent,
+                                    activeColor: Colors.blue,
                                     inactiveColor: Colors.white70,
                                     max: _overlayWidth,
                                     value: volumeValue,
