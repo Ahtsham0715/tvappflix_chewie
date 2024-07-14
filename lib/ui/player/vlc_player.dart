@@ -179,13 +179,13 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   void _setupDataSource(String url) async {
     // widget.sourcesList![index].url
     print('video url: ${url}');
-    int? savedPosition = await VideoStateSaver.getVideoState(key: url);
+    // int? savedPosition = await VideoStateSaver.getVideoState(key: url);
     // print(
     //     'savedPosition: $savedPosition url: ${widget.sourcesList![index].url}');
     _videoPlayerController = VlcPlayerController.network(
       url,
       hwAcc: HwAcc.auto,
-      startAt: Duration(milliseconds: savedPosition ?? 0),
+      // startAt: Duration(milliseconds: savedPosition ?? 0),
       options: VlcPlayerOptions(
           advanced: VlcAdvancedOptions([
             VlcAdvancedOptions.networkCaching(_networkCachingMs),
