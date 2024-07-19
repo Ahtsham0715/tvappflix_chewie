@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_tv/firebase_options.dart';
 
 import 'package:flutter_app_tv/ui/auth/login.dart';
 import 'package:flutter_app_tv/ui/channel/channel_detail.dart';
@@ -18,8 +19,11 @@ import 'package:wakelock_plus/wakelock_plus.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  WakelockPlus.enable();
+  // await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  // await WakelockPlus.enable();
 
   runApp(MyApp());
 }

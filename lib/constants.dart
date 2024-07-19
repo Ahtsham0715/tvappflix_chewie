@@ -1,4 +1,5 @@
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
@@ -11,12 +12,16 @@ extension DeviceTypeExtension on BuildContext {
     // final diagonalInInches = diagonalSize / mediaQuery.devicePixelRatio / 160;
 
     // return diagonalInInches > 40;
-    final deviceInfoPlugin = DeviceInfoPlugin();
-    final deviceInfo = await deviceInfoPlugin.deviceInfo;
-    final allInfo = deviceInfo.data;
+    if (!kIsWeb) {
+      final deviceInfoPlugin = DeviceInfoPlugin();
+      final deviceInfo = await deviceInfoPlugin.deviceInfo;
+      final allInfo = deviceInfo.data;
 
-    List<Object?> sysFeatures = allInfo['systemFeatures'];
-    return sysFeatures.contains('android.hardware.type.television');
+      List<Object?> sysFeatures = allInfo['systemFeatures'];
+      return sysFeatures.contains('android.hardware.type.television');
+    } else {
+      return true;
+    }
   }
 
   Future<bool> get isMobile async {
