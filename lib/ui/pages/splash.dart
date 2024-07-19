@@ -233,7 +233,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
             bottom: 0,
             child: Container(
               width: MediaQuery.of(context).size.width / 7,
-              color: Colors.deepOrangeAccent,
+              color: Colors.blue,
             ),
           ),
           AnimatedPositioned(
@@ -272,7 +272,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
             bottom: 0,
             child: Container(
               width: MediaQuery.of(context).size.width / 7,
-              color: Colors.deepPurple,
+              color: Colors.blue,
             ),
           ),
           AnimatedPositioned(
