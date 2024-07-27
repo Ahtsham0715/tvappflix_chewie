@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +15,17 @@ extension DeviceTypeExtension on BuildContext {
 
     // return diagonalInInches > 40;
     if (!kIsWeb) {
-      final deviceInfoPlugin = DeviceInfoPlugin();
+      if(Platform.isIOS){
+        return false;
+      }else{
+ final deviceInfoPlugin = DeviceInfoPlugin();
       final deviceInfo = await deviceInfoPlugin.deviceInfo;
       final allInfo = deviceInfo.data;
 
       List<Object?> sysFeatures = allInfo['systemFeatures'];
       return sysFeatures.contains('android.hardware.type.television');
+      }
+     
     } else {
       return true;
     }

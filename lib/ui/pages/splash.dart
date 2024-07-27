@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
@@ -136,7 +138,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
   redirect() async {
     if (can_redirect) {
       // print(sysFeatures.contains('android.hardware.type.television'));
-      if (await context.isMobile) {
+      if (await context.isMobile || Platform.isIOS) {
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
