@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:math';
-
+import 'dart:io';
 extension DeviceTypeExtension on BuildContext {
   Future<bool> get isTV async {
     // final mediaQuery = MediaQuery.of(this);
