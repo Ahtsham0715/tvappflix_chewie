@@ -65,7 +65,7 @@ class _HomeMobileState extends State<HomeMobile> {
           width: 100,
           child: Padding(
             padding: const EdgeInsets.all(0.0),
-            child: Image.asset("assets/images/logo.png"),
+            child: Image.asset("assets/tvappflix_mobile.png"),
           ),
         ),
         actions: [
