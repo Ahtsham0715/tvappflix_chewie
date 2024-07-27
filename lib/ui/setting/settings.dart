@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
@@ -118,6 +119,7 @@ class _SettingsState extends State<Settings> {
       },
       child: Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+         // appBar: Platform.isIOS ? AppBar(): null,
           body: Stack(
             children: [
               FadeInImage(
@@ -173,7 +175,14 @@ class _SettingsState extends State<Settings> {
                                 bottom: 10),
                             child: Row(
                               children: [
-                                Icon(Icons.settings,
+                                if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
+                                  SizedBox(width: 10.0,)
+,                                Icon(Icons.settings,
                                     color: Colors.white70, size: 35),
                                 SizedBox(width: 10),
                                 Text(

@@ -1,4 +1,5 @@
 import 'dart:convert' as convert;
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -470,6 +471,7 @@ class _MovieState extends State<Movie> {
           child: Container(
             child: Stack(
               children: [
+                
                 FadeInImage(
                     placeholder: MemoryImage(kTransparentImage),
                     image: CachedNetworkImageProvider(widget.movie!.cover),
@@ -509,26 +511,39 @@ class _MovieState extends State<Movie> {
                               child: isMobile
                                   ? Column(
                                       children: [
-                                        SizedBox(
-                                          child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              child: FittedBox(
-                                                child: CachedNetworkImage(
-                                                  imageUrl: widget.movie!.image,
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          Icon(Icons.error),
-                                                  fit: BoxFit.cover,
-                                                  height: 200,
-                                                  // width: MediaQuery.of(context)
-                                                  //     .size
-                                                  //     .width,
-                                                  // height: double.infinity,
-                                                  // width: double.infinity,
-                                                  // fit: BoxFit.fill,
-                                                ),
-                                              )),
+                                        Row(
+                                          
+                                          children: [
+                                          if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
+                                           if(Platform.isIOS)
+                                            SizedBox(width: 90,),
+                                            SizedBox(
+                                              child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  child: FittedBox(
+                                                    child: CachedNetworkImage(
+                                                      imageUrl: widget.movie!.image,
+                                                      errorWidget:
+                                                          (context, url, error) =>
+                                                              Icon(Icons.error),
+                                                      fit: BoxFit.cover,
+                                                      height: 200,
+                                                      // width: MediaQuery.of(context)
+                                                      //     .size
+                                                      //     .width,
+                                                      // height: double.infinity,
+                                                      // width: double.infinity,
+                                                      // fit: BoxFit.fill,
+                                                    ),
+                                                  )),
+                                            ),
+                                          ],
                                         ),
                                         SizedBox(
                                           height: 10,
