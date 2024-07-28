@@ -258,11 +258,11 @@ class _LoginState extends State<Login> {
                                            if(Platform.isIOS)
                                             SizedBox(width: 60,),
                           Center(
-                              child: Image.asset("assets/images/logo.png",
-                                  height: 40, color: Colors.white)),
+                              child: Image.asset("assets/tvappflix_mobile_t.png",
+                                  height: 70, color: Colors.white)),
                         ],
                       ),
-                      SizedBox(height: 40),
+                      SizedBox(height: 15),
                       Text(
                         "Sign in to your account !",
                         style: TextStyle(

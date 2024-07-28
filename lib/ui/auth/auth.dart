@@ -380,13 +380,13 @@ class _AuthState extends ResumableState<Auth> {
                                   child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
                                   SizedBox(width: 60,),
                        Center(
-                          child: Image.asset("assets/images/logo.png",
-                              height: 40, color: Colors.white)),
+                          child: Image.asset("assets/tvappflix_mobile_t.png",
+                              height: 70, color: Colors.white)),
                         ],
                       ),
                       SizedBox(height: 15.0,),
                       
-                      SizedBox(height: 40),
+                      // SizedBox(height: 40),
                       Text(
                         "Sign in now for free !",
                         style: TextStyle(

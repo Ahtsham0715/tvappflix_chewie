@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -153,6 +154,14 @@ class _ProfileState extends ResumableState<Profile> {
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
+                                     if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
+                                  if(Platform.isIOS)
+                                  SizedBox(width: 80.0,),
                                     Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(5),

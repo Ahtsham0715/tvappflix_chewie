@@ -288,9 +288,10 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
               child: AnimatedContainer(
                 duration: Duration(milliseconds: 200),
                 width: MediaQuery.of(context).size.width / 7,
-                color: Colors.deepOrangeAccent,
+                color: Colors.blue,
                 child: AnimatedContainer(
                   duration: Duration(milliseconds: 200),
+                  color: Colors.blue,
                   child: context.isPortrait
                       ? Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -355,7 +356,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                           children: [
                             Visibility(
                                 visible: _p_10,
-                                child: Image.asset("assets/images/logo.png",
+                                child: Image.asset("assets/images/tvappflix_mobile_t.png",
                                     width: 300, color: Colors.white)),
                             SizedBox(width: 20),
                             Visibility(

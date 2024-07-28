@@ -413,12 +413,17 @@ class _MyListState extends ResumableState<MyList> {
                 right: 0,
                 duration: Duration(milliseconds: 200),
                 height: (posty < 0)
-                    ? (MediaQuery.of(context).size.height / 2)
+
+                    ?
+                    context.isPortrait ?
+                     (MediaQuery.of(context).size.height / 3.5)
+:
+                     (MediaQuery.of(context).size.height / 2)
                     : (MediaQuery.of(context).size.height / 2) + 0,
                 child: Container(
                   height: (posty < 0)
                       ? (MediaQuery.of(context).size.height / 2)
-                      : (MediaQuery.of(context).size.height / 2) + 0,
+                      : (MediaQuery.of(context).size.height / 3) + 0,
                   child: ScrollConfiguration(
                     behavior:
                         MyBehavior(), // From this behaviour you can change the behaviour

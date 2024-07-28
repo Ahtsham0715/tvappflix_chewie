@@ -31,7 +31,7 @@ class _MovieShortDetailWidgetState extends State<MovieShortDetailWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(left: context.isPortrait ? 25 : 50, right: 50),
+      margin: EdgeInsets.only(left: context.isPortrait ? 15 : 50, right: context.isPortrait ? 0 :50),
       child: Stack(
         children: [
           if (widget.poster != null)
@@ -243,9 +243,24 @@ class _MovieShortDetailWidgetState extends State<MovieShortDetailWidget> {
                   });
                 }
               },
-              child: Container(
+              child:
+              context.isPortrait
+                  ? Container(
+                      height: 50,
+                      width: 50,
+                      child: Center(
+                          child: Icon(Icons.info_outline,
+                              size: 20, color: Colors.white)),
+                      decoration: BoxDecoration(
+                          border: Border(
+                              right:
+                                  BorderSide(width: 1, color: Colors.black12))),
+                    )
+                  : 
+               Container(
                 child: Row(
                   children: [
+                    
                     Container(
                       height: 35,
                       width: 35,

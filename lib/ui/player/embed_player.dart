@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -47,6 +49,13 @@ class _EmbedPlayerState extends State<EmbedPlayer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+       appBar: Platform.isIOS ? AppBar(
+        backgroundColor: Colors.black,
+        leading: InkWell(onTap: (){
+        Navigator.pop(context);
+      },child: Icon(
+        Icons.arrow_back_ios, color: Colors.white,size: 25.0,
+      ),),) : null,
       body: WebViewWidget(
         controller: _controller,
       ),

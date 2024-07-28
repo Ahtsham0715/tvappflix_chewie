@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -312,6 +313,14 @@ class _CommentsState extends ResumableState<Comments> {
                               top: 80.0, left: 10, bottom: 10),
                           child: Row(
                             children: [
+                               if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
+                                  if(Platform.isIOS)
+                                  SizedBox(width: 30.0,),
                               Icon(FontAwesomeIcons.solidComments,
                                   color: Colors.white70, size: 20),
                               SizedBox(width: 10),
