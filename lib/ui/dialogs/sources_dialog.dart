@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
@@ -80,6 +82,13 @@ class _SourcesDialogState extends State<SourcesDialog> {
                                 top: 80.0, left: 10, bottom: 10),
                             child: Row(
                               children: [
+                                if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, size: 25, color: Colors.white,),
+                                ),
                                 Icon(Icons.high_quality_sharp,
                                     color: Colors.white70, size: 35),
                                 SizedBox(width: 10),
