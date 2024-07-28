@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'dart:ui';
@@ -352,7 +354,7 @@ class _AuthState extends ResumableState<Auth> {
                   ],
                 ),
                 height: context.isPortrait
-                    ? MediaQuery.of(context).size.height * 0.5
+                    ? MediaQuery.of(context).size.height * 0.55
                     : double.infinity,
                 width: context.isPortrait
                     ? MediaQuery.of(context).size.width
@@ -366,9 +368,24 @@ class _AuthState extends ResumableState<Auth> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
+                                  SizedBox(width: 60,),
+                       Center(
                           child: Image.asset("assets/images/logo.png",
                               height: 40, color: Colors.white)),
+                        ],
+                      ),
+                      SizedBox(height: 15.0,),
+                      
                       SizedBox(height: 40),
                       Text(
                         "Sign in now for free !",

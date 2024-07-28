@@ -51,7 +51,7 @@
 
     <application
         android:usesCleartextTraffic="true"
-        android:name="${applicationName}"
+        android:name="FlixPlus"
         android:banner="@drawable/banner"
         android:icon="@mipmap/ic_launcher"
         android:label="TvFlix"

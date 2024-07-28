@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -479,24 +480,36 @@ class _SerieState extends State<Serie> {
                               child: isMobile
                                   ? Column(
                                       children: [
-                                        SizedBox(
-                                          height:
-                                              context.isLandscape ? 250 : 200,
-                                          // width: context.isLandscape
-                                          //     ? MediaQuery.of(context)
-                                          //         .size
-                                          //         .width
-                                          //     : null,
-                                          child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(5),
-                                              child: CachedNetworkImage(
-                                                imageUrl: widget.serie!.image,
-                                                errorWidget:
-                                                    (context, url, error) =>
-                                                        Icon(Icons.error),
-                                                fit: BoxFit.cover,
-                                              )),
+                                        Row(
+                                          children: [
+                                            if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
+                                           if(Platform.isIOS)
+                                            SizedBox(width: 90,),
+                                            SizedBox(
+                                              height:
+                                                  context.isLandscape ? 250 : 200,
+                                              // width: context.isLandscape
+                                              //     ? MediaQuery.of(context)
+                                              //         .size
+                                              //         .width
+                                              //     : null,
+                                              child: ClipRRect(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: widget.serie!.image,
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            Icon(Icons.error),
+                                                    fit: BoxFit.cover,
+                                                  )),
+                                            ),
+                                          ],
                                         ),
                                         SizedBox(
                                           height: 10,

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -386,13 +387,24 @@ class _ChannelDetailState extends State<ChannelDetail> {
                                                   crossAxisAlignment:
                                                       CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(
-                                                      widget.channel!.title,
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 20,
-                                                          fontWeight:
-                                                              FontWeight.w900),
+                                                    Row(
+                                                      children: [
+                                                        if(Platform.isIOS)
+                                InkWell(
+                                  onTap: (){
+                                    Navigator.pop(context);
+                                  },
+                                  child: Icon(Icons.arrow_back_ios, color: Colors.white70, size: 25)),
+                                           
+                                                        Text(
+                                                          widget.channel!.title,
+                                                          style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 20,
+                                                              fontWeight:
+                                                                  FontWeight.w900),
+                                                        ),
+                                                      ],
                                                     ),
                                                     SizedBox(height: 10),
                                                     Row(

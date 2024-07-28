@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -413,6 +414,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
+      appBar: Platform.isIOS ? AppBar(backgroundColor: Colors.black,) : null,
       extendBody: true,
       body: _videoPlayerController == null ||
               _videoPlayerController!.value.isBuffering
