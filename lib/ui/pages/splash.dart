@@ -296,8 +296,10 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
                           children: [
                             Visibility(
                                 visible: _p_10,
-                                child: Image.asset("assets/images/logo.png",
-                                    width: 300, color: Colors.white)),
+                                child: Image.asset(
+                                    "assets/tvappflix_mobile_t.png",
+                                    width: 300,
+                                    color: Colors.white)),
                             SizedBox(width: 20),
                             Visibility(
                               visible: _p_11,
