@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -848,6 +849,17 @@ class VlcPlayerWithControlsState extends State<VlcPlayerWithControls> {
                 ],
               ),
             ),
+          ),
+          if(Platform.isIOS)
+          Positioned(
+            top: 80.0,
+            left: 15.0,
+            // alignment: Alignment.topLeft,
+            child: InkWell(onTap: (){
+        Navigator.pop(context);
+      },child: Icon(
+        Icons.arrow_back_ios, color: Colors.white,size: 25.0,
+      ),),
           ),
         ],
       ),

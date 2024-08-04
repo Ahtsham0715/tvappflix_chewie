@@ -1,9 +1,11 @@
 import 'dart:convert' as convert;
+import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
+import 'package:flutter_app_tv/constants.dart';
 import 'package:flutter_app_tv/model/actor.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';
@@ -31,7 +33,7 @@ class _ActorDetailState extends State<ActorDetail> {
   ItemScrollController _moviesScrollController = ItemScrollController();
   bool _visibile_related_loading = true;
   List<Poster> movies = [];
-
+bool isMobile = false;
   @override
   void initState() {
     super.initState();
@@ -40,7 +42,15 @@ class _ActorDetailState extends State<ActorDetail> {
 
       _getMoviesList();
     });
+    getMobileVal();
   }
+
+Future getMobileVal() async {
+isMobile = await context.isMobile;
+    setState(() {
+      
+    });
+}
 
   void _getMoviesList() async {
     movies.clear();
@@ -151,12 +161,114 @@ class _ActorDetailState extends State<ActorDetail> {
                           case 0:
                             return Container(
                               padding: EdgeInsets.only(
-                                  left: 50, right: 50, bottom: 20, top: 100),
-                              child: Row(
+                                  left: isMobile ? 5: 50, right: isMobile ? 5:50, bottom: 20, top: 100),
+                              child: 
+                              isMobile ?
+                              Column(
+                                children: [
+                                  
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      if(Platform.isIOS)  SizedBox(width: 20.0,),
+                                      if(Platform.isIOS)
+                                      InkWell(onTap: (){
+                                              Navigator.pop(context);
+                                            },child: Icon(
+                                              Icons.arrow_back_ios, color: Colors.white,size: 25.0,
+                                            ),),
+                                          if(Platform.isIOS)  SizedBox(width: 80.0,),
+                                             Container(
+                                              height: 150,
+         child: ClipRRect(
+             borderRadius:
+                 BorderRadius.circular(5),
+             child: CachedNetworkImage(
+               imageUrl: widget.actor.image
+                   .replaceAll(
+                       "uploads/cache/actor_thumb/",
+                       ""),
+               errorWidget:
+                   (context, url, error) =>
+                       Icon(Icons.error),
+               fit: BoxFit.cover,
+             )),
+       ),
+              
+                                    ],
+                                  ),
+                          
+                                  Container(
+                                    padding: EdgeInsets.only(left: 20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.max,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          widget.actor.name.toUpperCase(),
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w900),
+                                        ),
+                                        SizedBox(height: 15),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              "${widget.actor.type}",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                  fontWeight:
+                                                      FontWeight.w800),
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              " •  ${widget.actor.born} ",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  fontWeight:
+                                                      FontWeight.w800),
+                                            ),
+                                            SizedBox(width: 5),
+                                            Text(
+                                              " •  ${widget.actor.height} ",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 11,
+                                                  fontWeight:
+                                                      FontWeight.w800),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(height: 10),
+                                        Text(
+                                          widget.actor.bio + widget.actor.bio,
+                                          style: TextStyle(
+                                              color: Colors.white60,
+                                              fontSize: 11,
+                                              height: 1.5,
+                                              fontWeight: FontWeight.normal),
+                                        ),
+                                        SizedBox(height: 10),
+                                      ],
+                                    ),
+                                  )
+                                
+                                ],
+                              ):
+                              Row(
                                 mainAxisSize: MainAxisSize.max,
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
+
                                   Expanded(
                                     flex: 1,
                                     child: Container(
@@ -249,6 +361,7 @@ class _ActorDetailState extends State<ActorDetail> {
                                       ),
                                     ),
                                   )
+                                
                                 ],
                               ),
                             );

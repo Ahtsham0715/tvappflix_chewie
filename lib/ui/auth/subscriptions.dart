@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -191,6 +192,13 @@ class _SubscriptionsState extends State<Subscriptions> {
                                 top: 80.0, left: 10, bottom: 10),
                             child: Row(
                               children: [
+                                if(Platform.isIOS)  InkWell(
+                            onTap: (){
+                              Navigator.pop(context);
+                            },
+child: Icon(Icons.arrow_back_ios, size: 30.0, color: Colors.white),
+                          ),
+                          if(Platform.isIOS)  SizedBox(width: 20.0,),
                                 Icon(Icons.star,
                                     color: Colors.white70, size: 35),
                                 SizedBox(width: 10),

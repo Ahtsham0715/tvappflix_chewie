@@ -75,7 +75,7 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
   //subtitl prfs
   int? subtitleTextColorPref;
   int? subtitleBackgroundColorPref;
-  int subtitleSizePref = 25;
+  int subtitleSizePref = 18;
   int currentVideoIndex = 0;
   @override
   void initState() {
@@ -414,13 +414,13 @@ class _VlcPlayerPageState extends State<VlcPlayerPage>
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
-      appBar: Platform.isIOS ? AppBar(
-        backgroundColor: Colors.black,
-        leading: InkWell(onTap: (){
-        Navigator.pop(context);
-      },child: Icon(
-        Icons.arrow_back_ios, color: Colors.white,size: 25.0,
-      ),),) : null,
+      // appBar: Platform.isIOS ? AppBar(
+      //   backgroundColor: Colors.black,
+      //   leading: InkWell(onTap: (){
+      //   Navigator.pop(context);
+      // },child: Icon(
+      //   Icons.arrow_back_ios, color: Colors.white,size: 25.0,
+      // ),),) : null,
       extendBody: true,
       body: _videoPlayerController == null ||
               _videoPlayerController!.value.isBuffering

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -227,9 +228,22 @@ class _EditState extends State<Edit> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Center(
-                          child: Image.asset("assets/images/logo.png",
-                              height: 40, color: Colors.white)),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          if(Platform.isIOS)  InkWell(
+                            onTap: (){
+                              Navigator.pop(context);
+                            },
+child: Icon(Icons.arrow_back_ios, size: 30.0, color: Colors.white),
+                          ),
+                          if(Platform.isIOS)  SizedBox(width: 80.0,),
+
+                          Center(
+                              child: Image.asset("assets/images/logo.png",
+                                  height: 40, color: Colors.white)),
+                        ],
+                      ),
                       SizedBox(height: 40),
                       Text(
                         "Edit your name",
